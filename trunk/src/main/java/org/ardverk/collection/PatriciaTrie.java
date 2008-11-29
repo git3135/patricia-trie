@@ -274,7 +274,8 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while(true) {
-            if (current.bitIndex >= toAdd.bitIndex || current.bitIndex <= path.bitIndex) {
+            if (current.bitIndex >= toAdd.bitIndex 
+                    || current.bitIndex <= path.bitIndex) {
                 toAdd.predecessor = toAdd;
                 
                 if (!isBitSet(toAdd.key, keyLength, toAdd.bitIndex)) {
@@ -312,17 +313,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
                 current = current.right;
             }
         }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<Map.Entry<K,V>> entrySet() {
-        if (entrySet == null) {
-            entrySet = new EntrySet();
-        }
-        return entrySet;
     }
     
     /**
@@ -562,8 +552,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
             throw new IllegalArgumentException(offset + " + " + length + " > " + length(key));
         }
         
-        if(offsetLength == 0)
+        if (offsetLength == 0) {
             return this;
+        }
         
         return new PrefixSubMap(key, offset, length);
     }
@@ -970,7 +961,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return nextEntryImpl(current.parent.right, previous, tree);
     }
     
-    /** Returns each entry as a string. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
@@ -1009,8 +1002,10 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return null;
     }
     
-    /** Returns true if 'next' is a valid uplink coming from 'from'. */
-    private boolean isValidUplink(TrieEntry<K, V> next, TrieEntry<K, V> from) {            
+    /** 
+     * Returns true if 'next' is a valid uplink coming from 'from'. 
+     */
+    private static boolean isValidUplink(TrieEntry<?, ?> next, TrieEntry<?, ?> from) { 
         return next != null && next.bitIndex <= from.bitIndex && !next.isEmpty();
     }
     
@@ -1386,7 +1381,20 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     private transient volatile Collection<V>        values = null;
     private transient volatile Set<Map.Entry<K,V>>  entrySet = null;
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Map.Entry<K,V>> entrySet() {
+        if (entrySet == null) {
+            entrySet = new EntrySet();
+        }
+        return entrySet;
+    }
+    
     private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
+        
+        @Override
         public Iterator<Map.Entry<K,V>> iterator() {
             return newEntryIterator();
         }
