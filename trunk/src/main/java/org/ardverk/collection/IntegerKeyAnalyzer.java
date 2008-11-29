@@ -35,7 +35,7 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public int length(Integer key) {
+    public int lengthInBits(Integer key) {
         return 32;
     }
 
@@ -43,7 +43,7 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(Integer key, int keyLength, int bitIndex) {
+    public boolean isBitSet(Integer key, int lengthInBits, int bitIndex) {
         return (key & BITS[bitIndex]) != 0;
     }
 
@@ -51,7 +51,7 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(Integer key,   int keyOff, int keyLength,
+    public int bitIndex(Integer key,   int keyOff, int lengthInBits,
                         Integer found, int foundOff, int foundKeyLength) {
         if (found == null)
             found = 0;
@@ -61,7 +61,7 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
 
         boolean allNull = true;
         
-        int length = Math.max(keyLength, foundKeyLength);
+        int length = Math.max(lengthInBits, foundKeyLength);
         
         for (int i = 0; i < length; i++) {
             int a = key & BITS[i];
@@ -103,13 +103,13 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Integer prefix, int offset, int length, Integer key) {
+    public boolean isPrefix(Integer prefix, int offset, int lengthInBits, Integer key) {
         int addr1 = prefix;
         int addr2 = key;
         addr1 = addr1 << offset;
         
         int mask = 0;
-        for(int i = 0; i < length; i++) {
+        for(int i = 0; i < lengthInBits; i++) {
             mask |= (0x1 << i);
         }
         
