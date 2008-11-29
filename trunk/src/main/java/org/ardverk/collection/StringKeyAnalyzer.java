@@ -20,7 +20,7 @@ package org.ardverk.collection;
 /**
  * 
  */
-public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
+public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
     
     private static final long serialVersionUID = -7032449491269434877L;
     
@@ -30,15 +30,15 @@ public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
      * {@inheritDoc}
      */
     @Override
-    public Class<CharSequence> getKeyClass() {
-        return CharSequence.class;
+    public Class<String> getKeyClass() {
+        return String.class;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int length(CharSequence key) {
+    public int length(String key) {
         return (key != null ? key.length() * 16 : 0);
     }
     
@@ -46,8 +46,8 @@ public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(CharSequence key,   int keyOff, int keyLength,
-                        CharSequence found, int foundOff, int foundKeyLength) {
+    public int bitIndex(String key,   int keyOff, int keyLength,
+            String found, int foundOff, int foundKeyLength) {
         boolean allNull = true;
         
         if (keyOff % 16 != 0 || foundOff % 16 != 0 
@@ -102,7 +102,7 @@ public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(CharSequence key, int keyLength, int bitIndex) {
+    public boolean isBitSet(String key, int keyLength, int bitIndex) {
         if (key == null || bitIndex >= keyLength) {
             return false;
         }
@@ -116,8 +116,8 @@ public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(CharSequence o1, CharSequence o2) {
-        return o1.toString().compareTo(o2.toString());
+    public int compare(String o1, String o2) {
+        return o1.compareTo(o2);
     }
 
     /**
@@ -132,8 +132,8 @@ public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(CharSequence prefix, int offset, 
-            int length, CharSequence key) {
+    public boolean isPrefix(String prefix, int offset, 
+            int length, String key) {
         if (offset % 16 != 0 || length % 16 != 0) {
             throw new IllegalArgumentException("Cannot determine prefix outside of character boundaries");
         }
