@@ -53,12 +53,12 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
     /** 
      * Returns the length of the Key in bits. 
      */
-    public int length(K key);
+    public int lengthInBits(K key);
     
     /** 
      * Returns whether or not a bit is set 
      */
-    public boolean isBitSet(K key, int keyLength, int bitIndex);
+    public boolean isBitSet(K key, int lengthInBits, int bitIndex);
     
     /**
      * Returns the n-th different bit between key and found.
@@ -66,7 +66,7 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * for 'keyLength' bits, and compares to the found key
      * starting at 'foundStart' and going for 'foundLength' bits.
      */
-    public int bitIndex(K key, int keyStart, int keyLength, 
+    public int bitIndex(K key, int keyStart, int lengthInBits, 
             K found, int foundStart, int foundLength);
     
     /**
@@ -79,7 +79,7 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * Determines whether or not the given prefix (from offset to length)
      * is a prefix of the given key.
      */
-    public boolean isPrefix(K prefix, int offset, int length, K key);
+    public boolean isPrefix(K prefix, int offset, int lengthInBits, K key);
     
     /**
      * 

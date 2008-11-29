@@ -38,7 +38,7 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
-    public int length(String key) {
+    public int lengthInBits(String key) {
         return (key != null ? key.length() * 16 : 0);
     }
     
@@ -46,18 +46,18 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(String key,   int keyOff, int keyLength,
+    public int bitIndex(String key, int keyOff, int lengthInBits,
             String found, int foundOff, int foundKeyLength) {
         boolean allNull = true;
         
         if (keyOff % 16 != 0 || foundOff % 16 != 0 
-                || keyLength % 16 != 0 || foundKeyLength % 16 != 0) {
+                || lengthInBits % 16 != 0 || foundKeyLength % 16 != 0) {
             throw new IllegalArgumentException("offsets & lengths must be at character boundaries");
         }
         
         int off1 = keyOff / 16;
         int off2 = foundOff / 16;
-        int len1 = keyLength / 16 + off1;
+        int len1 = lengthInBits / 16 + off1;
         int len2 = foundKeyLength / 16 + off2;
         int length = Math.max(len1, len2);
         
@@ -102,8 +102,8 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(String key, int keyLength, int bitIndex) {
-        if (key == null || bitIndex >= keyLength) {
+    public boolean isBitSet(String key, int lengthInBits, int bitIndex) {
+        if (key == null || bitIndex >= lengthInBits) {
             return false;
         }
         
@@ -133,12 +133,12 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      */
     @Override
     public boolean isPrefix(String prefix, int offset, 
-            int length, String key) {
-        if (offset % 16 != 0 || length % 16 != 0) {
+            int lengthInBits, String key) {
+        if (offset % 16 != 0 || lengthInBits % 16 != 0) {
             throw new IllegalArgumentException("Cannot determine prefix outside of character boundaries");
         }
     
-        String s1 = prefix.subSequence(offset / 16, length / 16).toString();
+        String s1 = prefix.subSequence(offset / 16, lengthInBits / 16).toString();
         String s2 = key.toString();
         return s2.startsWith(s1);
     }
