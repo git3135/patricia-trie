@@ -30,6 +30,8 @@ class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
     
     V value;
     
+    private int hashCode = -1;
+    
     public BasicEntry(K key) {
         this.key = key;
     }
@@ -81,8 +83,18 @@ class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
      */
     @Override
     public int hashCode() {
-        return (key   == null ? 0 :   key.hashCode()) 
-            ^ (value == null ? 0 : value.hashCode());
+        if (hashCode == -1) {
+            hashCode = 0;
+            
+            if (key != null) {
+                hashCode = key.hashCode();
+            }
+            
+            if (value != null) {
+                hashCode ^= key.hashCode();
+            }
+        }
+        return hashCode;
     }
     
     /**
