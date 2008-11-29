@@ -95,7 +95,7 @@ import java.util.SortedMap;
 public class PatriciaTrie<K, V> extends AbstractMap<K, V> 
         implements Trie<K, V>, Serializable {
     
-    private static final long serialVersionUID = 110232526181493307L;
+    private static final long serialVersionUID = 6473154301823684262L;
 
     /** The root element of the Trie. */
     private final TrieEntry<K, V> root = new TrieEntry<K, V>(null, null, -1);
@@ -143,7 +143,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * Returns the {@link KeyAnalyzer} as a {@link Comparator}.
+     * {@inheritDoc}
      */
     @Override
     public Comparator<? super K> comparator() {
@@ -151,7 +151,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Removes all elements from the {@link Trie}
+     * {@inheritDoc}
      */
     @Override
     public void clear() {
@@ -169,7 +169,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns the size of the {@link Trie}
+     * {@inheritDoc}
      */
     @Override
     public int size() {
@@ -314,8 +314,10 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     
     @Override
     public Set<Map.Entry<K,V>> entrySet() {
-        Set<Map.Entry<K,V>> es = entrySet;
-        return (es != null ? es : (entrySet = new EntrySet()));
+        if (entrySet == null) {
+            entrySet = new EntrySet();
+        }
+        return entrySet;
     }
     
     /**
@@ -1108,7 +1110,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return bitIndex == KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
-    /** Returns the length of the key, or 0 if the key is null. */
+    /**
+     * Returns the length of the given key in bits
+     */
     private int length(K key) {
         if (key == null) {
             return 0;

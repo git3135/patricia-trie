@@ -95,12 +95,33 @@ public interface Trie<K, V> extends SortedMap<K, V> {
     public Map.Entry<K, V> select(K key);
     
     /**
+     * Returns the {@link Entry} for the entry whose key is closest in a 
+     * bitwise XOR metric to the given key. This is NOT lexicographic 
+     * closeness!
      * 
+     * For example, given the keys:<br>
+     *  D = 1000100 <br>
+     *  H = 1001000 <br> 
+     *  L = 1001100 <br>
+     * <p>
+     * If the {@link Trie} contained 'H' and 'L', a lookup of 'D' would 
+     * return 'L', because the XOR distance between D & L is smaller 
+     * than the XOR distance between D & H. 
      */
     public K selectKey(K key);
     
     /**
+     * Returns the value for the entry whose key is closest in a bitwise
+     * XOR metric to the given key. This is NOT lexicographic closeness!
      * 
+     * For example, given the keys:<br>
+     *  D = 1000100 <br>
+     *  H = 1001000 <br> 
+     *  L = 1001100 <br>
+     * <p>
+     * If the {@link Trie} contained 'H' and 'L', a lookup of 'D' would 
+     * return 'L', because the XOR distance between D & L is smaller 
+     * than the XOR distance between D & H. 
      */
     public V selectValue(K key);
     
