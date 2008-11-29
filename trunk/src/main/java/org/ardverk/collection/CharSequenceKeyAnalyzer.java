@@ -12,7 +12,7 @@ public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
     
     public static final int[] createIntBitMask(int bitCount) {
         int[] bits = new int[bitCount];
-        for(int i = 0; i < bitCount; i++) {
+        for (int i = 0; i < bitCount; i++) {
             bits[i] = 1 << (bitCount - i - 1);
         }
         return bits;
@@ -26,9 +26,10 @@ public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
                         CharSequence found, int foundOff, int foundKeyLength) {
         boolean allNull = true;
         
-        if(keyOff % 16 != 0 || foundOff % 16 != 0 ||
-           keyLength % 16 != 0 || foundKeyLength % 16 != 0)
+        if (keyOff % 16 != 0 || foundOff % 16 != 0 
+                || keyLength % 16 != 0 || foundKeyLength % 16 != 0) {
             throw new IllegalArgumentException("offsets & lengths must be at character boundaries");
+        }
         
         int off1 = keyOff / 16;
         int off2 = foundOff / 16;
@@ -44,24 +45,26 @@ public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
             int kOff = i + off1;
             int fOff = i + off2;
             
-            if(kOff >= len1)
+            if (kOff >= len1) {
                 k = 0;
-            else
+            } else {
                 k = key.charAt(kOff);
+            }
             
-            if(found == null || fOff >= len2)
+            if (found == null || fOff >= len2) {
                 f = 0;
-            else
+            } else {
                 f = found.charAt(fOff);
+            }
             
-            if(k != f) {
+            if (k != f) {
                int x = k ^ f;
                return i * 16 + (Integer.numberOfLeadingZeros(x) - 16);
             }
             
-            if(k != 0)
+            if (k != 0) {
                 allNull = false;
-            
+            }
         }
         
         if (allNull) {
@@ -90,8 +93,10 @@ public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
     }
 
     public boolean isPrefix(CharSequence prefix, int offset, int length, CharSequence key) {
-        if(offset % 16 != 0 || length % 16 != 0)
+        if (offset % 16 != 0 || length % 16 != 0) {
             throw new IllegalArgumentException("Cannot determine prefix outside of character boundaries");
+        }
+    
         String s1 = prefix.subSequence(offset / 16, length / 16).toString();
         String s2 = key.toString();
         return s2.startsWith(s1);
