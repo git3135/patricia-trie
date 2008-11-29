@@ -78,7 +78,7 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * '192.168' by providing the key '192.168.X.X' and a length of 16
      * would return all addresses that begin with '192.168'.
      */
-    public SortedMap<K, V> getPrefixedByBits(K key, int bitLength);
+    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
     
     /**
      * Returns the value for the entry whose key is closest in a bitwise
