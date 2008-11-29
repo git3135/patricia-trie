@@ -343,7 +343,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /** Gets the key as a 'K'. */
-    @SuppressWarnings("unchecked")
     protected final K asKey(Object key) {
         return (K)key;
     }
@@ -377,7 +376,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public Map.Entry<K, V> select(K key) {
         int lengthInBits = lengthInBits(key);
         TrieEntry[] result = new TrieEntry[1];
@@ -444,7 +442,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int lengthInBits = lengthInBits(key);
         TrieEntry[] result = new TrieEntry[1];
