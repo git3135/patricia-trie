@@ -1991,7 +1991,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
         @Override
         public V get(Object key) {
-            if (!inRange((K) key)) {
+            if (!inRange(castKey(key))) {
                 return null;
             }
             
