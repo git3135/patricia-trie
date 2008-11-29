@@ -1,3 +1,19 @@
+/*
+ * Copyright 2008 Roger Kapsi, Sam Berlin
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
 package org.ardverk.collection;
 
 import java.io.Serializable;
@@ -21,13 +37,16 @@ import java.util.Comparator;
  */
 public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
     
-    /** Returned by bitIndex if key's bits are all 0 */
+    /** 
+     * Returned by {@link #bitIndex(Object, int, int, Object, int, int)} 
+     * if key's bits are all 0 
+     */
     public static final int NULL_BIT_KEY = -1;
     
     /** 
-     * Returned by bitIndex if key and found key are
-     * equal. This is a very very specific case and
-     * shouldn't happen on a regular basis
+     * Returned by {@link #bitIndex(Object, int, int, Object, int, int)} 
+     * if key and found key are equal. This is a very very specific case 
+     * and shouldn't happen on a regular basis
      */
     public static final int EQUAL_BIT_KEY = -2;
     
@@ -36,7 +55,9 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      */
     public int length(K key);
     
-    /** Returns whether or not a bit is set */
+    /** 
+     * Returns whether or not a bit is set 
+     */
     public boolean isBitSet(K key, int keyLength, int bitIndex);
     
     /**
@@ -45,8 +66,8 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * for 'keyLength' bits, and compares to the found key
      * starting at 'foundStart' and going for 'foundLength' bits.
      */
-    public int bitIndex(K key, int keyStart, int keyLength,
-                        K found, int foundStart, int foundLength);
+    public int bitIndex(K key, int keyStart, int keyLength, 
+            K found, int foundStart, int foundLength);
     
     /**
      * Returns the number of bits per element in the key.
