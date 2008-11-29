@@ -267,7 +267,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         throw new IndexOutOfBoundsException("Failed to put: " + key + " -> " + value + ", " + bitIndex);
     }
     
-    /** Adds the given entry into the Trie. */
+    /**
+     * Adds the given {@link TrieEntry} to the {@link Trie}
+     */
     private TrieEntry<K, V> addEntry(TrieEntry<K, V> toAdd, int keyLength) {
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
@@ -312,6 +314,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<Map.Entry<K,V>> entrySet() {
         if (entrySet == null) {
@@ -321,8 +326,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns the Value whose Key equals our lookup Key
-     * or null if no such key exists.
+     * {@inheritDoc}
      */
     @Override
     public V get(Object k) {
@@ -453,11 +457,14 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     @SuppressWarnings("unchecked")
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int keyLength = length(key);
-        TrieEntry[] result = new TrieEntry[]{ null };
+        TrieEntry[] result = new TrieEntry[1];
         selectR(root.left, -1, key, keyLength, cursor, result);
         return result[0];
     }
 
+    /**
+     * 
+     */
     private boolean selectR(TrieEntry<K,V> h, int bitIndex, 
             final K key, 
             final int keyLength,
@@ -594,21 +601,21 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     /**
      * {@inheritDoc}
      * 
-     * @throws ClassCastException if the specified key of an
+     * @throws ClassCastException
      */
     @Override
     public V remove(Object k) {
-        K key = asKey(k);
-        if (key == null) {
+        if (k == null) {
             return null;
         }
         
+        K key = asKey(k);
         int keyLength = length(key);        
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while(true) {
             if (current.bitIndex <= path.bitIndex) {
-                if(!current.isEmpty() && key.equals(current.key)) {
+                if (!current.isEmpty() && key.equals(current.key)) {
                     return removeEntry(current);
                 } else {
                     return null;
@@ -617,7 +624,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
             
             path = current;
             
-            if(!isBitSet(key, keyLength, current.bitIndex)) {
+            if (!isBitSet(key, keyLength, current.bitIndex)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -778,25 +785,28 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
      * @param start
      */
     private TrieEntry<K, V> previousEntry(TrieEntry<K, V> start) {
-        if(start.predecessor == null)
+        if (start.predecessor == null) {
             throw new IllegalArgumentException("must have come from somewhere!");
+        }
         
         if (start.predecessor.right == start) {
-            if(isValidUplink(start.predecessor.left, start.predecessor)) {
+            if (isValidUplink(start.predecessor.left, start.predecessor)) {
                 return start.predecessor.left;
             } else {
                 return followRight(start.predecessor.left);
             }
         } else {
             TrieEntry<K, V> node = start.predecessor;
-            while(node.parent != null && node == node.parent.left)
+            while (node.parent != null && node == node.parent.left) {
                 node = node.parent;
-            if(node.parent == null) { // can be null if we're looking up root.
+            }
+            
+            if (node.parent == null) { // can be null if we're looking up root.
                 return null;
             }
             
             if (isValidUplink(node.parent.left, node.parent)) {
-                if(node.parent.left == root) {
+                if (node.parent.left == root) {
                     if (root.isEmpty()) {
                         return null;
                     } else {
@@ -972,6 +982,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return buffer.toString();
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map.Entry<K, V> traverse(Cursor<? super K, ? super V> cursor) {
         TrieEntry<K, V> entry = nextEntry(null);
@@ -1054,13 +1067,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /** The actual Trie nodes. */
-    private static class TrieEntry<K,V> implements Map.Entry<K,V>, Serializable {
+    private static class TrieEntry<K,V> extends BasicEntry<K, V> {
         
         private static final long serialVersionUID = 4596023148184140013L;
-        
-        private K key;
-        
-        private V value;
         
         /** The index this entry is comparing. */
         private int bitIndex;
@@ -1078,8 +1087,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         private TrieEntry<K,V> predecessor;
         
         private TrieEntry(K key, V value, int bitIndex) {
-            this.key = key;
-            this.value = value;
+            super(key, value);
             
             this.bitIndex = bitIndex;
             
@@ -1089,34 +1097,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
             this.predecessor = this;
         }
         
-        @Override
-        public int hashCode() {
-            return (key   == null ? 0 :   key.hashCode()) 
-                ^ (value == null ? 0 : value.hashCode());
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            } else if (!(o instanceof Map.Entry)) {
-                return false;
-            }
-            
-            Map.Entry<?, ?> e = (Map.Entry<?, ?>)o;
-            Object k1 = getKey();
-            Object k2 = e.getKey();
-            
-            if (k1 == k2 || (k1 != null && k1.equals(k2))) {
-                Object v1 = getValue();
-                Object v2 = e.getValue();
-                if (v1 == v2 || (v1 != null && v1.equals(v2))) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        
         /**
          * Whether or not the entry is storing a key.
          * Only the root can potentially be empty, all other
@@ -1124,32 +1104,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
          */
         public boolean isEmpty() {
             return key == null;
-        }
-        
-        @Override
-        public K getKey() {
-            return key;
-        }
-        
-        @Override
-        public V getValue() {
-            return value;
-        }
-        
-        @Override
-        public V setValue(V value) {
-            V o = this.value;
-            this.value = value;
-            return o;
-        }
-        
-        /** 
-         * Replaces the old key and value with the new ones.
-         * Returns the old vlaue.
-         */
-        private V setKeyValue(K key, V value) {
-            this.key = key;
-            return setValue(value);
         }
         
         /** Neither the left nor right child is a loopback */
@@ -1456,7 +1410,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         
         @Override
         public int size() {
-            return size;
+            return PatriciaTrie.this.size();
         }
         
         @Override
@@ -1492,7 +1446,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         
         @Override
         public int size() {
-            return size;
+            return PatriciaTrie.this.size();
         }
         
         @Override
