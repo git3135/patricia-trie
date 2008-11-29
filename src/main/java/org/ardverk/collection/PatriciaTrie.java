@@ -351,15 +351,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     /** Gets the key as a 'K'. */
     @SuppressWarnings("unchecked")
     protected final K asKey(Object key) {
-        try {
-            return (K)key;
-        } catch(ClassCastException cce) {
-            // Because the type is erased, the cast & return are
-            // actually doing nothing, making this CCE impossible.
-            // However, it's still here on the off-chance it may
-            // work.
-            return null;
-        }
+        return (K)key;
     }
     
     /**
