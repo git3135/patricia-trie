@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2008 Roger Kapsi, Sam Berlin
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -20,24 +20,32 @@ package org.ardverk.collection;
 /**
  * 
  */
-public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
+public class CharSequenceKeyAnalyzer extends AbstractKeyAnalyzer<CharSequence> {
     
     private static final long serialVersionUID = -7032449491269434877L;
     
     private static final int[] BITS = createIntBitMask(16);
     
-    public static final int[] createIntBitMask(int bitCount) {
-        int[] bits = new int[bitCount];
-        for (int i = 0; i < bitCount; i++) {
-            bits[i] = 1 << (bitCount - i - 1);
-        }
-        return bits;
-    } 
-    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<CharSequence> getKeyClass() {
+        return CharSequence.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int length(CharSequence key) {
         return (key != null ? key.length() * 16 : 0);
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int bitIndex(CharSequence key,   int keyOff, int keyLength,
                         CharSequence found, int foundOff, int foundKeyLength) {
         boolean allNull = true;
@@ -90,6 +98,10 @@ public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isBitSet(CharSequence key, int keyLength, int bitIndex) {
         if (key == null || bitIndex >= keyLength) {
             return false;
@@ -100,14 +112,26 @@ public class CharSequenceKeyAnalyzer implements KeyAnalyzer<CharSequence> {
         return (key.charAt(index) & BITS[bit]) != 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int compare(CharSequence o1, CharSequence o2) {
         return o1.toString().compareTo(o2.toString());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int bitsPerElement() {
         return 16;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isPrefix(CharSequence prefix, int offset, 
             int length, CharSequence key) {
         if (offset % 16 != 0 || length % 16 != 0) {
