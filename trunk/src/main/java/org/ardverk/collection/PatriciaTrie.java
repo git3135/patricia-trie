@@ -16,7 +16,6 @@
 
 package org.ardverk.collection;
 
-import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -92,8 +91,7 @@ import java.util.SortedMap;
  * @author Roger Kapsi
  * @author Sam Berlin
  */
-public class PatriciaTrie<K, V> extends AbstractMap<K, V> 
-        implements Trie<K, V>, Serializable {
+public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     
     private static final long serialVersionUID = 6473154301823684262L;
 
@@ -106,16 +104,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     /** The number of times this has been modified (to fail-fast the iterators). */
     private transient int modCount = 0;
     
-    /** The keyAnalyzer used to analyze bit values of keys. */
-    private final KeyAnalyzer<? super K> keyAnalyzer;
-    
     /** Constructs a new PatriciaTrie using the given keyAnalyzer. */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
-        if (keyAnalyzer == null) {
-            throw new NullPointerException("keyAnalyzer");
-        }
-        
-        this.keyAnalyzer = keyAnalyzer;
+        super(keyAnalyzer);
     }
     
     /**
@@ -123,31 +114,8 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
      */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer, 
             Map<? extends K, ? extends V> m) {
-        if (keyAnalyzer == null) {
-            throw new NullPointerException("keyAnalyzer");
-        }
-        
-        if (m == null) {
-            throw new NullPointerException("m");
-        }
-        
-        this.keyAnalyzer = keyAnalyzer;
+        super(keyAnalyzer);
         putAll(m);
-    }
-    
-    /**
-     * Returns the {@link KeyAnalyzer} that constructed the {@link Trie}.
-     */
-    public KeyAnalyzer<? super K> getKeyAnalyzer() {
-        return keyAnalyzer;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Comparator<? super K> comparator() {
-        return keyAnalyzer;
     }
     
     /**
@@ -342,11 +310,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return !entry.isEmpty() && key.equals(entry.key) ? entry : null;
     }
     
-    /** Gets the key as a 'K'. */
-    protected final K asKey(Object key) {
-        return (K)key;
-    }
-    
     /**
      * Returns the nearest entry for a given key.  This is useful
      * for finding knowing if a given key exists (and finding the value
@@ -384,28 +347,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
             return e;
         }
         return null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public K selectKey(K key) {
-        Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getKey();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public V selectValue(K key) {
-        Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getValue();
     }
     
     /**
@@ -570,21 +511,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         TrieEntry<?, ?> entry = getNearestEntryForKey(key, lengthInBits);
         return !entry.isEmpty() && key.equals(entry.key);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean containsValue(Object o) {
-        for (V v : values()) {
-            if (valEquals(v, o)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
     
     /**
      * {@inheritDoc}
@@ -1004,62 +930,6 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
      */
     private static boolean isValidUplink(TrieEntry<?, ?> next, TrieEntry<?, ?> from) { 
         return next != null && next.bitIndex <= from.bitIndex && !next.isEmpty();
-    }
-    
-    /** Returns true if bitIndex is a valid index */
-    private static boolean isValidBitIndex(int bitIndex) {
-        return 0 <= bitIndex && bitIndex <= Integer.MAX_VALUE;
-    }
-    
-    /** Returns true if bitIndex is a NULL_BIT_KEY */
-    private static boolean isNullBitKey(int bitIndex) {
-        return bitIndex == KeyAnalyzer.NULL_BIT_KEY;
-    }
-    
-    /** Returns true if bitIndex is a EQUAL_BIT_KEY */
-    private static boolean isEqualBitKey(int bitIndex) {
-        return bitIndex == KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-    
-    /**
-     * Returns the length of the given key in bits
-     */
-    private int lengthInBits(K key) {
-        if (key == null) {
-            return 0;
-        }
-        
-        return keyAnalyzer.lengthInBits(key);
-    }
-    
-    private int bitsPerElement() {
-        return keyAnalyzer.bitsPerElement();
-    }
-    
-    /**
-     * Returns whether or not the given bit on the 
-     * key is set, or false if the key is null
-     */
-    private boolean isBitSet(K key, int lengthInBits, int bitIndex) {
-        if (key == null) { // root's might be null!
-            return false;
-        }
-        return keyAnalyzer.isBitSet(key, lengthInBits, bitIndex);
-    }
-    
-    /**
-     * Utility method for calling
-     * keyAnalyzer.bitIndex(key, 0, length(key), foundKey, 0, length(foundKey))
-     */
-    private int bitIndex(K key, K foundKey) {
-        return keyAnalyzer.bitIndex(key, 0, lengthInBits(key), foundKey, 0, lengthInBits(foundKey));
-    }
-    
-    /**
-     * An utility method to compare values.
-     */
-    private static boolean valEquals(Object o1, Object o2) {
-        return (o1 == null ? o2 == null : o1.equals(o2));
     }
     
     /** The actual Trie nodes. */
@@ -1527,7 +1397,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         public boolean remove(Object o) {
             for (Iterator<V> i =  iterator(); i.hasNext(); ) {
                 V v = i.next();
-                if (valEquals(v, o)) {
+                if (compareValues(v, o)) {
                     i.remove();
                     return true;
                 }
@@ -2202,7 +2072,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
                 
                 TrieEntry<K, V> node = getEntry(key);
                 return node != null && 
-                       valEquals(node.getValue(), entry.getValue());
+                       compareValues(node.getValue(), entry.getValue());
             }
 
             @Override
@@ -2216,7 +2086,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
                 if (!inRange(key))
                     return false;
                 TrieEntry<K,V> node = getEntry(key);
-                if (node!=null && valEquals(node.getValue(), entry.getValue())) {
+                if (node!=null && compareValues(node.getValue(), entry.getValue())) {
                     removeEntry(node);
                     return true;
                 }
