@@ -29,6 +29,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.ardverk.collection.Cursor.SelectStatus;
+
 /**
  * A PATRICIA Trie. 
  * <p>
@@ -104,18 +106,29 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     /** The number of times this has been modified (to fail-fast the iterators). */
     private transient int modCount = 0;
     
-    /** Constructs a new PatriciaTrie using the given keyAnalyzer. */
+    /**
+     * Each of these fields are initialized to contain an instance of the
+     * appropriate view the first time this view is requested.  The views are
+     * stateless, so there's no reason to create more than one of each.
+     */
+    private transient volatile Set<K>               keySet = null;
+    private transient volatile Collection<V>        values = null;
+    private transient volatile Set<Map.Entry<K,V>>  entrySet = null;
+    
+    
+    /** 
+     * {@inheritDoc}
+     */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
     }
     
     /**
-     * 
+     * {@inheritDoc}
      */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer, 
             Map<? extends K, ? extends V> m) {
-        super(keyAnalyzer);
-        putAll(m);
+        super(keyAnalyzer, m);
     }
     
     /**
@@ -300,7 +313,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      * This may throw ClassCastException if the object is not of type K.
      */
     TrieEntry<K,V> getEntry(Object k) {
-        K key = asKey(k);
+        K key = castKey(k);
         if (key == null) {
             return null;
         }
@@ -341,10 +354,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      */
     public Map.Entry<K, V> select(K key) {
         int lengthInBits = lengthInBits(key);
-        TrieEntry[] result = new TrieEntry[1];
-        if (!selectR(root.left, -1, key, lengthInBits, result)) {
-            TrieEntry<K, V> e = result[0];
-            return e;
+        Reference<Map.Entry<K, V>> foo = new Reference<Map.Entry<K,V>>();
+        if (!selectR(root.left, -1, key, lengthInBits, foo)) {
+            return foo.get();
         }
         return null;
     }
@@ -355,14 +367,14 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      * Entry from the Trie.
      */
     private boolean selectR(TrieEntry<K, V> h, int bitIndex, 
-            final K key, final int lengthInBits, final TrieEntry<?, ?>[] result) {
+            final K key, final int lengthInBits, final Reference<Map.Entry<K, V>> result) {
         
         if (h.bitIndex <= bitIndex) {
             // If we hit the root Node and it is empty
             // we have to look for an alternative best
             // matching node.
             if (!h.isEmpty()) {
-                result[0] = h;
+                result.set(h);
                 return false;
             }
             return true;
@@ -385,9 +397,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      */
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int lengthInBits = lengthInBits(key);
-        TrieEntry[] result = new TrieEntry[1];
-        selectR(root.left, -1, key, lengthInBits, cursor, result);
-        return result[0];
+        Reference<Map.Entry<K, V>> foo = new Reference<Map.Entry<K,V>>();
+        selectR(root.left, -1, key, lengthInBits, cursor, foo);
+        return foo.get();
     }
 
     /**
@@ -397,20 +409,20 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             final K key, 
             final int lengthInBits,
             final Cursor<? super K, ? super V> cursor,
-            final TrieEntry<?, ?>[] result) {
+            final Reference<Map.Entry<K, V>> result) {
 
         if (h.bitIndex <= bitIndex) {
             if (!h.isEmpty()) {
-                Cursor.SelectStatus ret = cursor.select(h);
+                SelectStatus ret = cursor.select(h);
                 switch(ret) {
                     case REMOVE:
                         throw new UnsupportedOperationException("cannot remove during select");
                     case EXIT:
-                        result[0] = h;
+                        result.set(h);
                         return false; // exit
                     case REMOVE_AND_EXIT:
                         TrieEntry<K, V> entry = new TrieEntry<K, V>(h.getKey(), h.getValue(), -1);
-                        result[0] = entry;
+                        result.set(entry);
                         removeEntry(h);
                         return false;
                     case CONTINUE:
@@ -506,7 +518,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return false;
         }
         
-        K key = asKey(k);
+        K key = castKey(k);
         int lengthInBits = lengthInBits(key);
         TrieEntry<?, ?> entry = getNearestEntryForKey(key, lengthInBits);
         return !entry.isEmpty() && key.equals(entry.key);
@@ -523,7 +535,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return null;
         }
         
-        K key = asKey(k);
+        K key = castKey(k);
         int lengthInBits = lengthInBits(key);        
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
@@ -932,6 +944,26 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         return next != null && next.bitIndex <= from.bitIndex && !next.isEmpty();
     }
     
+    /**
+     * A {@link Reference} allows us to return something through a Method's 
+     * argument list. An alternative would be to an Array with a length of 
+     * one (1) but that leads to compiler warnings. Computationally and memory
+     * wise there's no difference (except for the need to load the 
+     * {@link Reference} Class but that happens only once).
+     */
+    private static class Reference<E> {
+        
+        private E item;
+        
+        public void set(E item) {
+            this.item = item;
+        }
+        
+        public E get() {
+            return item;
+        }
+    }
+    
     /** The actual Trie nodes. */
     private static class TrieEntry<K,V> extends BasicEntry<K, V> {
         
@@ -1254,15 +1286,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     Iterator<Map.Entry<K,V>> newEntryIterator()   {
         return new EntryIterator();
     }
-    
-    /**
-     * Each of these fields are initialized to contain an instance of the
-     * appropriate view the first time this view is requested.  The views are
-     * stateless, so there's no reason to create more than one of each.
-     */
-    private transient volatile Set<K>               keySet = null;
-    private transient volatile Collection<V>        values = null;
-    private transient volatile Set<Map.Entry<K,V>>  entrySet = null;
     
     /**
      * {@inheritDoc}
@@ -1954,12 +1977,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
         @Override
         public boolean containsKey(Object key) {
-            return inRange((K) key) && PatriciaTrie.this.containsKey(key);
+            return inRange(castKey(key)) && PatriciaTrie.this.containsKey(key);
         }
        
         @Override
         public V remove(Object key) {
-            if (!inRange((K)key)) {
+            if (!inRange(castKey(key))) {
                 return null;
             }
             
