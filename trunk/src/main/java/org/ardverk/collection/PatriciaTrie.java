@@ -502,11 +502,11 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      */
     @Override
     public boolean containsKey(Object k) {
-        K key = asKey(k);
-        if (key == null) {
+        if (k == null) {
             return false;
         }
         
+        K key = asKey(k);
         int lengthInBits = lengthInBits(key);
         TrieEntry<?, ?> entry = getNearestEntryForKey(key, lengthInBits);
         return !entry.isEmpty() && key.equals(entry.key);
@@ -1029,7 +1029,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             }
             buffer.append(", ");
             
-            if(predecessor != null) {
+            if (predecessor != null) {
                 if(predecessor.bitIndex == -1) {
                     buffer.append("predecessor=").append("ROOT");
                 } else {
@@ -1099,11 +1099,14 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
         
         TrieEntry<K,V> nextEntry() { 
-            if (modCount != expectedModCount)
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
+            
             TrieEntry<K,V> e = next;
-            if (e == null) 
+            if (e == null) {
                 throw new NoSuchElementException();
+            }
             
             next = findNext(e);
             current = e;
@@ -1116,10 +1119,13 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         
         @Override
         public void remove() {
-            if (current == null)
+            if (current == null) {
                 throw new IllegalStateException();
-            if (modCount != expectedModCount)
+            }
+            
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
             
             TrieEntry<K, V> node = current;
             current = null;
@@ -1506,7 +1512,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         if (lengthInBits == 0) {
             if (!root.isEmpty()) {
                 // If data in root, and more after -- return it.
-                if(size() > 1) {
+                if (size() > 1) {
                     return nextEntry(root);
                 } else { // If no more after, no higher entry.
                     return null;
