@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2008 Roger Kapsi, Sam Berlin
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -381,8 +381,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns the Value whose Key has the longest prefix
-     * in common with our lookup key.
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public Map.Entry<K, V> select(K key) {
@@ -396,7 +395,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * 
+     * {@inheritDoc}
      */
     public K selectKey(K key) {
         Map.Entry<K, V> entry = select(key);
@@ -407,7 +406,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * 
+     * {@inheritDoc}
      */
     public V selectValue(K key) {
         Map.Entry<K, V> entry = select(key);
@@ -448,6 +447,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return false;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int keyLength = length(key);
@@ -497,26 +499,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * Returns a view of this Trie of all elements that are
-     * prefixed by the given key.
-     * 
-     * In a fixed-keysize Trie, this is essentially a 'get' operation.
-     * 
-     * For example, if the trie contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'Lime' would return 'Lime', 'LimeRadio', and 'LimeWire'.
-     * 
-     * The view that this returns is optimized to have a very efficient
-     * Iterator. The firstKey, lastKey & size methods must iterate
-     * over all possible values in order to determine the results. This
-     * information is cached until the Patricia tree changes. All other
-     * methods (except Iterator) must compare the given key to the prefix
-     * to ensure that it is within the range of the view. The Iterator's
-     * remove method must also relocate the subtree that contains the
-     * prefixes if the entry holding the subtree is removed or changes.
-     * Changing the subtree takes O(K) time.
-     * 
-     * @param key
+     * {@inheritDoc}
      */
     @Override
     public SortedMap<K, V> getPrefixedBy(K key) {
@@ -524,29 +507,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * Returns a view of this Trie of all elements that are
-     * prefixed by the length of the key.
-     * 
-     * Fixed-keysize Tries will not support this operation
-     * (because all keys will be the same length).
-     * 
-     * For example, if the trie contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'LimePlastics' with a length of 4 would
-     * return 'Lime', 'LimeRadio', and 'LimeWire'.
-     * 
-     * The view that this returns is optimized to have a very efficient
-     * Iterator.  The firstKey, lastKey & size methods must iterate
-     * over all possible values in order to determine the results.  This
-     * information is cached until the Patricia tree changes.  All other
-     * methods (except Iterator) must compare the given key to the prefix
-     * to ensure that it is within the range of the view.  The Iterator's
-     * remove method must also relocate the subtree that contains the
-     * prefixes if the entry holding the subtree is removed or changes.
-     * Changing the subtree takes O(K) time.
-     *  
-     * @param key
-     * @param length
+     * {@inheritDoc}
      */
     @Override
     public SortedMap<K, V> getPrefixedBy(K key, int length) {
@@ -554,30 +515,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * Returns a view of this Trie of all elements that are prefixed
-     * by the key, starting at the given offset and for the given length.
-     * 
-     * Fixed-keysize Tries will not support this operation
-     * (because all keys are the same length).
-     *
-     * For example, if the trie contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'The Lime Plastics' with an offset of 4 and a 
-     * length of 4 would return 'Lime', 'LimeRadio', and 'LimeWire'.
-     * 
-     * The view that this returns is optimized to have a very efficient
-     * Iterator.  The firstKey, lastKey & size methods must iterate
-     * over all possible values in order to determine the results.  This
-     * information is cached until the Patricia tree changes.  All other
-     * methods (except Iterator) must compare the given key to the prefix
-     * to ensure that it is within the range of the view.  The Iterator's
-     * remove method must also relocate the subtree that contains the
-     * prefixes if the entry holding the subtree is removed or changes.
-     * Changing the subtree takes O(K) time.
-     * 
-     * @param key
-     * @param offset
-     * @param length
+     * {@inheritDoc}
      */
     @Override
     public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
@@ -585,27 +523,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * Returns a view of this Trie of all elements that are prefixed
-     * by the number of bits in the given Key.
-     * 
-     * Fixed-keysize Tries can support this operation as a way to do
-     * lookups of partial keys.  That is, if the Trie is storing IP
-     * addresses, you can lookup all addresses that begin with
-     * '192.168' by providing the key '192.168.X.X' and a length of 16
-     * would return all addresses that begin with '192.168'.
-     * 
-     * The view that this returns is optimized to have a very efficient
-     * Iterator.  The firstKey, lastKey & size methods must iterate
-     * over all possible values in order to determine the results.  This
-     * information is cached until the Patricia tree changes.  All other
-     * methods (except Iterator) must compare the given key to the prefix
-     * to ensure that it is within the range of the view.  The Iterator's
-     * remove method must also relocate the subtree that contains the
-     * prefixes if the entry holding the subtree is removed or changes.
-     * Changing the subtree takes O(K) time.
-     * 
-     * @param key
-     * @param bitLength
+     * {@inheritDoc}
      */
     @Override
     public SortedMap<K, V> getPrefixedByBits(K key, int bitLength) {
@@ -644,10 +562,7 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns true if this trie contains the specified Key
-     * 
-     * This may throw ClassCastException if the object is not
-     * of type K.
+     * {@inheritDoc}
      */
     @Override
     public boolean containsKey(Object k) {
@@ -661,7 +576,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
         return !entry.isEmpty() && key.equals(entry.key);
     }
     
-    /** Returns true if this Trie contains the specified value. */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean containsValue(Object o) {
         for (V v : values()) {
@@ -675,12 +592,9 @@ public class PatriciaTrie<K, V> extends AbstractMap<K, V>
     
     
     /**
-     * Removes a Key from the Trie if one exists
+     * {@inheritDoc}
      * 
-     * This may throw ClassCastException if the object is not of type K.
-     * 
-     * @param k the Key to delete
-     * @return Returns the deleted Value
+     * @throws ClassCastException if the specified key of an
      */
     @Override
     public V remove(Object k) {

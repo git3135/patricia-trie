@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2008 Roger Kapsi, Sam Berlin
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -80,4 +80,9 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * is a prefix of the given key.
      */
     public boolean isPrefix(K prefix, int offset, int length, K key);
+    
+    /**
+     * 
+     */
+    public Class<K> getKeyClass();
 }

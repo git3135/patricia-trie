@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2008 Roger Kapsi, Sam Berlin
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -17,28 +17,40 @@
 package org.ardverk.collection;
 
 
-public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
+public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
     
     private static final long serialVersionUID = 4928508653722068982L;
-
-    public static int[] createIntBitMask(final int bitCount) {
-        int[] bits = new int[bitCount];
-        for (int i = 0; i < bitCount; i++) {
-            bits[i] = 1 << (bitCount - i - 1);
-        }
-        return bits;
-    }
-
+    
     private static final int[] BITS = createIntBitMask(32);
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<Integer> getKeyClass() {
+        return Integer.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int length(Integer key) {
         return 32;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isBitSet(Integer key, int keyLength, int bitIndex) {
         return (key & BITS[bitIndex]) != 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int bitIndex(Integer key,   int keyOff, int keyLength,
                         Integer found, int foundOff, int foundKeyLength) {
         if (found == null)
@@ -71,14 +83,26 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int compare(Integer o1, Integer o2) {
         return o1.compareTo(o2);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int bitsPerElement() {
         return 1;
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isPrefix(Integer prefix, int offset, int length, Integer key) {
         int addr1 = prefix;
         int addr2 = key;
