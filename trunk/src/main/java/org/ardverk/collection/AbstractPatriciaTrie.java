@@ -132,11 +132,4 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
     protected final int bitIndex(K key, K foundKey) {
         return keyAnalyzer.bitIndex(key, 0, lengthInBits(key), foundKey, 0, lengthInBits(foundKey));
     }
-    
-    /**
-     * An utility method to compare values.
-     */
-    protected static boolean compareValues(Object o1, Object o2) {
-        return (o1 == null ? o2 == null : o1.equals(o2));
-    }
 }

@@ -47,11 +47,11 @@ class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
     }
     
     boolean compareKey(K other) {
-        return (key == null ? other == null : key.equals(other));
+        return TrieUtils.compare(key, other);
     }
     
     boolean compareValue(V other) {
-        return (value == null ? other == null : value.equals(other));
+        return TrieUtils.compare(value, other);
     }
     
     K setKey(K key) {

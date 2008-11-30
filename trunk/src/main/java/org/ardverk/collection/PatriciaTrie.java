@@ -1407,6 +1407,11 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         return values;
     }
     
+    /**
+     * {@inheritDoc}
+     * 
+     * 
+     */
     private class Values extends AbstractCollection<V> {
         
         @Override
@@ -1431,10 +1436,10 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         
         @Override
         public boolean remove(Object o) {
-            for (Iterator<V> i =  iterator(); i.hasNext(); ) {
-                V v = i.next();
-                if (compareValues(v, o)) {
-                    i.remove();
+            for (Iterator<V> it = iterator(); it.hasNext(); ) {
+                V value = it.next();
+                if (TrieUtils.compare(value, o)) {
+                    it.remove();
                     return true;
                 }
             }
@@ -2115,8 +2120,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 }
                 
                 TrieEntry<K, V> node = getEntry(key);
-                return node != null && 
-                       compareValues(node.getValue(), entry.getValue());
+                return node != null && TrieUtils.compare(node.getValue(), entry.getValue());
             }
 
             @Override
@@ -2127,10 +2131,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 
                 Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
                 K key = entry.getKey();
-                if (!inRange(key))
+                if (!inRange(key)) {
                     return false;
+                }
+                
                 TrieEntry<K,V> node = getEntry(key);
-                if (node!=null && compareValues(node.getValue(), entry.getValue())) {
+                if (node != null && TrieUtils.compare(node.getValue(), entry.getValue())) {
                     removeEntry(node);
                     return true;
                 }
