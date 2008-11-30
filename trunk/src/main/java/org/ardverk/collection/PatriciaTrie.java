@@ -969,7 +969,8 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                     removeEntry(current);
                     break; // out of switch, stay in while loop
                 case REMOVE_AND_EXIT:
-                    Map.Entry<K, V> value = new TrieEntry<K, V>(current.getKey(), current.getValue(), -1);
+                    Map.Entry<K, V> value = new TrieEntry<K, V>(
+                            current.getKey(), current.getValue(), -1);
                     removeEntry(current);
                     return value;
                 case CONTINUE: // do nothing.
