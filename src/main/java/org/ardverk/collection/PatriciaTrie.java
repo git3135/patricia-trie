@@ -493,20 +493,22 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      * Changing the subtree takes O(K) time.
      * 
      * @param key
-     * @param offset
+     * @param offsetInBits
      * @param lengthInBits
      */
-    private SortedMap<K, V> getPrefixedByBits(K key, int offset, int lengthInBits) {
-        int offsetLength = offset + lengthInBits;
+    private SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits, int lengthInBits) {
+        
+        int offsetLength = offsetInBits + lengthInBits;
         if (offsetLength > lengthInBits(key)) {
-            throw new IllegalArgumentException(offset + " + " + lengthInBits + " > " + lengthInBits(key));
+            throw new IllegalArgumentException(offsetInBits + " + " 
+                    + lengthInBits + " > " + lengthInBits(key));
         }
         
         if (offsetLength == 0) {
             return this;
         }
         
-        return new PrefixSubMap(key, offset, lengthInBits);
+        return new PrefixSubMap(key, offsetInBits, lengthInBits);
     }
     
     /**
