@@ -1845,7 +1845,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
     }
     
-    /** A submap used for prefix views over the Trie. */
+    /** 
+     * A submap used for prefix views over the Trie. 
+     */
     private class PrefixSubMap extends SubMap {
         protected final K prefix;
         protected final int offset;
@@ -1992,6 +1994,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
     }
     
+    /**
+     *
+     */
     private class SubMap extends AbstractMap<K,V> implements SortedMap<K,V> {
     
         /** The key to start from, null if the beginning. */
@@ -2026,6 +2031,11 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             this.fromKey = fromKey;
             this.toKey = toKey;
             fromInclusive = true;
+        }
+        
+        @Override
+        public Comparator<? super K> comparator() {
+            return keyAnalyzer;
         }
         
         @Override
@@ -2065,11 +2075,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return PatriciaTrie.this.put(key, value);
         }
 
-        @Override
-        public Comparator<? super K> comparator() {
-            return keyAnalyzer;
-        }
- 
         @Override
         public K firstKey() {
             Map.Entry<K,V> e = null;
