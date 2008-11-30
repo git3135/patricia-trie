@@ -1812,6 +1812,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             fromInclusive = false;
         }
         
+        /*@Override
+        public int size() {
+            fixup();
+            return size;
+        }*/
+        
         @Override
         public K firstKey() {
             fixup();
@@ -1867,6 +1873,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
         
         private void fixup() {
+            
             // The trie has changed since we last
             // found our toKey / fromKey
             if (modCount != keyModCount) {
@@ -1914,7 +1921,8 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             @Override
             public int size() {
                 fixup();
-                return PrefixSubMap.this.size();
+                //return PrefixSubMap.this.size();
+                return PrefixSubMap.this.size;
             }
 
             @Override
