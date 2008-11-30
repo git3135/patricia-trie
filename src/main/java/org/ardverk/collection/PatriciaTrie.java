@@ -1517,223 +1517,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
     }
     
-    /** 
-     * An iterator that stores a single TrieEntry. 
-     */
-    private class SingletonIterator implements Iterator<Map.Entry<K, V>> {
-        private final TrieEntry<K, V> entry;
-        private int hit = 0;
-        
-        public SingletonIterator(TrieEntry<K, V> entry) {
-            this.entry = entry;
-        }
-        
-        @Override
-        public boolean hasNext() {
-            return hit == 0;
-        }
-
-        @Override
-        public Map.Entry<K, V> next() {
-            if (hit != 0) {
-                throw new NoSuchElementException();
-            }
-            
-            hit++;
-            return entry;
-        }
-
-        @Override
-        public void remove() {
-            if (hit != 1) {
-                throw new IllegalStateException();
-            }
-            
-            hit++;
-            PatriciaTrie.this.removeEntry(entry);
-        }
-    }
-    
-    /** 
-     * An iterator for the entries. 
-     */
-    private abstract class NodeIterator<E> implements Iterator<E> {
-        protected int expectedModCount = modCount;   // For fast-fail 
-        protected TrieEntry<K, V> next; // the next node to return
-        protected TrieEntry<K, V> current; // the current entry we're on
-        
-        // Starts iteration from the beginning.
-        protected NodeIterator() {
-            next = PatriciaTrie.this.nextEntry(null);
-        }
-        
-        // Starts iteration at the given entry.
-        protected NodeIterator(TrieEntry<K, V> firstEntry) {
-            next = firstEntry;
-        }
-        
-        @Override
-        public boolean hasNext() {
-            return next != null;
-        }
-        
-        TrieEntry<K,V> nextEntry() { 
-            if (modCount != expectedModCount) {
-                throw new ConcurrentModificationException();
-            }
-            
-            TrieEntry<K,V> e = next;
-            if (e == null) {
-                throw new NoSuchElementException();
-            }
-            
-            next = findNext(e);
-            current = e;
-            return e;
-        }
-        
-        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
-            return PatriciaTrie.this.nextEntry(prior);
-        }
-        
-        @Override
-        public void remove() {
-            if (current == null) {
-                throw new IllegalStateException();
-            }
-            
-            if (modCount != expectedModCount) {
-                throw new ConcurrentModificationException();
-            }
-            
-            TrieEntry<K, V> node = current;
-            current = null;
-            PatriciaTrie.this.removeEntry(node);
-            
-            expectedModCount = modCount;
-        }
-    }
-
-    /**
-     * 
-     */
-    private class EntryIterator extends NodeIterator<Map.Entry<K,V>> {
-        @Override
-        public Map.Entry<K,V> next() {
-            return nextEntry();
-        }
-    }
-    
-    /**
-     * 
-     */
-    private class ValueIterator extends NodeIterator<V> {
-        @Override
-        public V next() {
-            return nextEntry().getValue();
-        }
-    }
-
-    /**
-     * 
-     */
-    private class KeyIterator extends NodeIterator<K> {
-        @Override
-        public K next() {
-            return nextEntry().getKey();
-        }
-    }
-    
-    /** 
-     * An iterator for iterating over a prefix search. 
-     */
-    private class PrefixEntryIterator extends NodeIterator<Map.Entry<K, V>> {
-        // values to reset the subtree if we remove it.
-        protected final K prefix; 
-        protected final int offset;
-        protected final int lengthInBits;
-        protected boolean lastOne;
-        
-        protected TrieEntry<K, V> subtree; // the subtree to search within
-        
-        // Starts iteration at the given entry & search only within the given subtree.
-        PrefixEntryIterator(TrieEntry<K, V> startScan, K prefix, 
-                int offset, int lengthInBits) {
-            subtree = startScan;
-            next = PatriciaTrie.this.followLeft(startScan);
-            this.prefix = prefix;
-            this.offset = offset;
-            this.lengthInBits = lengthInBits;
-        }
-
-        @Override
-        public Map.Entry<K,V> next() {
-            Map.Entry<K, V> entry = nextEntry();
-            if (lastOne) {
-                next = null;
-            }
-            return entry;
-        }
-        
-        @Override
-        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
-            return PatriciaTrie.this.nextEntryInSubtree(prior, subtree);
-        }
-        
-        @Override
-        public void remove() {
-            // If the current entry we're removing is the subtree
-            // then we need to find a new subtree parent.
-            boolean needsFixing = false;
-            int bitIdx = subtree.bitIndex;
-            if (current == subtree) {
-                needsFixing = true;
-            }
-            
-            super.remove();
-            
-            // If the subtree changed its bitIndex or we
-            // removed the old subtree, get a new one.
-            if (bitIdx != subtree.bitIndex || needsFixing) {
-                subtree = subtree(prefix, offset, lengthInBits);
-            }
-            
-            // If the subtree's bitIndex is less than the
-            // length of our prefix, it's the last item
-            // in the prefix tree.
-            if (lengthInBits >= subtree.bitIndex) {
-                lastOne = true;
-            }
-        }
-    }
-    
-    /** 
-     * An iterator for submaps. 
-     */
-    private class SubMapEntryIterator extends NodeIterator<Map.Entry<K,V>> {
-        private final K firstExcludedKey;
-
-        SubMapEntryIterator(TrieEntry<K,V> first, TrieEntry<K,V> firstExcluded) {
-            super(first);
-            firstExcludedKey = 
-              (firstExcluded == null ? null : firstExcluded.key);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return next != null && next.key != firstExcludedKey;
-        }
-
-        @Override
-        public Map.Entry<K,V> next() {
-            if (next == null || next.key == firstExcludedKey) {
-                throw new NoSuchElementException();
-            }
-            
-            return nextEntry();
-        }
-    }
-    
     /**
      * 
      */
@@ -1839,6 +1622,225 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 }
             }
             return false;
+        }
+    }
+    
+    /** 
+     * An iterator that stores a single TrieEntry. 
+     */
+    private class SingletonIterator implements Iterator<Map.Entry<K, V>> {
+        
+        private final TrieEntry<K, V> entry;
+        
+        private int hit = 0;
+        
+        public SingletonIterator(TrieEntry<K, V> entry) {
+            this.entry = entry;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return hit == 0;
+        }
+
+        @Override
+        public Map.Entry<K, V> next() {
+            if (hit != 0) {
+                throw new NoSuchElementException();
+            }
+            
+            hit++;
+            return entry;
+        }
+
+        @Override
+        public void remove() {
+            if (hit != 1) {
+                throw new IllegalStateException();
+            }
+            
+            hit++;
+            PatriciaTrie.this.removeEntry(entry);
+        }
+    }
+    
+    /** 
+     * An iterator for the entries. 
+     */
+    private abstract class NodeIterator<E> implements Iterator<E> {
+        protected int expectedModCount = modCount;   // For fast-fail 
+        protected TrieEntry<K, V> next; // the next node to return
+        protected TrieEntry<K, V> current; // the current entry we're on
+        
+        // Starts iteration from the beginning.
+        protected NodeIterator() {
+            next = PatriciaTrie.this.nextEntry(null);
+        }
+        
+        // Starts iteration at the given entry.
+        protected NodeIterator(TrieEntry<K, V> firstEntry) {
+            next = firstEntry;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+        
+        TrieEntry<K,V> nextEntry() { 
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+            
+            TrieEntry<K,V> e = next;
+            if (e == null) {
+                throw new NoSuchElementException();
+            }
+            
+            next = findNext(e);
+            current = e;
+            return e;
+        }
+        
+        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
+            return PatriciaTrie.this.nextEntry(prior);
+        }
+        
+        @Override
+        public void remove() {
+            if (current == null) {
+                throw new IllegalStateException();
+            }
+            
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+            
+            TrieEntry<K, V> node = current;
+            current = null;
+            PatriciaTrie.this.removeEntry(node);
+            
+            expectedModCount = modCount;
+        }
+    }
+
+    /**
+     * 
+     */
+    private class EntryIterator extends NodeIterator<Map.Entry<K,V>> {
+        @Override
+        public Map.Entry<K,V> next() {
+            return nextEntry();
+        }
+    }
+    
+    /**
+     * 
+     */
+    private class KeyIterator extends NodeIterator<K> {
+        @Override
+        public K next() {
+            return nextEntry().getKey();
+        }
+    }
+    
+    /**
+     * 
+     */
+    private class ValueIterator extends NodeIterator<V> {
+        @Override
+        public V next() {
+            return nextEntry().getValue();
+        }
+    }
+    
+    /** 
+     * An iterator for iterating over a prefix search. 
+     */
+    private class PrefixEntryIterator extends NodeIterator<Map.Entry<K, V>> {
+        // values to reset the subtree if we remove it.
+        protected final K prefix; 
+        protected final int offset;
+        protected final int lengthInBits;
+        protected boolean lastOne;
+        
+        protected TrieEntry<K, V> subtree; // the subtree to search within
+        
+        // Starts iteration at the given entry & search only within the given subtree.
+        PrefixEntryIterator(TrieEntry<K, V> startScan, K prefix, 
+                int offset, int lengthInBits) {
+            subtree = startScan;
+            next = PatriciaTrie.this.followLeft(startScan);
+            this.prefix = prefix;
+            this.offset = offset;
+            this.lengthInBits = lengthInBits;
+        }
+
+        @Override
+        public Map.Entry<K,V> next() {
+            Map.Entry<K, V> entry = nextEntry();
+            if (lastOne) {
+                next = null;
+            }
+            return entry;
+        }
+        
+        @Override
+        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
+            return PatriciaTrie.this.nextEntryInSubtree(prior, subtree);
+        }
+        
+        @Override
+        public void remove() {
+            // If the current entry we're removing is the subtree
+            // then we need to find a new subtree parent.
+            boolean needsFixing = false;
+            int bitIdx = subtree.bitIndex;
+            if (current == subtree) {
+                needsFixing = true;
+            }
+            
+            super.remove();
+            
+            // If the subtree changed its bitIndex or we
+            // removed the old subtree, get a new one.
+            if (bitIdx != subtree.bitIndex || needsFixing) {
+                subtree = subtree(prefix, offset, lengthInBits);
+            }
+            
+            // If the subtree's bitIndex is less than the
+            // length of our prefix, it's the last item
+            // in the prefix tree.
+            if (lengthInBits >= subtree.bitIndex) {
+                lastOne = true;
+            }
+        }
+    }
+    
+    /** 
+     * An iterator for submaps. 
+     */
+    private class SubMapEntryIterator extends NodeIterator<Map.Entry<K,V>> {
+        private final K firstExcludedKey;
+
+        SubMapEntryIterator(TrieEntry<K,V> first, TrieEntry<K,V> firstExcluded) {
+            super(first);
+            firstExcludedKey = 
+              (firstExcluded == null ? null : firstExcluded.key);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null && next.key != firstExcludedKey;
+        }
+
+        @Override
+        public Map.Entry<K,V> next() {
+            if (next == null || next.key == firstExcludedKey) {
+                throw new NoSuchElementException();
+            }
+            
+            return nextEntry();
         }
     }
     
