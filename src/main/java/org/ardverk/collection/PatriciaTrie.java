@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 
-import org.ardverk.collection.Cursor.SelectStatus;
+import org.ardverk.collection.Cursor.Decision;
 
 /**
  * A PATRICIA Trie. 
@@ -354,9 +354,10 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      */
     public Map.Entry<K, V> select(K key) {
         int lengthInBits = lengthInBits(key);
-        Reference<Map.Entry<K, V>> foo = new Reference<Map.Entry<K,V>>();
-        if (!selectR(root.left, -1, key, lengthInBits, foo)) {
-            return foo.get();
+        Reference<Map.Entry<K, V>> reference 
+            = new Reference<Map.Entry<K,V>>();
+        if (!selectR(root.left, -1, key, lengthInBits, reference)) {
+            return reference.get();
         }
         return null;
     }
@@ -367,26 +368,27 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      * Entry from the Trie.
      */
     private boolean selectR(TrieEntry<K, V> h, int bitIndex, 
-            final K key, final int lengthInBits, final Reference<Map.Entry<K, V>> result) {
+            final K key, final int lengthInBits, 
+            final Reference<Map.Entry<K, V>> reference) {
         
         if (h.bitIndex <= bitIndex) {
             // If we hit the root Node and it is empty
             // we have to look for an alternative best
             // matching node.
             if (!h.isEmpty()) {
-                result.set(h);
+                reference.set(h);
                 return false;
             }
             return true;
         }
 
         if (!isBitSet(key, lengthInBits, h.bitIndex)) {
-            if (selectR(h.left, h.bitIndex, key, lengthInBits, result)) {
-                return selectR(h.right, h.bitIndex, key, lengthInBits, result);
+            if (selectR(h.left, h.bitIndex, key, lengthInBits, reference)) {
+                return selectR(h.right, h.bitIndex, key, lengthInBits, reference);
             }
         } else {
-            if (selectR(h.right, h.bitIndex, key, lengthInBits, result)) {
-                return selectR(h.left, h.bitIndex, key, lengthInBits, result);
+            if (selectR(h.right, h.bitIndex, key, lengthInBits, reference)) {
+                return selectR(h.left, h.bitIndex, key, lengthInBits, reference);
             }
         }
         return false;
@@ -397,9 +399,10 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      */
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int lengthInBits = lengthInBits(key);
-        Reference<Map.Entry<K, V>> foo = new Reference<Map.Entry<K,V>>();
-        selectR(root.left, -1, key, lengthInBits, cursor, foo);
-        return foo.get();
+        Reference<Map.Entry<K, V>> reference 
+            = new Reference<Map.Entry<K,V>>();
+        selectR(root.left, -1, key, lengthInBits, cursor, reference);
+        return reference.get();
     }
 
     /**
@@ -409,20 +412,20 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             final K key, 
             final int lengthInBits,
             final Cursor<? super K, ? super V> cursor,
-            final Reference<Map.Entry<K, V>> result) {
+            final Reference<Map.Entry<K, V>> reference) {
 
         if (h.bitIndex <= bitIndex) {
             if (!h.isEmpty()) {
-                SelectStatus ret = cursor.select(h);
-                switch(ret) {
+                Decision decision = cursor.select(h);
+                switch(decision) {
                     case REMOVE:
                         throw new UnsupportedOperationException("cannot remove during select");
                     case EXIT:
-                        result.set(h);
+                        reference.set(h);
                         return false; // exit
                     case REMOVE_AND_EXIT:
                         TrieEntry<K, V> entry = new TrieEntry<K, V>(h.getKey(), h.getValue(), -1);
-                        result.set(entry);
+                        reference.set(entry);
                         removeEntry(h);
                         return false;
                     case CONTINUE:
@@ -433,12 +436,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
 
         if (!isBitSet(key, lengthInBits, h.bitIndex)) {
-            if (selectR(h.left, h.bitIndex, key, lengthInBits, cursor, result)) {
-                return selectR(h.right, h.bitIndex, key, lengthInBits, cursor, result);
+            if (selectR(h.left, h.bitIndex, key, lengthInBits, cursor, reference)) {
+                return selectR(h.right, h.bitIndex, key, lengthInBits, cursor, reference);
             }
         } else {
-            if (selectR(h.right, h.bitIndex, key, lengthInBits, cursor, result)) {
-                return selectR(h.left, h.bitIndex, key, lengthInBits, cursor, result);
+            if (selectR(h.right, h.bitIndex, key, lengthInBits, cursor, reference)) {
+                return selectR(h.left, h.bitIndex, key, lengthInBits, cursor, reference);
             }
         }
         
@@ -920,9 +923,11 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         TrieEntry<K, V> entry = nextEntry(null);
         while (entry != null) {
             TrieEntry<K, V> current = entry;
-            Cursor.SelectStatus ret = cursor.select(current);
+            
+            Decision decision = cursor.select(current);
             entry = nextEntry(current);
-            switch(ret) {
+            
+            switch(decision) {
                 case EXIT:
                     return current;
                 case REMOVE:
