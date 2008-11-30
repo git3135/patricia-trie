@@ -983,9 +983,9 @@ public class PatriciaTrieTest {
         
         final List<String> strings = new ArrayList<String>();
         trie.traverse(new Cursor<String, String>() {
-            public SelectStatus select(Entry<? extends String, ? extends String> entry) {
+            public Decision select(Entry<? extends String, ? extends String> entry) {
                 strings.add(entry.getValue());
-                return SelectStatus.CONTINUE;
+                return Decision.CONTINUE;
             }
         });
         
@@ -1008,9 +1008,9 @@ public class PatriciaTrieTest {
         
         final List<String> strings = new ArrayList<String>();
         trie.select("Hello", new Cursor<String, String>() {
-            public SelectStatus select(Entry<? extends String, ? extends String> entry) {
+            public Decision select(Entry<? extends String, ? extends String> entry) {
                 strings.add(entry.getValue());
-                return SelectStatus.CONTINUE;
+                return Decision.CONTINUE;
             }
         });
         TestCase.assertEquals(1, strings.size());
@@ -1064,7 +1064,7 @@ public class PatriciaTrieTest {
             TestCase.assertEquals(values.get(index++), o);
         }
 
-        public SelectStatus select(Entry<?, ?> entry) {
+        public Decision select(Entry<?, ?> entry) {
           //  System.out.println("Scanning: " + entry.getKey());
             TestCase.assertEquals(keys.get(index), entry.getKey());
             TestCase.assertEquals(values.get(index), entry.getValue());
@@ -1076,13 +1076,13 @@ public class PatriciaTrieTest {
                 keys.remove(index);
                 values.remove(index);
                 toRemove.remove(entry.getKey());
-                return SelectStatus.REMOVE;
+                return Decision.REMOVE;
             } 
             
             if(selectFor != null && selectFor.equals(entry.getKey()))
-                return SelectStatus.EXIT;
+                return Decision.EXIT;
             else
-                return SelectStatus.CONTINUE;
+                return Decision.CONTINUE;
         }
         
         void finished() {

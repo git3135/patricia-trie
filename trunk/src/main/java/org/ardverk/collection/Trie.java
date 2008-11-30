@@ -137,7 +137,7 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * <code>Cursor.SelectStatus.REMOVE_AND_EXIT</code> is used to remove the current element
      * and stop traversing.
      * <p>
-     * Note: The {@link Cursor.SelectStatus#REMOVE} operation is not supported.
+     * Note: The {@link Cursor.Decision#REMOVE} operation is not supported.
      * 
      * @return The entry the cursor returned EXIT on, or null if it continued
      *         till the end.

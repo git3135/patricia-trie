@@ -26,8 +26,11 @@ public interface Cursor<K, V> {
     /**
      *
      */
-    public static enum SelectStatus {
-        EXIT, CONTINUE, REMOVE, REMOVE_AND_EXIT;
+    public static enum Decision {
+        EXIT, 
+        CONTINUE, 
+        REMOVE, 
+        REMOVE_AND_EXIT;
     }
     
     /**
@@ -39,5 +42,5 @@ public interface Cursor<K, V> {
      * Not all operations support <code>REMOVE</code>.
      * 
      */
-    public SelectStatus select(Map.Entry<? extends K, ? extends V> entry);
+    public Decision select(Map.Entry<? extends K, ? extends V> entry);
 }
