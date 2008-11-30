@@ -47,6 +47,7 @@ public class PatriciaTrieTest {
         TestCase.assertNull(intTrie.put(1, "One"));
     }
     
+    @Test
     public void testCeilingEntry() {
         PatriciaTrie<Character, String> charTrie 
             = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
@@ -139,6 +140,7 @@ public class PatriciaTrieTest {
         TestCase.assertEquals((Character)'\0', found.getKey());      
     }
     
+    @Test
     public void testLowerEntry() {
         PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
@@ -250,6 +252,7 @@ public class PatriciaTrieTest {
         TestCase.assertNull(found);      
     }
     
+    @Test
     public void testIteration() {
         PatriciaTrie<Integer, String> intTrie = new PatriciaTrie<Integer, String>(new IntegerKeyAnalyzer());
         intTrie.put(1, "One");
@@ -339,6 +342,7 @@ public class PatriciaTrieTest {
         cursor.finished();
     }
     
+    @Test
     public void testSelect() {
         PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
@@ -383,6 +387,7 @@ public class PatriciaTrieTest {
         cursor.finished();
     }
     
+    @Test
     public void testTraverseCursorRemove() {
         PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
@@ -450,6 +455,7 @@ public class PatriciaTrieTest {
         cursor.finished();
     }
     
+    @Test
     public void testIteratorRemove() {
         PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
@@ -515,6 +521,7 @@ public class PatriciaTrieTest {
         cursor.finished();
     }
     
+    @Test
     public void testHamlet() throws Exception {
         // Make sure that Hamlet is read & stored in the same order as a SortedSet.
         List<String> original = new ArrayList<String>();
@@ -566,9 +573,9 @@ public class PatriciaTrieTest {
             trie.put(anOriginal, anOriginal);
         }
         
-        TestCase.assertEquals(sortedControl.values().toArray(), trie.values().toArray());
-        TestCase.assertEquals(sortedControl.keySet().toArray(), trie.keySet().toArray());
-        TestCase.assertEquals(sortedControl.entrySet().toArray(), trie.entrySet().toArray());
+        assertEqualArrays(sortedControl.values().toArray(), trie.values().toArray());
+        assertEqualArrays(sortedControl.keySet().toArray(), trie.keySet().toArray());
+        assertEqualArrays(sortedControl.entrySet().toArray(), trie.entrySet().toArray());
         
         TestCase.assertEquals(sortedControl.firstKey(), trie.firstKey());
         TestCase.assertEquals(sortedControl.lastKey(), trie.lastKey());
@@ -623,6 +630,7 @@ public class PatriciaTrieTest {
         }
     }
     
+    @Test
     public void testPrefixedBy() {
         PatriciaTrie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
@@ -851,6 +859,7 @@ public class PatriciaTrieTest {
         TestCase.assertFalse(iterator.hasNext());
     }
     
+    @Test
     public void testPrefixByOffsetAndLength() {
         PatriciaTrie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
@@ -910,6 +919,7 @@ public class PatriciaTrieTest {
         TestCase.assertFalse(iterator.hasNext());
     }
     
+    @Test
     public void testPrefixedByRemoval() {
         PatriciaTrie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
@@ -952,6 +962,7 @@ public class PatriciaTrieTest {
         TestCase.assertFalse(iter.hasNext());
     }
 
+    @Test
     public void testTraverseWithAllNullBitKey() {
         PatriciaTrie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
@@ -987,6 +998,7 @@ public class PatriciaTrieTest {
         TestCase.assertEquals(1, strings.size());
     }
     
+    @Test
     public void testSelectWithAllNullBitKey() {
         PatriciaTrie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
@@ -1076,5 +1088,9 @@ public class PatriciaTrieTest {
         void finished() {
             TestCase.assertEquals(keys.size(), index);
         }
+    }
+    
+    private static void assertEqualArrays(Object[] a, Object[] b) {
+        TestCase.assertTrue(Arrays.equals(a, b));
     }
 }
