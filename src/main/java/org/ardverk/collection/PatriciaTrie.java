@@ -905,14 +905,49 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("Trie[").append(size()).append("]={\n");
-        for(Iterator<Map.Entry<K, V>> i = newEntryIterator(); i.hasNext(); ) {
-            buffer.append("  ").append(i.next()).append("\n");
+    public Set<Map.Entry<K,V>> entrySet() {
+        if (entrySet == null) {
+            entrySet = new EntrySet();
         }
-        buffer.append("}\n");
-        return buffer.toString();
+        return entrySet;
+    }
+    
+    /**
+     * Returns a set view of the keys contained in this map.  The set is
+     * backed by the map, so changes to the map are reflected in the set, and
+     * vice-versa.  The set supports element removal, which removes the
+     * corresponding mapping from this map, via the <tt>Iterator.remove</tt>,
+     * <tt>Set.remove</tt>, <tt>removeAll</tt>, <tt>retainAll</tt>, and
+     * <tt>clear</tt> operations.  It does not support the <tt>add</tt> or
+     * <tt>addAll</tt> operations.
+     *
+     * @return a set view of the keys contained in this map.
+     */
+    @Override
+    public Set<K> keySet() {
+        if (keySet == null) {
+            keySet = new KeySet();
+        }
+        return keySet;
+    }
+    
+    /**
+     * Returns a collection view of the values contained in this map. The
+     * collection is backed by the map, so changes to the map are reflected in
+     * the collection, and vice-versa. The collection supports element
+     * removal, which removes the corresponding mapping from this map, via the
+     * <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
+     * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt> operations.
+     * It does not support the <tt>add</tt> or <tt>addAll</tt> operations.
+     *
+     * @return a collection view of the values contained in this map.
+     */
+    @Override
+    public Collection<V> values() {
+        if (values == null) {
+            values = new Values();
+        }
+        return values;
     }
     
     /**
@@ -944,6 +979,20 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         return null;
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("Trie[").append(size()).append("]={\n");
+        for(Iterator<Map.Entry<K, V>> i = newEntryIterator(); i.hasNext(); ) {
+            buffer.append("  ").append(i.next()).append("\n");
+        }
+        buffer.append("}\n");
+        return buffer.toString();
+    }
+    
     /** 
      * Returns true if 'next' is a valid uplink coming from 'from'. 
      */
@@ -952,499 +1001,24 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     }
     
     /**
-     * A {@link Reference} allows us to return something through a Method's 
-     * argument list. An alternative would be to an Array with a length of 
-     * one (1) but that leads to compiler warnings. Computationally and memory
-     * wise there's no difference (except for the need to load the 
-     * {@link Reference} Class but that happens only once).
+     * 
      */
-    private static class Reference<E> {
-        
-        private E item;
-        
-        public void set(E item) {
-            this.item = item;
-        }
-        
-        public E get() {
-            return item;
-        }
-    }
-    
-    /** The actual Trie nodes. */
-    private static class TrieEntry<K,V> extends BasicEntry<K, V> {
-        
-        private static final long serialVersionUID = 4596023148184140013L;
-        
-        /** The index this entry is comparing. */
-        private int bitIndex;
-        
-        /** The parent of this entry. */
-        private TrieEntry<K,V> parent;
-        
-        /** The left child of this entry. */
-        private TrieEntry<K,V> left;
-        
-        /** The right child of this entry. */
-        private TrieEntry<K,V> right;
-        
-        /** The entry who uplinks to this entry. */ 
-        private TrieEntry<K,V> predecessor;
-        
-        private TrieEntry(K key, V value, int bitIndex) {
-            super(key, value);
-            
-            this.bitIndex = bitIndex;
-            
-            this.parent = null;
-            this.left = this;
-            this.right = null;
-            this.predecessor = this;
-        }
-        
-        /**
-         * Whether or not the entry is storing a key.
-         * Only the root can potentially be empty, all other
-         * nodes must have a key.
-         */
-        public boolean isEmpty() {
-            return key == null;
-        }
-        
-        /** Neither the left nor right child is a loopback */
-        private boolean isInternalNode() {
-            return left != this && right != this;
-        }
-        
-        /** Either the left or right child is a loopback */
-        private boolean isExternalNode() {
-            return !isInternalNode();
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder buffer = new StringBuilder();
-            
-            if (bitIndex == -1) {
-                buffer.append("RootEntry(");
-            } else {
-                buffer.append("Entry(");
-            }
-            
-            buffer.append("key=").append(getKey()).append(" [").append(bitIndex).append("], ");
-            buffer.append("value=").append(getValue()).append(", ");
-            //buffer.append("bitIndex=").append(bitIndex).append(", ");
-            
-            if (parent != null) {
-                if (parent.bitIndex == -1) {
-                    buffer.append("parent=").append("ROOT");
-                } else {
-                    buffer.append("parent=").append(parent.getKey()).append(" [").append(parent.bitIndex).append("]");
-                }
-            } else {
-                buffer.append("parent=").append("null");
-            }
-            buffer.append(", ");
-            
-            if (left != null) {
-                if (left.bitIndex == -1) {
-                    buffer.append("left=").append("ROOT");
-                } else {
-                    buffer.append("left=").append(left.getKey()).append(" [").append(left.bitIndex).append("]");
-                }
-            } else {
-                buffer.append("left=").append("null");
-            }
-            buffer.append(", ");
-            
-            if (right != null) {
-                if (right.bitIndex == -1) {
-                    buffer.append("right=").append("ROOT");
-                } else {
-                    buffer.append("right=").append(right.getKey()).append(" [").append(right.bitIndex).append("]");
-                }
-            } else {
-                buffer.append("right=").append("null");
-            }
-            buffer.append(", ");
-            
-            if (predecessor != null) {
-                if(predecessor.bitIndex == -1) {
-                    buffer.append("predecessor=").append("ROOT");
-                } else {
-                    buffer.append("predecessor=").append(predecessor.getKey()).append(" [").append(predecessor.bitIndex).append("]");
-                }
-            }
-            
-            buffer.append(")");
-            return buffer.toString();
-        }
-    }
-    
-    /** An iterator that stores a single TrieEntry. */
-    private class SingletonIterator implements Iterator<Map.Entry<K, V>> {
-        private final TrieEntry<K, V> entry;
-        private int hit = 0;
-        
-        public SingletonIterator(TrieEntry<K, V> entry) {
-            this.entry = entry;
-        }
-        
-        @Override
-        public boolean hasNext() {
-            return hit == 0;
-        }
-
-        @Override
-        public Map.Entry<K, V> next() {
-            if (hit != 0) {
-                throw new NoSuchElementException();
-            }
-            
-            hit++;
-            return entry;
-        }
-
-        @Override
-        public void remove() {
-            if (hit != 1) {
-                throw new IllegalStateException();
-            }
-            
-            hit++;
-            PatriciaTrie.this.removeEntry(entry);
-        }
-    }
-    
-    /** An iterator for the entries. */
-    private abstract class NodeIterator<E> implements Iterator<E> {
-        protected int expectedModCount = modCount;   // For fast-fail 
-        protected TrieEntry<K, V> next; // the next node to return
-        protected TrieEntry<K, V> current; // the current entry we're on
-        
-        // Starts iteration from the beginning.
-        protected NodeIterator() {
-            next = PatriciaTrie.this.nextEntry(null);
-        }
-        
-        // Starts iteration at the given entry.
-        protected NodeIterator(TrieEntry<K, V> firstEntry) {
-            next = firstEntry;
-        }
-        
-        @Override
-        public boolean hasNext() {
-            return next != null;
-        }
-        
-        TrieEntry<K,V> nextEntry() { 
-            if (modCount != expectedModCount) {
-                throw new ConcurrentModificationException();
-            }
-            
-            TrieEntry<K,V> e = next;
-            if (e == null) {
-                throw new NoSuchElementException();
-            }
-            
-            next = findNext(e);
-            current = e;
-            return e;
-        }
-        
-        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
-            return PatriciaTrie.this.nextEntry(prior);
-        }
-        
-        @Override
-        public void remove() {
-            if (current == null) {
-                throw new IllegalStateException();
-            }
-            
-            if (modCount != expectedModCount) {
-                throw new ConcurrentModificationException();
-            }
-            
-            TrieEntry<K, V> node = current;
-            current = null;
-            PatriciaTrie.this.removeEntry(node);
-            
-            expectedModCount = modCount;
-        }
-    }
-
-    private class ValueIterator extends NodeIterator<V> {
-        @Override
-        public V next() {
-            return nextEntry().getValue();
-        }
-    }
-
-    private class KeyIterator extends NodeIterator<K> {
-        @Override
-        public K next() {
-            return nextEntry().getKey();
-        }
-    }
-
-    private class EntryIterator extends NodeIterator<Map.Entry<K,V>> {
-        @Override
-        public Map.Entry<K,V> next() {
-            return nextEntry();
-        }
-    }
-    
-    /** An iterator for iterating over a prefix search. */
-    private class PrefixEntryIterator extends NodeIterator<Map.Entry<K, V>> {
-        // values to reset the subtree if we remove it.
-        protected final K prefix; 
-        protected final int offset;
-        protected final int lengthInBits;
-        protected boolean lastOne;
-        
-        protected TrieEntry<K, V> subtree; // the subtree to search within
-        
-        // Starts iteration at the given entry & search only within the given subtree.
-        PrefixEntryIterator(TrieEntry<K, V> startScan, K prefix, 
-                int offset, int lengthInBits) {
-            subtree = startScan;
-            next = PatriciaTrie.this.followLeft(startScan);
-            this.prefix = prefix;
-            this.offset = offset;
-            this.lengthInBits = lengthInBits;
-        }
-
-        @Override
-        public Map.Entry<K,V> next() {
-            Map.Entry<K, V> entry = nextEntry();
-            if (lastOne) {
-                next = null;
-            }
-            return entry;
-        }
-        
-        @Override
-        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
-            return PatriciaTrie.this.nextEntryInSubtree(prior, subtree);
-        }
-        
-        @Override
-        public void remove() {
-            // If the current entry we're removing is the subtree
-            // then we need to find a new subtree parent.
-            boolean needsFixing = false;
-            int bitIdx = subtree.bitIndex;
-            if (current == subtree) {
-                needsFixing = true;
-            }
-            
-            super.remove();
-            
-            // If the subtree changed its bitIndex or we
-            // removed the old subtree, get a new one.
-            if (bitIdx != subtree.bitIndex || needsFixing) {
-                subtree = subtree(prefix, offset, lengthInBits);
-            }
-            
-            // If the subtree's bitIndex is less than the
-            // length of our prefix, it's the last item
-            // in the prefix tree.
-            if (lengthInBits >= subtree.bitIndex) {
-                lastOne = true;
-            }
-        }
-        
-    }
-    
-    /** An iterator for submaps. */
-    private class SubMapEntryIterator extends NodeIterator<Map.Entry<K,V>> {
-        private final K firstExcludedKey;
-
-        SubMapEntryIterator(TrieEntry<K,V> first, TrieEntry<K,V> firstExcluded) {
-            super(first);
-            firstExcludedKey = 
-              (firstExcluded == null ? null : firstExcluded.key);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return next != null && next.key != firstExcludedKey;
-        }
-
-        @Override
-        public Map.Entry<K,V> next() {
-            if (next == null || next.key == firstExcludedKey) {
-                throw new NoSuchElementException();
-            }
-            
-            return nextEntry();
-        }
-    }
-
     Iterator<K> newKeyIterator()   {
         return new KeyIterator();
     }
     
+    /**
+     * 
+     */
     Iterator<V> newValueIterator()   {
         return new ValueIterator();
     }
     
+    /**
+     * 
+     */
     Iterator<Map.Entry<K,V>> newEntryIterator()   {
         return new EntryIterator();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<Map.Entry<K,V>> entrySet() {
-        if (entrySet == null) {
-            entrySet = new EntrySet();
-        }
-        return entrySet;
-    }
-    
-    private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
-        
-        @Override
-        public Iterator<Map.Entry<K,V>> iterator() {
-            return newEntryIterator();
-        }
-        
-        @Override
-        public boolean contains(Object o) {
-            if (!(o instanceof Map.Entry)) {
-                return false;
-            }
-            
-            TrieEntry<K,V> candidate = getEntry(((Map.Entry<?, ?>)o).getKey());
-            return candidate != null && candidate.equals(o);
-        }
-        
-        @Override
-        public boolean remove(Object o) {
-            int size = size();
-            PatriciaTrie.this.remove(o);
-            return size != size();
-        }
-        
-        @Override
-        public int size() {
-            return PatriciaTrie.this.size();
-        }
-        
-        @Override
-        public void clear() {
-            PatriciaTrie.this.clear();
-        }
-    }
-    
-    /**
-     * Returns a set view of the keys contained in this map.  The set is
-     * backed by the map, so changes to the map are reflected in the set, and
-     * vice-versa.  The set supports element removal, which removes the
-     * corresponding mapping from this map, via the <tt>Iterator.remove</tt>,
-     * <tt>Set.remove</tt>, <tt>removeAll</tt>, <tt>retainAll</tt>, and
-     * <tt>clear</tt> operations.  It does not support the <tt>add</tt> or
-     * <tt>addAll</tt> operations.
-     *
-     * @return a set view of the keys contained in this map.
-     */
-    @Override
-    public Set<K> keySet() {
-        if (keySet == null) {
-            keySet = new KeySet();
-        }
-        return keySet;
-    }
-
-    private class KeySet extends AbstractSet<K> {
-        @Override
-        public Iterator<K> iterator() {
-            return newKeyIterator();
-        }
-        
-        @Override
-        public int size() {
-            return PatriciaTrie.this.size();
-        }
-        
-        @Override
-        public boolean contains(Object o) {
-            return containsKey(o);
-        }
-        
-        @Override
-        public boolean remove(Object o) {
-            int size = size();
-            PatriciaTrie.this.remove(o);
-            return size != size();
-        }
-        
-        @Override
-        public void clear() {
-            PatriciaTrie.this.clear();
-        }
-    }
-    
-    /**
-     * Returns a collection view of the values contained in this map. The
-     * collection is backed by the map, so changes to the map are reflected in
-     * the collection, and vice-versa. The collection supports element
-     * removal, which removes the corresponding mapping from this map, via the
-     * <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
-     * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt> operations.
-     * It does not support the <tt>add</tt> or <tt>addAll</tt> operations.
-     *
-     * @return a collection view of the values contained in this map.
-     */
-    @Override
-    public Collection<V> values() {
-        if (values == null) {
-            values = new Values();
-        }
-        return values;
-    }
-    
-    /**
-     * {@inheritDoc}
-     * 
-     * 
-     */
-    private class Values extends AbstractCollection<V> {
-        
-        @Override
-        public Iterator<V> iterator() {
-            return newValueIterator();
-        }
-        
-        @Override
-        public int size() {
-            return PatriciaTrie.this.size();
-        }
-        
-        @Override
-        public boolean contains(Object o) {
-            return containsValue(o);
-        }
-        
-        @Override
-        public void clear() {
-            PatriciaTrie.this.clear();
-        }
-        
-        @Override
-        public boolean remove(Object o) {
-            for (Iterator<V> it = iterator(); it.hasNext(); ) {
-                V value = it.next();
-                if (TrieUtils.compare(value, o)) {
-                    it.remove();
-                    return true;
-                }
-            }
-            return false;
-        }
     }
     
     /**
@@ -1805,6 +1379,467 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
         
         return entry;
+    }
+    
+    /**
+     * A {@link Reference} allows us to return something through a Method's 
+     * argument list. An alternative would be to an Array with a length of 
+     * one (1) but that leads to compiler warnings. Computationally and memory
+     * wise there's no difference (except for the need to load the 
+     * {@link Reference} Class but that happens only once).
+     */
+    private static class Reference<E> {
+        
+        private E item;
+        
+        public void set(E item) {
+            this.item = item;
+        }
+        
+        public E get() {
+            return item;
+        }
+    }
+    
+    /**
+     *  A {@link Trie} is a set of {@link TrieEntry} nodes
+     */
+    private static class TrieEntry<K,V> extends BasicEntry<K, V> {
+        
+        private static final long serialVersionUID = 4596023148184140013L;
+        
+        /** The index this entry is comparing. */
+        private int bitIndex;
+        
+        /** The parent of this entry. */
+        private TrieEntry<K,V> parent;
+        
+        /** The left child of this entry. */
+        private TrieEntry<K,V> left;
+        
+        /** The right child of this entry. */
+        private TrieEntry<K,V> right;
+        
+        /** The entry who uplinks to this entry. */ 
+        private TrieEntry<K,V> predecessor;
+        
+        private TrieEntry(K key, V value, int bitIndex) {
+            super(key, value);
+            
+            this.bitIndex = bitIndex;
+            
+            this.parent = null;
+            this.left = this;
+            this.right = null;
+            this.predecessor = this;
+        }
+        
+        /**
+         * Whether or not the entry is storing a key.
+         * Only the root can potentially be empty, all other
+         * nodes must have a key.
+         */
+        public boolean isEmpty() {
+            return key == null;
+        }
+        
+        /** 
+         * Neither the left nor right child is a loopback 
+         */
+        private boolean isInternalNode() {
+            return left != this && right != this;
+        }
+        
+        /** 
+         * Either the left or right child is a loopback 
+         */
+        private boolean isExternalNode() {
+            return !isInternalNode();
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder buffer = new StringBuilder();
+            
+            if (bitIndex == -1) {
+                buffer.append("RootEntry(");
+            } else {
+                buffer.append("Entry(");
+            }
+            
+            buffer.append("key=").append(getKey()).append(" [").append(bitIndex).append("], ");
+            buffer.append("value=").append(getValue()).append(", ");
+            //buffer.append("bitIndex=").append(bitIndex).append(", ");
+            
+            if (parent != null) {
+                if (parent.bitIndex == -1) {
+                    buffer.append("parent=").append("ROOT");
+                } else {
+                    buffer.append("parent=").append(parent.getKey()).append(" [").append(parent.bitIndex).append("]");
+                }
+            } else {
+                buffer.append("parent=").append("null");
+            }
+            buffer.append(", ");
+            
+            if (left != null) {
+                if (left.bitIndex == -1) {
+                    buffer.append("left=").append("ROOT");
+                } else {
+                    buffer.append("left=").append(left.getKey()).append(" [").append(left.bitIndex).append("]");
+                }
+            } else {
+                buffer.append("left=").append("null");
+            }
+            buffer.append(", ");
+            
+            if (right != null) {
+                if (right.bitIndex == -1) {
+                    buffer.append("right=").append("ROOT");
+                } else {
+                    buffer.append("right=").append(right.getKey()).append(" [").append(right.bitIndex).append("]");
+                }
+            } else {
+                buffer.append("right=").append("null");
+            }
+            buffer.append(", ");
+            
+            if (predecessor != null) {
+                if(predecessor.bitIndex == -1) {
+                    buffer.append("predecessor=").append("ROOT");
+                } else {
+                    buffer.append("predecessor=").append(predecessor.getKey()).append(" [").append(predecessor.bitIndex).append("]");
+                }
+            }
+            
+            buffer.append(")");
+            return buffer.toString();
+        }
+    }
+    
+    /** 
+     * An iterator that stores a single TrieEntry. 
+     */
+    private class SingletonIterator implements Iterator<Map.Entry<K, V>> {
+        private final TrieEntry<K, V> entry;
+        private int hit = 0;
+        
+        public SingletonIterator(TrieEntry<K, V> entry) {
+            this.entry = entry;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return hit == 0;
+        }
+
+        @Override
+        public Map.Entry<K, V> next() {
+            if (hit != 0) {
+                throw new NoSuchElementException();
+            }
+            
+            hit++;
+            return entry;
+        }
+
+        @Override
+        public void remove() {
+            if (hit != 1) {
+                throw new IllegalStateException();
+            }
+            
+            hit++;
+            PatriciaTrie.this.removeEntry(entry);
+        }
+    }
+    
+    /** 
+     * An iterator for the entries. 
+     */
+    private abstract class NodeIterator<E> implements Iterator<E> {
+        protected int expectedModCount = modCount;   // For fast-fail 
+        protected TrieEntry<K, V> next; // the next node to return
+        protected TrieEntry<K, V> current; // the current entry we're on
+        
+        // Starts iteration from the beginning.
+        protected NodeIterator() {
+            next = PatriciaTrie.this.nextEntry(null);
+        }
+        
+        // Starts iteration at the given entry.
+        protected NodeIterator(TrieEntry<K, V> firstEntry) {
+            next = firstEntry;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+        
+        TrieEntry<K,V> nextEntry() { 
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+            
+            TrieEntry<K,V> e = next;
+            if (e == null) {
+                throw new NoSuchElementException();
+            }
+            
+            next = findNext(e);
+            current = e;
+            return e;
+        }
+        
+        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
+            return PatriciaTrie.this.nextEntry(prior);
+        }
+        
+        @Override
+        public void remove() {
+            if (current == null) {
+                throw new IllegalStateException();
+            }
+            
+            if (modCount != expectedModCount) {
+                throw new ConcurrentModificationException();
+            }
+            
+            TrieEntry<K, V> node = current;
+            current = null;
+            PatriciaTrie.this.removeEntry(node);
+            
+            expectedModCount = modCount;
+        }
+    }
+
+    /**
+     * 
+     */
+    private class EntryIterator extends NodeIterator<Map.Entry<K,V>> {
+        @Override
+        public Map.Entry<K,V> next() {
+            return nextEntry();
+        }
+    }
+    
+    /**
+     * 
+     */
+    private class ValueIterator extends NodeIterator<V> {
+        @Override
+        public V next() {
+            return nextEntry().getValue();
+        }
+    }
+
+    /**
+     * 
+     */
+    private class KeyIterator extends NodeIterator<K> {
+        @Override
+        public K next() {
+            return nextEntry().getKey();
+        }
+    }
+    
+    /** 
+     * An iterator for iterating over a prefix search. 
+     */
+    private class PrefixEntryIterator extends NodeIterator<Map.Entry<K, V>> {
+        // values to reset the subtree if we remove it.
+        protected final K prefix; 
+        protected final int offset;
+        protected final int lengthInBits;
+        protected boolean lastOne;
+        
+        protected TrieEntry<K, V> subtree; // the subtree to search within
+        
+        // Starts iteration at the given entry & search only within the given subtree.
+        PrefixEntryIterator(TrieEntry<K, V> startScan, K prefix, 
+                int offset, int lengthInBits) {
+            subtree = startScan;
+            next = PatriciaTrie.this.followLeft(startScan);
+            this.prefix = prefix;
+            this.offset = offset;
+            this.lengthInBits = lengthInBits;
+        }
+
+        @Override
+        public Map.Entry<K,V> next() {
+            Map.Entry<K, V> entry = nextEntry();
+            if (lastOne) {
+                next = null;
+            }
+            return entry;
+        }
+        
+        @Override
+        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
+            return PatriciaTrie.this.nextEntryInSubtree(prior, subtree);
+        }
+        
+        @Override
+        public void remove() {
+            // If the current entry we're removing is the subtree
+            // then we need to find a new subtree parent.
+            boolean needsFixing = false;
+            int bitIdx = subtree.bitIndex;
+            if (current == subtree) {
+                needsFixing = true;
+            }
+            
+            super.remove();
+            
+            // If the subtree changed its bitIndex or we
+            // removed the old subtree, get a new one.
+            if (bitIdx != subtree.bitIndex || needsFixing) {
+                subtree = subtree(prefix, offset, lengthInBits);
+            }
+            
+            // If the subtree's bitIndex is less than the
+            // length of our prefix, it's the last item
+            // in the prefix tree.
+            if (lengthInBits >= subtree.bitIndex) {
+                lastOne = true;
+            }
+        }
+    }
+    
+    /** 
+     * An iterator for submaps. 
+     */
+    private class SubMapEntryIterator extends NodeIterator<Map.Entry<K,V>> {
+        private final K firstExcludedKey;
+
+        SubMapEntryIterator(TrieEntry<K,V> first, TrieEntry<K,V> firstExcluded) {
+            super(first);
+            firstExcludedKey = 
+              (firstExcluded == null ? null : firstExcluded.key);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null && next.key != firstExcludedKey;
+        }
+
+        @Override
+        public Map.Entry<K,V> next() {
+            if (next == null || next.key == firstExcludedKey) {
+                throw new NoSuchElementException();
+            }
+            
+            return nextEntry();
+        }
+    }
+    
+    /**
+     * 
+     */
+    private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
+        
+        @Override
+        public Iterator<Map.Entry<K,V>> iterator() {
+            return newEntryIterator();
+        }
+        
+        @Override
+        public boolean contains(Object o) {
+            if (!(o instanceof Map.Entry)) {
+                return false;
+            }
+            
+            TrieEntry<K,V> candidate = getEntry(((Map.Entry<?, ?>)o).getKey());
+            return candidate != null && candidate.equals(o);
+        }
+        
+        @Override
+        public boolean remove(Object o) {
+            int size = size();
+            PatriciaTrie.this.remove(o);
+            return size != size();
+        }
+        
+        @Override
+        public int size() {
+            return PatriciaTrie.this.size();
+        }
+        
+        @Override
+        public void clear() {
+            PatriciaTrie.this.clear();
+        }
+    }
+    
+    /**
+     * 
+     */
+    private class KeySet extends AbstractSet<K> {
+        @Override
+        public Iterator<K> iterator() {
+            return newKeyIterator();
+        }
+        
+        @Override
+        public int size() {
+            return PatriciaTrie.this.size();
+        }
+        
+        @Override
+        public boolean contains(Object o) {
+            return containsKey(o);
+        }
+        
+        @Override
+        public boolean remove(Object o) {
+            int size = size();
+            PatriciaTrie.this.remove(o);
+            return size != size();
+        }
+        
+        @Override
+        public void clear() {
+            PatriciaTrie.this.clear();
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    private class Values extends AbstractCollection<V> {
+        
+        @Override
+        public Iterator<V> iterator() {
+            return newValueIterator();
+        }
+        
+        @Override
+        public int size() {
+            return PatriciaTrie.this.size();
+        }
+        
+        @Override
+        public boolean contains(Object o) {
+            return containsValue(o);
+        }
+        
+        @Override
+        public void clear() {
+            PatriciaTrie.this.clear();
+        }
+        
+        @Override
+        public boolean remove(Object o) {
+            for (Iterator<V> it = iterator(); it.hasNext(); ) {
+                V value = it.next();
+                if (TrieUtils.compare(value, o)) {
+                    it.remove();
+                    return true;
+                }
+            }
+            return false;
+        }
     }
     
     /** A submap used for prefix views over the Trie. */
