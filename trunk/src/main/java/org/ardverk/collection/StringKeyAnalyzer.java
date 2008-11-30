@@ -102,7 +102,7 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(String key, int lengthInBits, int bitIndex) {
+    public boolean isBitSet(String key, int bitIndex, int lengthInBits) {
         if (key == null || bitIndex >= lengthInBits) {
             return false;
         }

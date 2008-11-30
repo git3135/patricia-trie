@@ -259,7 +259,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                     || current.bitIndex <= path.bitIndex) {
                 toAdd.predecessor = toAdd;
                 
-                if (!isBitSet(toAdd.key, lengthInBits, toAdd.bitIndex)) {
+                if (!isBitSet(toAdd.key, toAdd.bitIndex, lengthInBits)) {
                     toAdd.left = toAdd;
                     toAdd.right = current;
                 } else {
@@ -277,7 +277,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                     current.predecessor = toAdd;
                 }
          
-                if (path == root || !isBitSet(toAdd.key, lengthInBits, path.bitIndex)) {
+                if (path == root || !isBitSet(toAdd.key, path.bitIndex, lengthInBits)) {
                     path.left = toAdd;
                 } else {
                     path.right = toAdd;
@@ -288,7 +288,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 
             path = current;
             
-            if (!isBitSet(toAdd.key, lengthInBits, current.bitIndex)) {
+            if (!isBitSet(toAdd.key, current.bitIndex, lengthInBits)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -341,7 +341,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             }
             
             path = current;
-            if (!isBitSet(key, lengthInBits, current.bitIndex)) {
+            if (!isBitSet(key, current.bitIndex, lengthInBits)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -382,7 +382,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return true;
         }
 
-        if (!isBitSet(key, lengthInBits, h.bitIndex)) {
+        if (!isBitSet(key, h.bitIndex, lengthInBits)) {
             if (selectR(h.left, h.bitIndex, key, lengthInBits, reference)) {
                 return selectR(h.right, h.bitIndex, key, lengthInBits, reference);
             }
@@ -435,7 +435,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return true; // continue
         }
 
-        if (!isBitSet(key, lengthInBits, h.bitIndex)) {
+        if (!isBitSet(key, h.bitIndex, lengthInBits)) {
             if (selectR(h.left, h.bitIndex, key, lengthInBits, cursor, reference)) {
                 return selectR(h.right, h.bitIndex, key, lengthInBits, cursor, reference);
             }
@@ -555,7 +555,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             
             path = current;
             
-            if (!isBitSet(key, lengthInBits, current.bitIndex)) {
+            if (!isBitSet(key, current.bitIndex, lengthInBits)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -1764,7 +1764,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             }
             
             path = current;
-            if (!isBitSet(prefix, lengthInBits+offset, current.bitIndex+offset)) {
+            if (!isBitSet(prefix, current.bitIndex+offset, lengthInBits+offset)) {
                 current = current.left;
             } else {
                 current = current.right;
@@ -1792,7 +1792,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         // Found key's length-th bit differs from our key
         // which means it cannot be the prefix...
         if (isBitSet(prefix, offsetLength, offsetLength) 
-                != isBitSet(entry.key, lengthInBits(entry.key), lengthInBits)) {
+                != isBitSet(entry.key, lengthInBits, lengthInBits(entry.key))) {
             return null;
         }
         

@@ -43,7 +43,7 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(Integer key, int lengthInBits, int bitIndex) {
+    public boolean isBitSet(Integer key, int bitIndex, int lengthInBits) {
         return (key & BITS[bitIndex]) != 0;
     }
 
