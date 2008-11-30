@@ -1065,7 +1065,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
     @Override
     public SortedMap<K, V> headMap(K toKey) {
-        return new SubMap(null, toKey);
+        return new SubMap2(null, toKey);
     }
 
     @Override
@@ -1080,12 +1080,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
     @Override
     public SortedMap<K, V> subMap(K fromKey, K toKey) {
-        return new SubMap(fromKey, toKey);
+        return new SubMap2(fromKey, toKey);
     }
 
     @Override
     public SortedMap<K, V> tailMap(K fromKey) {
-        return new SubMap(fromKey, null);
+        return new SubMap2(fromKey, null);
     } 
     
     /**
@@ -1829,11 +1829,13 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     /** 
      * A submap used for prefix views over the Trie. 
      */
-    private class PrefixSubMap extends SubMap {
+    private class PrefixSubMap extends SubMap2 {
+        
         protected final K prefix;
         protected final int offset;
         protected final int lengthInBits;        
         private transient int keyModCount = 0;
+        
         protected int size;
         
         PrefixSubMap(K prefix, int offset, int lengthInBits) {
@@ -1842,12 +1844,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             this.lengthInBits = lengthInBits;
             fromInclusive = false;
         }
-        
-        /*@Override
-        public int size() {
-            fixup();
-            return size;
-        }*/
         
         @Override
         public K firstKey() {
@@ -1942,11 +1938,11 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
         
         @Override
-        protected Set<Map.Entry<K, V>> newSubMapEntrySet() {
+        protected Set<Map.Entry<K, V>> createEntrySet() {
             return new PrefixEntrySetView();
         }
 
-        private class PrefixEntrySetView extends SubMap.EntrySetView {
+        private class PrefixEntrySetView extends SubMap2.EntrySetView {
             private TrieEntry<K, V> prefixStart;
             private int iterModCount = 0;
             
@@ -1979,7 +1975,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     /**
      *
      */
-    private class SubMap extends AbstractMap<K,V> implements SortedMap<K,V> {
+    private class SubMap2 extends AbstractMap<K,V> implements SortedMap<K,V> {
     
         /** The key to start from, null if the beginning. */
         protected K fromKey;
@@ -1998,9 +1994,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
          * by subclasses that wish to lazily construct their
          * fromKey or toKey
          */
-        protected SubMap() {}
+        protected SubMap2() {}
 
-        SubMap(K fromKey, K toKey) {
+        protected SubMap2(K fromKey, K toKey) {
             if (fromKey == null && toKey == null) {
                 throw new IllegalArgumentException("must have a from or to!");
             }
@@ -2106,12 +2102,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         @Override
         public Set<Map.Entry<K,V>> entrySet() {
             if (entrySet == null) {
-                entrySet = newSubMapEntrySet();
+                entrySet = createEntrySet();
             }
             return entrySet;
         }
         
-        protected Set<Map.Entry<K, V>> newSubMapEntrySet() {
+        protected Set<Map.Entry<K, V>> createEntrySet() {
             return new EntrySetView();
         }
         
@@ -2192,7 +2188,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 throw new IllegalArgumentException("toKey out of range");
             }
             
-            return new SubMap(fromKey, toKey);
+            return new SubMap2(fromKey, toKey);
         }
 
         @Override
@@ -2201,7 +2197,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 throw new IllegalArgumentException("toKey out of range");
             }
             
-            return new SubMap(fromKey, toKey);
+            return new SubMap2(fromKey, toKey);
         }
 
         @Override
@@ -2210,7 +2206,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 throw new IllegalArgumentException("fromKey out of range");
             }
             
-            return new SubMap(fromKey, toKey);
+            return new SubMap2(fromKey, toKey);
         }
 
         protected boolean inRange(K key) {
