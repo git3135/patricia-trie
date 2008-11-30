@@ -1941,6 +1941,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             }
         }
         
+        @Override
         protected Set<Map.Entry<K, V>> newSubMapEntrySet() {
             return new PrefixEntrySetView();
         }
@@ -2105,9 +2106,13 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         @Override
         public Set<Map.Entry<K,V>> entrySet() {
             if (entrySet == null) {
-                entrySet = new EntrySetView();
+                entrySet = newSubMapEntrySet();
             }
             return entrySet;
+        }
+        
+        protected Set<Map.Entry<K, V>> newSubMapEntrySet() {
+            return new EntrySetView();
         }
         
         class EntrySetView extends AbstractSet<Map.Entry<K,V>> {
