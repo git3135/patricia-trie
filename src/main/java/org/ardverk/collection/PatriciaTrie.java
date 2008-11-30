@@ -987,8 +987,8 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("Trie[").append(size()).append("]={\n");
-        for(Iterator<Map.Entry<K, V>> i = newEntryIterator(); i.hasNext(); ) {
-            buffer.append("  ").append(i.next()).append("\n");
+        for (Map.Entry<K, V> entry : entrySet()) {
+            buffer.append("  ").append(entry).append("\n");
         }
         buffer.append("}\n");
         return buffer.toString();
@@ -999,27 +999,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      */
     private static boolean isValidUplink(TrieEntry<?, ?> next, TrieEntry<?, ?> from) { 
         return next != null && next.bitIndex <= from.bitIndex && !next.isEmpty();
-    }
-    
-    /**
-     * 
-     */
-    Iterator<K> newKeyIterator()   {
-        return new KeyIterator();
-    }
-    
-    /**
-     * 
-     */
-    Iterator<V> newValueIterator()   {
-        return new ValueIterator();
-    }
-    
-    /**
-     * 
-     */
-    Iterator<Map.Entry<K,V>> newEntryIterator()   {
-        return new EntryIterator();
     }
     
     /**
@@ -1525,7 +1504,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         
         @Override
         public Iterator<Map.Entry<K,V>> iterator() {
-            return newEntryIterator();
+            return new EntryIterator();
         }
         
         @Override
@@ -1562,7 +1541,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     private class KeySet extends AbstractSet<K> {
         @Override
         public Iterator<K> iterator() {
-            return newKeyIterator();
+            return new KeyIterator();
         }
         
         @Override
@@ -1595,7 +1574,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         
         @Override
         public Iterator<V> iterator() {
-            return newValueIterator();
+            return new ValueIterator();
         }
         
         @Override
@@ -1669,7 +1648,9 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
      * An iterator for the entries. 
      */
     private abstract class NodeIterator<E> implements Iterator<E> {
-        protected int expectedModCount = modCount;   // For fast-fail 
+        
+        protected int expectedModCount = PatriciaTrie.this.modCount;   // For fast-fail 
+        
         protected TrieEntry<K, V> next; // the next node to return
         protected TrieEntry<K, V> current; // the current entry we're on
         
@@ -2045,7 +2026,11 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
         @Override
         public boolean containsKey(Object key) {
-            return inRange(castKey(key)) && PatriciaTrie.this.containsKey(key);
+            if (!inRange(castKey(key))) {
+                return false;
+            }
+            
+            return PatriciaTrie.this.containsKey(key);
         }
        
         @Override
@@ -2120,26 +2105,31 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         @Override
         public Set<Map.Entry<K,V>> entrySet() {
             if (entrySet == null) {
-                entrySet = newSubMapEntrySet();
+                entrySet = new EntrySetView();
             }
             return entrySet;
         }
         
-        protected Set<Map.Entry<K, V>> newSubMapEntrySet() {
-            return new EntrySetView();
-        }
-
         class EntrySetView extends AbstractSet<Map.Entry<K,V>> {
-            private transient int size = -1, sizeModCount;
+            private transient int size = -1;
+            
+            private transient int sizeModCount;
 
+            @Override
+            public Iterator<Map.Entry<K,V>> iterator() {
+                return new SubMapEntryIterator(
+                    (fromKey == null ? firstEntry() : ceilingEntry(fromKey)),
+                    (toKey   == null ? null         : ceilingEntry(toKey)));
+            }
+            
             @Override
             public int size() {
                 if (size == -1 || sizeModCount != PatriciaTrie.this.modCount) {
-                    size = 0;  sizeModCount = PatriciaTrie.this.modCount;
-                    Iterator<?> i = iterator();
-                    while (i.hasNext()) {
-                        size++;
-                        i.next();
+                    size = 0;  
+                    sizeModCount = PatriciaTrie.this.modCount;
+                    
+                    for (Iterator<?> it = iterator(); it.hasNext(); it.next()) {
+                        ++size;
                     }
                 }
                 return size;
@@ -2184,13 +2174,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                     return true;
                 }
                 return false;
-            }
-
-            @Override
-            public Iterator<Map.Entry<K,V>> iterator() {
-                return new SubMapEntryIterator(
-                    (fromKey == null ? firstEntry() : ceilingEntry(fromKey)),
-                    (toKey   == null ? null         : ceilingEntry(toKey)));
             }
         }
 
