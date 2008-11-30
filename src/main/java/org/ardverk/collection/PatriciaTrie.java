@@ -1533,6 +1533,16 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         public void clear() {
             PatriciaTrie.this.clear();
         }
+        
+        /**
+         * 
+         */
+        private class EntryIterator extends NodeIterator<Map.Entry<K,V>> {
+            @Override
+            public Map.Entry<K,V> next() {
+                return nextEntry();
+            }
+        }
     }
     
     /**
@@ -1564,6 +1574,16 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         @Override
         public void clear() {
             PatriciaTrie.this.clear();
+        }
+        
+        /**
+         * 
+         */
+        private class KeyIterator extends NodeIterator<K> {
+            @Override
+            public K next() {
+                return nextEntry().getKey();
+            }
         }
     }
     
@@ -1602,6 +1622,16 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 }
             }
             return false;
+        }
+        
+        /**
+         * 
+         */
+        private class ValueIterator extends NodeIterator<V> {
+            @Override
+            public V next() {
+                return nextEntry().getValue();
+            }
         }
     }
     
@@ -1670,7 +1700,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
         
         TrieEntry<K,V> nextEntry() { 
-            if (modCount != expectedModCount) {
+            if (expectedModCount != PatriciaTrie.this.modCount) {
                 throw new ConcurrentModificationException();
             }
             
@@ -1694,7 +1724,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                 throw new IllegalStateException();
             }
             
-            if (modCount != expectedModCount) {
+            if (expectedModCount != PatriciaTrie.this.modCount) {
                 throw new ConcurrentModificationException();
             }
             
@@ -1702,37 +1732,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             current = null;
             PatriciaTrie.this.removeEntry(node);
             
-            expectedModCount = modCount;
-        }
-    }
-
-    /**
-     * 
-     */
-    private class EntryIterator extends NodeIterator<Map.Entry<K,V>> {
-        @Override
-        public Map.Entry<K,V> next() {
-            return nextEntry();
-        }
-    }
-    
-    /**
-     * 
-     */
-    private class KeyIterator extends NodeIterator<K> {
-        @Override
-        public K next() {
-            return nextEntry().getKey();
-        }
-    }
-    
-    /**
-     * 
-     */
-    private class ValueIterator extends NodeIterator<V> {
-        @Override
-        public V next() {
-            return nextEntry().getValue();
+            expectedModCount = PatriciaTrie.this.modCount;
         }
     }
     
