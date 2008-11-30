@@ -58,7 +58,7 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
     /** 
      * Returns whether or not a bit is set 
      */
-    public boolean isBitSet(K key, int lengthInBits, int bitIndex);
+    public boolean isBitSet(K key, int bitIndex, int lengthInBits);
     
     /**
      * Returns the n-th different bit between key and found.

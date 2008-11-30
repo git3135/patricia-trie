@@ -118,11 +118,11 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
      * Returns whether or not the given bit on the 
      * key is set, or false if the key is null
      */
-    protected final boolean isBitSet(K key, int lengthInBits, int bitIndex) {
+    protected final boolean isBitSet(K key, int bitIndex, int lengthInBits) {
         if (key == null) { // root's might be null!
             return false;
         }
-        return keyAnalyzer.isBitSet(key, lengthInBits, bitIndex);
+        return keyAnalyzer.isBitSet(key, bitIndex, lengthInBits);
     }
     
     /**
