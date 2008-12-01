@@ -1,4 +1,4 @@
-<project name="PatriciaTrie" default="dist" basedir=".">
+<project name="Patricia-Trie" default="dist" basedir=".">
 	
 	<property name="build" location="build"/>
 	<property name="dist" location="dist"/>
@@ -11,7 +11,7 @@
 	<property name="build.resources" location="${build}/resources"/>
 	<property name="build.lib" location="${build}/lib"/>
 	
-	<property name="patricia-trie-jar" location="${build.lib}/patricia-trie.jar"/>
+	<property name="patricia-trie-jar" location="${build.lib}/Patricia-Trie.jar"/>
 		
 	<target name="init">
 		<tstamp/>
@@ -48,8 +48,19 @@
 		<mkdir dir="${dist}"/>
 		<copy file="LICENSE-2.0.txt" todir="${dist}"/>
 		<copy file="${patricia-trie-jar}" todir="${dist}"/>
-	
-		<javadoc sourcepath="${src}" destdir="${dist}/javadoc"/>
+		
+		<javadoc
+			sourcepath="${src}"
+			destdir="${dist}/javadoc"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="Patricia Trie">
+			
+			<doctitle><![CDATA[<h1>Patricia Trie</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2005-2008 Roger Kapsi, Sam Berlin. All Rights Reserved.</i>]]></bottom>
+			<link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api/" packagelistLoc="${build}"/>
+		</javadoc>
 	</target>
 	
 	<target name="clean">
