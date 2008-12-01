@@ -511,7 +511,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return this;
         }
         
-        return new PrefixSubMap(key, offsetInBits, lengthInBits);
+        return new PrefixRangeMap(key, offsetInBits, lengthInBits);
     }
     
     /**
@@ -1065,7 +1065,7 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
     @Override
     public SortedMap<K, V> headMap(K toKey) {
-        return new SubMap2(null, toKey);
+        return new RangeMap(null, toKey);
     }
 
     @Override
@@ -1080,12 +1080,12 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
 
     @Override
     public SortedMap<K, V> subMap(K fromKey, K toKey) {
-        return new SubMap2(fromKey, toKey);
+        return new RangeMap(fromKey, toKey);
     }
 
     @Override
     public SortedMap<K, V> tailMap(K fromKey) {
-        return new SubMap2(fromKey, null);
+        return new RangeMap(fromKey, null);
     } 
     
     /**
@@ -1359,6 +1359,51 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
         
         return entry;
+    }
+    
+protected boolean inRange(K key, KeyRange<K> keyRange) {
+        
+        K fromKey = keyRange.getFromKey();
+        K toKey = keyRange.getToKey();
+        
+        return (fromKey == null || inFromRange(key, keyRange, false)) 
+            && (toKey   == null || inToRange(key, keyRange, false));
+    }
+
+    // This form allows the high endpoint (as well as all legit keys)
+    protected boolean inRange2(K key, KeyRange<K> keyRange) {
+        
+        K fromKey = keyRange.getFromKey();
+        K toKey = keyRange.getToKey();
+        
+        return (fromKey == null || inFromRange(key, keyRange, false)) 
+            && (toKey   == null || inToRange(key, keyRange, true));
+    }
+    
+    protected boolean inFromRange(K key, KeyRange<K> keyRange, boolean forceInclusive) {
+        
+        K fromKey = keyRange.getFromKey();
+        boolean fromInclusive = keyRange.isFromInclusive();
+        
+        int ret = keyAnalyzer.compare(key, fromKey);
+        if (fromInclusive || forceInclusive) {
+            return ret >= 0;
+        } else {
+            return ret > 0;
+        }
+    }
+
+    protected boolean inToRange(K key, KeyRange<K> keyRange, boolean forceInclusive) {
+        
+        K toKey = keyRange.getToKey();
+        boolean toInclusive = keyRange.isToInclusive();
+        
+        int ret = keyAnalyzer.compare(key, toKey);
+        if (toInclusive || forceInclusive) {
+            return ret <= 0;
+        } else {
+            return ret < 0;
+        }
     }
     
     /**
@@ -1799,26 +1844,41 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
     }
     
+    /**
+     * 
+     */
+    private interface KeyRange<K> {
+        
+        public K getFromKey();
+        
+        public boolean isFromInclusive();
+        
+        public K getToKey();
+        
+        public boolean isToInclusive();
+    }
+
     /** 
      * An iterator for submaps. 
      */
-    private class SubMapEntryIterator extends NodeIterator<Map.Entry<K,V>> {
-        private final K firstExcludedKey;
+    private class RangeMapEntryIterator extends NodeIterator<Map.Entry<K,V>> {
+        
+        private final K excludedKey;
 
-        SubMapEntryIterator(TrieEntry<K,V> first, TrieEntry<K,V> firstExcluded) {
+        public RangeMapEntryIterator(TrieEntry<K,V> first, TrieEntry<K,V> last) {
             super(first);
-            firstExcludedKey = 
-              (firstExcluded == null ? null : firstExcluded.key);
+            
+            this.excludedKey = (last != null ? last.getKey() : null);
         }
 
         @Override
         public boolean hasNext() {
-            return next != null && next.key != firstExcludedKey;
+            return next != null && !TrieUtils.compare(next.key, excludedKey);
         }
 
         @Override
         public Map.Entry<K,V> next() {
-            if (next == null || next.key == firstExcludedKey) {
+            if (next == null || TrieUtils.compare(next.key, excludedKey)) {
                 throw new NoSuchElementException();
             }
             
@@ -1829,20 +1889,24 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
     /** 
      * A submap used for prefix views over the Trie. 
      */
-    private class PrefixSubMap extends SubMap2 {
+    private class PrefixRangeMap extends AbstractRangeMap {
         
         protected final K prefix;
         protected final int offset;
-        protected final int lengthInBits;        
-        private transient int keyModCount = 0;
+        protected final int lengthInBits;
+        
+        protected K fromKey = null;
+        
+        protected K toKey = null;
+        
+        private transient int expectedModCount = 0;
         
         protected int size;
         
-        PrefixSubMap(K prefix, int offset, int lengthInBits) {
+        PrefixRangeMap(K prefix, int offset, int lengthInBits) {
             this.prefix = prefix;
             this.offset = offset;
             this.lengthInBits = lengthInBits;
-            fromInclusive = false;
         }
         
         @Override
@@ -1899,31 +1963,31 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return keyAnalyzer.isPrefix(prefix, offset, lengthInBits, key);
         }
         
-        private void fixup() {
+        private int fixup() {
             
             // The trie has changed since we last
             // found our toKey / fromKey
-            if (modCount != keyModCount) {
-                Iterator<Map.Entry<K, V>> iter = entrySet().iterator();
+            if (PatriciaTrie.this.modCount != expectedModCount) {
+                Iterator<Map.Entry<K, V>> it = entrySet().iterator();
                 size = 0;
                 
                 Map.Entry<K, V> entry = null;
-                if (iter.hasNext()) {
-                    entry = iter.next();
+                if (it.hasNext()) {
+                    entry = it.next();
                     size = 1;
                 }
                 
                 fromKey = entry == null ? null : entry.getKey();
-                if(fromKey != null) {
+                if (fromKey != null) {
                     TrieEntry<K, V> prior = previousEntry((TrieEntry<K, V>)entry);
                     fromKey = prior == null ? null : prior.getKey();
                 }
                 
                 toKey = fromKey;
                 
-                while(iter.hasNext()) {
+                while(it.hasNext()) {
                     size++;
-                    entry = iter.next();
+                    entry = it.next();
                 }
                 
                 toKey = entry == null ? null : entry.getKey();
@@ -1933,70 +1997,102 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
                     toKey = entry == null ? null : entry.getKey();
                 }
                 
-                keyModCount = modCount;
+                expectedModCount = PatriciaTrie.this.modCount;
             }
+            
+            return size;
         }
         
         @Override
         protected Set<Map.Entry<K, V>> createEntrySet() {
-            return new PrefixEntrySetView();
+            return new PrefixRangeEntrySet(this);
         }
 
-        private class PrefixEntrySetView extends SubMap2.EntrySetView {
-            private TrieEntry<K, V> prefixStart;
-            private int iterModCount = 0;
-            
-            @Override
-            public int size() {
-                fixup();
-                //return PrefixSubMap.this.size();
-                return PrefixSubMap.this.size;
-            }
+        @Override
+        public K getFromKey() {
+            return fromKey;
+        }
 
-            @Override
-            public Iterator<Map.Entry<K,V>> iterator() {
-                if(modCount != iterModCount) {
-                    prefixStart = subtree(prefix, offset, lengthInBits);
-                    iterModCount = modCount;
-                }
-                
-                if (prefixStart == null) {
-                    Set<Map.Entry<K,V>> empty = Collections.emptySet();
-                    return empty.iterator();
-                } else if(lengthInBits >= prefixStart.bitIndex){
-                    return new SingletonIterator(prefixStart);
-                } else {
-                    return new PrefixEntryIterator(prefixStart, prefix, offset, lengthInBits);
-                }
+        @Override
+        public K getToKey() {
+            return toKey;
+        }
+
+        @Override
+        public boolean isFromInclusive() {
+            return false;
+        }
+
+        @Override
+        public boolean isToInclusive() {
+            return false;
+        }
+
+        @Override
+        protected SortedMap<K, V> createMap(
+                K fromKey, boolean fromInclusive,
+                K toKey, boolean toInclusive) {
+            return new RangeMap(fromKey, fromInclusive, toKey, toInclusive);
+        }
+    }
+    
+    private class PrefixRangeEntrySet extends RangeEntrySet {
+        
+        private final PrefixRangeMap m;
+        
+        private TrieEntry<K, V> prefixStart;
+        
+        private int expectedModCount = 0;
+        
+        public PrefixRangeEntrySet(PrefixRangeMap m) {
+            super(m);
+            this.m = m;
+        }
+        
+        @Override
+        public int size() {
+            return m.fixup();
+        }
+
+        @Override
+        public Iterator<Map.Entry<K,V>> iterator() {
+            if (PatriciaTrie.this.modCount != expectedModCount) {
+                prefixStart = subtree(m.prefix, m.offset, m.lengthInBits);
+                expectedModCount = PatriciaTrie.this.modCount;
+            }
+            
+            if (prefixStart == null) {
+                Set<Map.Entry<K,V>> empty = Collections.emptySet();
+                return empty.iterator();
+            } else if (m.lengthInBits >= prefixStart.bitIndex) {
+                return new SingletonIterator(prefixStart);
+            } else {
+                return new PrefixEntryIterator(prefixStart, m.prefix, m.offset, m.lengthInBits);
             }
         }
     }
     
-    /**
-     *
-     */
-    private class SubMap2 extends AbstractMap<K,V> implements SortedMap<K,V> {
-    
+    private class RangeMap extends AbstractRangeMap {
+        
         /** The key to start from, null if the beginning. */
-        protected K fromKey;
+        protected final K fromKey;
         
         /** The key to end at, null if till the end. */
-        protected K toKey;
+        protected final K toKey;
         
         /** Whether or not the 'from' is inclusive. */
-        protected boolean fromInclusive;
+        protected final boolean fromInclusive;
         
         /** Whether or not the 'to' is inclusive. */
-        protected boolean toInclusive;
+        protected final boolean toInclusive;
         
-        /**
-         * Constructs a blank SubMap -- this should ONLY be used
-         * by subclasses that wish to lazily construct their
-         * fromKey or toKey
-         */
-        protected SubMap2() {}
-
-        protected SubMap2(K fromKey, K toKey) {
+        protected RangeMap(K fromKey, K toKey) {
+            this(fromKey, true, toKey, false);
+        }
+        
+        protected RangeMap(K fromKey, boolean fromInclusive, 
+                K toKey, boolean toInclusive) {
+            
             if (fromKey == null && toKey == null) {
                 throw new IllegalArgumentException("must have a from or to!");
             }
@@ -2007,9 +2103,113 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             }
             
             this.fromKey = fromKey;
+            this.fromInclusive = fromInclusive;
             this.toKey = toKey;
-            fromInclusive = true;
+            this.toInclusive = toInclusive;
         }
+        
+        @Override
+        public K firstKey() {
+            Map.Entry<K,V> e = null;
+            if (fromKey == null) {
+                e = firstEntry();
+            } else {
+                if (fromInclusive) {
+                    e = ceilingEntry(fromKey);
+                } else {
+                    e = higherEntry(fromKey);
+                }
+            }
+            
+            K first = e != null ? e.getKey() : null;
+            if (e == null || toKey != null && !inToRange(first)) {
+                throw new NoSuchElementException();
+            }
+            return first;
+        }
+
+        @Override
+        public K lastKey() {
+            Map.Entry<K,V> e;
+            if (toKey == null) {
+                e = lastEntry();
+            } else {
+                if (toInclusive) {
+                    e = floorEntry(toKey);
+                } else {
+                    e = lowerEntry(toKey);
+                }
+            }
+            
+            K last = e != null ? e.getKey() : null;
+            if (e == null || fromKey != null && !inFromRange(last)) {
+                throw new NoSuchElementException();
+            }
+            return last;
+        }
+        
+        @Override
+        protected Set<Entry<K, V>> createEntrySet() {
+            return new RangeEntrySet(this);
+        }
+
+        @Override
+        protected boolean inRange(K key) {
+            return PatriciaTrie.this.inRange(key, this);
+        }
+        
+        protected boolean inFromRange(K key) {
+            return PatriciaTrie.this.inFromRange(key, this, false);
+        }
+        
+        protected boolean inToRange(K key) {
+            return PatriciaTrie.this.inToRange(key, this, false);
+        }
+
+        @Override
+        public K getFromKey() {
+            return fromKey;
+        }
+
+        @Override
+        public K getToKey() {
+            return toKey;
+        }
+
+        @Override
+        public boolean isFromInclusive() {
+            return fromInclusive;
+        }
+
+        @Override
+        public boolean isToInclusive() {
+            return toInclusive;
+        }
+
+        @Override
+        protected SortedMap<K, V> createMap(K fromKey, boolean fromInclusive,
+                K toKey, boolean toInclusive) {
+            return new RangeMap(fromKey, fromInclusive, toKey, toInclusive);
+        }
+    }
+    
+    /**
+     *
+     */
+    private abstract class AbstractRangeMap extends AbstractMap<K,V> 
+            implements SortedMap<K,V>, KeyRange<K> {
+    
+        private transient Set<Map.Entry<K,V>> entrySet;
+        
+        /**
+         * 
+         */
+        protected abstract boolean inRange(K key);
+        
+        /**
+         * 
+         */
+        protected abstract Set<Map.Entry<K, V>> createEntrySet();
         
         @Override
         public Comparator<? super K> comparator() {
@@ -2058,48 +2258,6 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
         }
 
         @Override
-        public K firstKey() {
-            Map.Entry<K,V> e = null;
-            if (fromKey == null) {
-                e = firstEntry();
-            } else {
-                if (fromInclusive) {
-                    e = ceilingEntry(fromKey);
-                } else {
-                    e = higherEntry(fromKey);
-                }
-            }
-            
-            K first = e != null ? e.getKey() : null;
-            if (e == null || toKey != null && !inToRange(first, false)) {
-                throw new NoSuchElementException();
-            }
-            return first;
-        }
-
-        @Override
-        public K lastKey() {
-            Map.Entry<K,V> e;
-            if (toKey == null) {
-                e = lastEntry();
-            } else {
-                if (toInclusive) {
-                    e = floorEntry(toKey);
-                } else {
-                    e = lowerEntry(toKey);
-                }
-            }
-            
-            K last = e != null ? e.getKey() : null;
-            if (e == null || fromKey != null && !inFromRange(last, false)) {
-                throw new NoSuchElementException();
-            }
-            return last;
-        }
-
-        private transient Set<Map.Entry<K,V>> entrySet;
-
-        @Override
         public Set<Map.Entry<K,V>> entrySet() {
             if (entrySet == null) {
                 entrySet = createEntrySet();
@@ -2107,135 +2265,135 @@ public class PatriciaTrie<K, V> extends AbstractPatriciaTrie<K, V> {
             return entrySet;
         }
         
-        protected Set<Map.Entry<K, V>> createEntrySet() {
-            return new EntrySetView();
-        }
-        
-        class EntrySetView extends AbstractSet<Map.Entry<K,V>> {
-            private transient int size = -1;
-            
-            private transient int sizeModCount;
-
-            @Override
-            public Iterator<Map.Entry<K,V>> iterator() {
-                return new SubMapEntryIterator(
-                    (fromKey == null ? firstEntry() : ceilingEntry(fromKey)),
-                    (toKey   == null ? null         : ceilingEntry(toKey)));
-            }
-            
-            @Override
-            public int size() {
-                if (size == -1 || sizeModCount != PatriciaTrie.this.modCount) {
-                    size = 0;  
-                    sizeModCount = PatriciaTrie.this.modCount;
-                    
-                    for (Iterator<?> it = iterator(); it.hasNext(); it.next()) {
-                        ++size;
-                    }
-                }
-                return size;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return !iterator().hasNext();
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                if (!(o instanceof Map.Entry)) {
-                    return false;
-                }
-                
-                Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
-                K key = entry.getKey();
-                if (!inRange(key)) {
-                    return false;
-                }
-                
-                TrieEntry<K, V> node = getEntry(key);
-                return node != null && TrieUtils.compare(node.getValue(), entry.getValue());
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                if (!(o instanceof Map.Entry)) {
-                    return false;
-                }
-                
-                Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
-                K key = entry.getKey();
-                if (!inRange(key)) {
-                    return false;
-                }
-                
-                TrieEntry<K,V> node = getEntry(key);
-                if (node != null && TrieUtils.compare(node.getValue(), entry.getValue())) {
-                    removeEntry(node);
-                    return true;
-                }
-                return false;
-            }
-        }
-
         @Override
         public SortedMap<K,V> subMap(K fromKey, K toKey) {
-            if (!inRange2(fromKey)) {
+            if (!inRange2(fromKey, this)) {
                 throw new IllegalArgumentException("fromKey out of range");
             }
             
-            if (!inRange2(toKey)) {
+            if (!inRange2(toKey, this)) {
                 throw new IllegalArgumentException("toKey out of range");
             }
             
-            return new SubMap2(fromKey, toKey);
+            return createMap(fromKey, isFromInclusive(), 
+                    toKey, isToInclusive());
         }
 
         @Override
         public SortedMap<K,V> headMap(K toKey) {
-            if (!inRange2(toKey)) {
+            if (!inRange2(toKey, this)) {
                 throw new IllegalArgumentException("toKey out of range");
             }
             
-            return new SubMap2(fromKey, toKey);
+            return createMap(getFromKey(), isFromInclusive(), 
+                    toKey, isToInclusive());
         }
 
         @Override
         public SortedMap<K,V> tailMap(K fromKey) {
-            if (!inRange2(fromKey)) {
+            if (!inRange2(fromKey, this)) {
                 throw new IllegalArgumentException("fromKey out of range");
             }
             
-            return new SubMap2(fromKey, toKey);
-        }
-
-        protected boolean inRange(K key) {
-            return (fromKey == null || inFromRange(key, false)) &&
-                   (toKey   == null || inToRange(key, false));
-        }
-
-        // This form allows the high endpoint (as well as all legit keys)
-        protected boolean inRange2(K key) {
-            return (fromKey == null || inFromRange(key, false)) &&
-                   (toKey   == null || inToRange(key, true));
+            return createMap(fromKey, isFromInclusive(), 
+                    getToKey(), isToInclusive());
         }
         
-        protected boolean inToRange(K key, boolean forceInclusive) {
-            int ret = keyAnalyzer.compare(key, toKey);
-            if (toInclusive || forceInclusive) {
-                return ret <= 0;
-            } else {
-                return ret < 0;
-            }
-        }
-        
-        protected boolean inFromRange(K key, boolean forceInclusive) {
-            int ret = keyAnalyzer.compare(key, fromKey);
-            if (fromInclusive || forceInclusive) {
-                return ret >= 0;
-            } else {
-                return ret > 0;
-            }
-        }
+        protected abstract SortedMap<K, V> createMap(
+                K fromKey, boolean fromInclusive, K toKey, boolean toInclusive);
     }
+    
+    /**
+     * 
+     */
+    private class RangeEntrySet extends AbstractSet<Map.Entry<K,V>> {
+        
+        private final KeyRange<K> keyRange;
+        
+        private transient int size = -1;
+        
+        private transient int expectedModCount;
+
+        public RangeEntrySet(KeyRange<K> keyRange) {
+            if (keyRange == null) {
+                throw new NullPointerException("keyRange");
+            }
+            
+            this.keyRange = keyRange;
+        }
+        
+        @Override
+        public Iterator<Map.Entry<K,V>> iterator() {
+            K fromKey = keyRange.getFromKey();
+            K toKey = keyRange.getToKey();
+            
+            TrieEntry<K, V> first = null;
+            if (fromKey == null) {
+                first = firstEntry();
+            } else {
+                first = ceilingEntry(fromKey);
+            }
+            
+            TrieEntry<K, V> last = null;
+            if (toKey != null) {
+                last = ceilingEntry(toKey);
+            }
+            
+            return new RangeMapEntryIterator(first, last);
+        }
+        
+        @Override
+        public int size() {
+            if (size == -1 || expectedModCount != PatriciaTrie.this.modCount) {
+                size = 0;  
+                expectedModCount = PatriciaTrie.this.modCount;
+                
+                for (Iterator<?> it = iterator(); it.hasNext(); it.next()) {
+                    ++size;
+                }
+            }
+            return size;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return !iterator().hasNext();
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            if (!(o instanceof Map.Entry)) {
+                return false;
+            }
+            
+            Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
+            K key = entry.getKey();
+            if (!inRange(key, keyRange)) {
+                return false;
+            }
+            
+            TrieEntry<K, V> node = getEntry(key);
+            return node != null && TrieUtils.compare(node.getValue(), entry.getValue());
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            if (!(o instanceof Map.Entry)) {
+                return false;
+            }
+            
+            Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
+            K key = entry.getKey();
+            if (!inRange(key, keyRange)) {
+                return false;
+            }
+            
+            TrieEntry<K,V> node = getEntry(key);
+            if (node != null && TrieUtils.compare(node.getValue(), entry.getValue())) {
+                removeEntry(node);
+                return true;
+            }
+            return false;
+        }
+    }   
 }
