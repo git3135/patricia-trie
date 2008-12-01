@@ -24,6 +24,8 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
     
     private static final long serialVersionUID = -7032449491269434877L;
     
+    public static final StringKeyAnalyzer INSTANCE = new StringKeyAnalyzer();
+    
     private static final int[] BITS = createIntBitMask(16);
     
     /**
