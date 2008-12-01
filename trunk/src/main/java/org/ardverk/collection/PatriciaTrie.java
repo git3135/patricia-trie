@@ -1891,22 +1891,61 @@ protected boolean inRange(K key, KeyRange<K> keyRange) {
      */
     private class PrefixRangeMap extends AbstractRangeMap {
         
-        protected final K prefix;
-        protected final int offset;
-        protected final int lengthInBits;
+        private final K prefix;
+        private final int offset;
+        private final int lengthInBits;
         
-        protected K fromKey = null;
+        private K fromKey = null;
         
-        protected K toKey = null;
+        private K toKey = null;
         
         private transient int expectedModCount = 0;
         
-        protected int size;
+        private int size = -1;
         
-        PrefixRangeMap(K prefix, int offset, int lengthInBits) {
+        private PrefixRangeMap(K prefix, int offset, int lengthInBits) {
             this.prefix = prefix;
             this.offset = offset;
             this.lengthInBits = lengthInBits;
+        }
+        
+        private int fixup() {
+            // The trie has changed since we last
+            // found our toKey / fromKey
+            if (size == - 1 || PatriciaTrie.this.modCount != expectedModCount) {
+                Iterator<Map.Entry<K, V>> it = entrySet().iterator();
+                size = 0;
+                
+                Map.Entry<K, V> entry = null;
+                if (it.hasNext()) {
+                    entry = it.next();
+                    size = 1;
+                }
+                
+                fromKey = entry == null ? null : entry.getKey();
+                if (fromKey != null) {
+                    TrieEntry<K, V> prior = previousEntry((TrieEntry<K, V>)entry);
+                    fromKey = prior == null ? null : prior.getKey();
+                }
+                
+                toKey = fromKey;
+                
+                while (it.hasNext()) {
+                    ++size;
+                    entry = it.next();
+                }
+                
+                toKey = entry == null ? null : entry.getKey();
+                
+                if (toKey != null) {
+                    entry = nextEntry((TrieEntry<K, V>)entry);
+                    toKey = entry == null ? null : entry.getKey();
+                }
+                
+                expectedModCount = PatriciaTrie.this.modCount;
+            }
+            
+            return size;
         }
         
         @Override
@@ -1961,46 +2000,6 @@ protected boolean inRange(K key, KeyRange<K> keyRange) {
         
         protected boolean inFromRange(K key, boolean forceInclusive) {
             return keyAnalyzer.isPrefix(prefix, offset, lengthInBits, key);
-        }
-        
-        private int fixup() {
-            
-            // The trie has changed since we last
-            // found our toKey / fromKey
-            if (PatriciaTrie.this.modCount != expectedModCount) {
-                Iterator<Map.Entry<K, V>> it = entrySet().iterator();
-                size = 0;
-                
-                Map.Entry<K, V> entry = null;
-                if (it.hasNext()) {
-                    entry = it.next();
-                    size = 1;
-                }
-                
-                fromKey = entry == null ? null : entry.getKey();
-                if (fromKey != null) {
-                    TrieEntry<K, V> prior = previousEntry((TrieEntry<K, V>)entry);
-                    fromKey = prior == null ? null : prior.getKey();
-                }
-                
-                toKey = fromKey;
-                
-                while(it.hasNext()) {
-                    size++;
-                    entry = it.next();
-                }
-                
-                toKey = entry == null ? null : entry.getKey();
-                
-                if (toKey != null) {
-                    entry = nextEntry((TrieEntry<K, V>)entry);
-                    toKey = entry == null ? null : entry.getKey();
-                }
-                
-                expectedModCount = PatriciaTrie.this.modCount;
-            }
-            
-            return size;
         }
         
         @Override
@@ -2346,11 +2345,12 @@ protected boolean inRange(K key, KeyRange<K> keyRange) {
         public int size() {
             if (size == -1 || expectedModCount != PatriciaTrie.this.modCount) {
                 size = 0;  
-                expectedModCount = PatriciaTrie.this.modCount;
                 
                 for (Iterator<?> it = iterator(); it.hasNext(); it.next()) {
                     ++size;
                 }
+                
+                expectedModCount = PatriciaTrie.this.modCount;
             }
             return size;
         }
