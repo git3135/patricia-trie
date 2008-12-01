@@ -21,6 +21,8 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
     
     private static final long serialVersionUID = 4928508653722068982L;
     
+    public static final IntegerKeyAnalyzer INSTANCE = new IntegerKeyAnalyzer();
+    
     private static final int[] BITS = createIntBitMask(32);
 
     /**
