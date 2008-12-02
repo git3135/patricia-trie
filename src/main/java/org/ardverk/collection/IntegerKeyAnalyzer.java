@@ -16,7 +16,9 @@
 
 package org.ardverk.collection;
 
-
+/**
+ * A {@link KeyAnalyzer} for {@link Integer}s
+ */
 public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
     
     private static final long serialVersionUID = 4928508653722068982L;

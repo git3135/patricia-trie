@@ -21,7 +21,7 @@ import java.util.SortedMap;
 
 /**
  * Defines the interface for a prefix tree, an ordered tree data structure. For 
- * more information, see <a href= "http://en.wikipedia.org/wiki/Trie">Tries</a>.
+ * more information, see <a href="http://en.wikipedia.org/wiki/Trie">Tries</a>.
  * 
  * @author Roger Kapsi
  * @author Sam Berlin

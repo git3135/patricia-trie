@@ -20,20 +20,14 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /** 
- * Defines the interface to analyze {@link Trie} keys on a bit 
- * level. <code>KeyAnalyzer</code>'s 
- * methods return the length of the key in bits, whether or not a bit is 
- * set, and bits per element in the key. 
+ * Defines the interface to analyze {@link Trie} keys on a bit level. 
+ * {@link KeyAnalyzer}'s methods return the length of the key in bits, 
+ * whether or not a bit is set, and bits per element in the key. 
  * <p>
  * Additionally, a method determines if a key is a prefix of another key and
  * returns the bit index where one key is different from another key (if 
- * the key and found key are equal than the return value is EQUAL_BIT_KEY).
- * <p>
- * <code>KeyAnalyzer</code> defines:<br>
- * <table cellspace="5">
- * <tr><td>NULL_BIT_KEY</td><td>When key's bits are all zero</td></tr>
- * <tr><td> EQUAL_BIT_KEY </td><td>When keys are the same </td></tr>
- * </table>
+ * the key and found key are equal than the return value is 
+ * {@value #EQUAL_BIT_KEY}).
  */
 public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
     
@@ -82,7 +76,7 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
     public boolean isPrefix(K prefix, int offset, int lengthInBits, K key);
     
     /**
-     * 
+     * Returns the type of the Key
      */
     public Class<K> getKeyClass();
 }

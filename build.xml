@@ -49,9 +49,11 @@
 		<copy file="LICENSE-2.0.txt" todir="${dist}"/>
 		<copy file="${patricia-trie-jar}" todir="${dist}"/>
 		
+		<property name="javadoc.dir" location="/Users/roger/Desktop/docs/api"/>
+		
 		<javadoc
 			sourcepath="${src}"
-			destdir="${dist}/javadoc"
+			destdir="${dist}/api"
 			author="true"
 			version="true"
 			use="true"
@@ -59,7 +61,7 @@
 			
 			<doctitle><![CDATA[<h1>Patricia Trie</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Copyright &#169; 2005-2008 Roger Kapsi, Sam Berlin. All Rights Reserved.</i>]]></bottom>
-			<link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api/" packagelistLoc="${build}"/>
+			<link offline="true" href="http://java.sun.com/javase/6/docs/api" packagelistLoc="${javadoc.dir}"/>
 		</javadoc>
 	</target>
 	
