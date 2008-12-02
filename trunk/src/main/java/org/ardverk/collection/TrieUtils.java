@@ -41,7 +41,7 @@ public class TrieUtils {
     /**
      * Returns a synchronized instance of a {@link Trie}
      * 
-     * See {@link Collections#synchronizedSortedMap(SortedMap)}
+     * @see Collections#synchronizedSortedMap(SortedMap)
      */
     public static <K, V> Trie<K, V> synchronizedTrie(Trie<K, V> trie) {
         if (trie instanceof SynchronizedTrie) {
