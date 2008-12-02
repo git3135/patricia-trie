@@ -16,6 +16,9 @@
 
 package org.ardverk.collection;
 
+/**
+ * An abstract class for {@link KeyAnalyzer}s
+ */
 public abstract class AbstractKeyAnalyzer<K> implements KeyAnalyzer<K> {
     
     private static final long serialVersionUID = 384115794654304353L;

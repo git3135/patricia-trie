@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * 
+ * A basic implementation of {@link Entry}
  */
 class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
     

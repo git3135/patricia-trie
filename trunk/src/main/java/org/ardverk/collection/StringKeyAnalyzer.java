@@ -18,7 +18,7 @@ package org.ardverk.collection;
 
 
 /**
- * 
+ * An {@link KeyAnalyzer} for {@link String}s
  */
 public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
     
