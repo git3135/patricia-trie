@@ -19,19 +19,18 @@ package org.ardverk.collection;
 import java.util.Map;
 
 /**
- * A {@link Cursor} can be used to traverse a {@link Trie}, 
- * visit each node step by step and make {@link Decision}s
- * on each step how to continue with traversing the 
- * {@link Trie}.
+ * A {@link Cursor} can be used to traverse a {@link Trie}, visit each node 
+ * step by step and make {@link Decision}s on each step how to continue with 
+ * traversing the {@link Trie}.
  */
 public interface Cursor<K, V> {
     
     /**
-     * The {@link Decision} tells the {@link Cursor} what
-     * to do on each step while traversing the {@link Trie}.
+     * The {@link Decision} tells the {@link Cursor} what to do on each step 
+     * while traversing the {@link Trie}.
      * 
-     * NOTE: Not all operations that work with a {@link Cursor}
-     * support all {@link Decision} types
+     * NOTE: Not all operations that work with a {@link Cursor} support all 
+     * {@link Decision} types
      */
     public static enum Decision {
         
