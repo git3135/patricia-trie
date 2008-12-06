@@ -25,7 +25,7 @@ import java.util.Map;
  * This is just an abstract base class for {@link PatriciaTrie}. It's
  * purpose is to reduce the size of the actual class.
  */
-abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V> 
+abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V> 
         implements Trie<K, V>, Serializable {
     
     private static final long serialVersionUID = 5155253417231339498L;
@@ -33,10 +33,10 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
     protected final KeyAnalyzer<? super K> keyAnalyzer;
     
     /** 
-     * Constructs a new {@link AbstractPatriciaTrie} using the 
+     * Constructs a new {@link PatriciaTrieBase} using the 
      * given {@link KeyAnalyzer} 
      */
-    public AbstractPatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
+    public PatriciaTrieBase(KeyAnalyzer<? super K> keyAnalyzer) {
         if (keyAnalyzer == null) {
             throw new NullPointerException("keyAnalyzer");
         }
@@ -45,11 +45,11 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Constructs a new {@link AbstractPatriciaTrie} using the 
+     * Constructs a new {@link PatriciaTrieBase} using the 
      * given {@link KeyAnalyzer} and initializes the {@link Trie}
      * with the values from the provided {@link Map}.
      */
-    public AbstractPatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer, 
+    public PatriciaTrieBase(KeyAnalyzer<? super K> keyAnalyzer, 
             Map<? extends K, ? extends V> m) {
         this(keyAnalyzer);
         
@@ -186,6 +186,26 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
+     * A {@link Reference} allows us to return something through a Method's 
+     * argument list. An alternative would be to an Array with a length of 
+     * one (1) but that leads to compiler warnings. Computationally and memory
+     * wise there's no difference (except for the need to load the 
+     * {@link Reference} Class but that happens only once).
+     */
+    static class Reference<E> {
+        
+        private E item;
+        
+        public void set(E item) {
+            this.item = item;
+        }
+        
+        public E get() {
+            return item;
+        }
+    }
+    
+    /**
      * A basic implementation of {@link Entry}
      */
     static class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
@@ -212,21 +232,21 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
                     ^ (value != null ? value.hashCode() : 0);
         }
         
-        boolean compareKey(K other) {
+        public boolean compareKey(K other) {
             return TrieUtils.compare(key, other);
         }
         
-        boolean compareValue(V other) {
+        public boolean compareValue(V other) {
             return TrieUtils.compare(value, other);
         }
         
-        K setKey(K key) {
+        public K setKey(K key) {
             K previous = this.key;
             this.key = key;
             return previous;
         }
         
-        V setKeyValue(K key, V value) {
+        public V setKeyValue(K key, V value) {
             setKey(key);
             return setValue(value);
         }
@@ -296,6 +316,125 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
         @Override
         public String toString() {
             return key + "=" + value;
+        }
+    }
+    
+    /**
+     *  A {@link Trie} is a set of {@link TrieEntry} nodes
+     */
+    static class TrieEntry<K,V> extends BasicEntry<K, V> {
+        
+        private static final long serialVersionUID = 4596023148184140013L;
+        
+        /** The index this entry is comparing. */
+        protected int bitIndex;
+        
+        /** The parent of this entry. */
+        protected TrieEntry<K,V> parent;
+        
+        /** The left child of this entry. */
+        protected TrieEntry<K,V> left;
+        
+        /** The right child of this entry. */
+        protected TrieEntry<K,V> right;
+        
+        /** The entry who uplinks to this entry. */ 
+        protected TrieEntry<K,V> predecessor;
+        
+        public TrieEntry(K key, V value, int bitIndex) {
+            super(key, value);
+            
+            this.bitIndex = bitIndex;
+            
+            this.parent = null;
+            this.left = this;
+            this.right = null;
+            this.predecessor = this;
+        }
+        
+        /**
+         * Whether or not the entry is storing a key.
+         * Only the root can potentially be empty, all other
+         * nodes must have a key.
+         */
+        public boolean isEmpty() {
+            return key == null;
+        }
+        
+        /** 
+         * Neither the left nor right child is a loopback 
+         */
+        public boolean isInternalNode() {
+            return left != this && right != this;
+        }
+        
+        /** 
+         * Either the left or right child is a loopback 
+         */
+        public boolean isExternalNode() {
+            return !isInternalNode();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            StringBuilder buffer = new StringBuilder();
+            
+            if (bitIndex == -1) {
+                buffer.append("RootEntry(");
+            } else {
+                buffer.append("Entry(");
+            }
+            
+            buffer.append("key=").append(getKey()).append(" [").append(bitIndex).append("], ");
+            buffer.append("value=").append(getValue()).append(", ");
+            //buffer.append("bitIndex=").append(bitIndex).append(", ");
+            
+            if (parent != null) {
+                if (parent.bitIndex == -1) {
+                    buffer.append("parent=").append("ROOT");
+                } else {
+                    buffer.append("parent=").append(parent.getKey()).append(" [").append(parent.bitIndex).append("]");
+                }
+            } else {
+                buffer.append("parent=").append("null");
+            }
+            buffer.append(", ");
+            
+            if (left != null) {
+                if (left.bitIndex == -1) {
+                    buffer.append("left=").append("ROOT");
+                } else {
+                    buffer.append("left=").append(left.getKey()).append(" [").append(left.bitIndex).append("]");
+                }
+            } else {
+                buffer.append("left=").append("null");
+            }
+            buffer.append(", ");
+            
+            if (right != null) {
+                if (right.bitIndex == -1) {
+                    buffer.append("right=").append("ROOT");
+                } else {
+                    buffer.append("right=").append(right.getKey()).append(" [").append(right.bitIndex).append("]");
+                }
+            } else {
+                buffer.append("right=").append("null");
+            }
+            buffer.append(", ");
+            
+            if (predecessor != null) {
+                if(predecessor.bitIndex == -1) {
+                    buffer.append("predecessor=").append("ROOT");
+                } else {
+                    buffer.append("predecessor=").append(predecessor.getKey()).append(" [").append(predecessor.bitIndex).append("]");
+                }
+            }
+            
+            buffer.append(")");
+            return buffer.toString();
         }
     }
 }
