@@ -184,4 +184,118 @@ abstract class AbstractPatriciaTrie<K, V> extends AbstractMap<K, V>
         buffer.append("}\n");
         return buffer.toString();
     }
+    
+    /**
+     * A basic implementation of {@link Entry}
+     */
+    static class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
+        
+        private static final long serialVersionUID = -944364551314110330L;
+
+        protected K key;
+        
+        protected V value;
+        
+        private final int hashCode;
+        
+        public BasicEntry(K key) {
+            this.key = key;
+            
+            this.hashCode = (key != null ? key.hashCode() : 0);
+        }
+        
+        public BasicEntry(K key, V value) {
+            this.key = key;
+            this.value = value;
+            
+            this.hashCode = (key != null ? key.hashCode() : 0)
+                    ^ (value != null ? value.hashCode() : 0);
+        }
+        
+        boolean compareKey(K other) {
+            return TrieUtils.compare(key, other);
+        }
+        
+        boolean compareValue(V other) {
+            return TrieUtils.compare(value, other);
+        }
+        
+        K setKey(K key) {
+            K previous = this.key;
+            this.key = key;
+            return previous;
+        }
+        
+        V setKeyValue(K key, V value) {
+            setKey(key);
+            return setValue(value);
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public K getKey() {
+            return key;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public V setValue(V value) {
+            V previous = this.value;
+            this.value = value;
+            return previous;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            } else if (!(o instanceof Map.Entry)) {
+                return false;
+            }
+            
+            Map.Entry<?, ?> e = (Map.Entry<?, ?>)o;
+            Object k1 = getKey();
+            Object k2 = e.getKey();
+            
+            if (k1 == k2 || (k1 != null && k1.equals(k2))) {
+                Object v1 = getValue();
+                Object v2 = e.getValue();
+                if (v1 == v2 || (v1 != null && v1.equals(v2))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return key + "=" + value;
+        }
+    }
 }
