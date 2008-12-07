@@ -543,7 +543,7 @@ public class PatriciaTrieTest {
         List<String> original = new ArrayList<String>();
         List<String> control = new ArrayList<String>();
         SortedMap<String, String> sortedControl = new TreeMap<String, String>();
-        PatriciaTrie<String, String> trie = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
+        Trie<String, String> trie = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         InputStream in = getClass().getResourceAsStream("hamlet.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -648,7 +648,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testPrefixedBy() {
-        PatriciaTrie<String, String> trie 
+        Trie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         final String[] keys = new String[]{
@@ -877,7 +877,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testPrefixByOffsetAndLength() {
-        PatriciaTrie<String, String> trie 
+        Trie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         final String[] keys = new String[]{
@@ -937,7 +937,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testPrefixedByRemoval() {
-        PatriciaTrie<String, String> trie 
+        Trie<String, String> trie 
             = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         final String[] keys = new String[]{

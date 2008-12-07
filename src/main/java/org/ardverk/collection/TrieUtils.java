@@ -16,6 +16,7 @@
 
 package org.ardverk.collection;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,7 +55,9 @@ public class TrieUtils {
     /**
      * A synchronized {@link Trie}
      */
-    private static class SynchronizedTrie<K, V> implements Trie<K, V> {
+    private static class SynchronizedTrie<K, V> implements Trie<K, V>, Serializable {
+        
+        private static final long serialVersionUID = 3121878833178676939L;
         
         private final Trie<K, V> delegate;
         
@@ -220,8 +223,10 @@ public class TrieUtils {
     /**
      * A synchronized {@link Collection}
      */
-    private static class SynchronizedCollection<E> implements Collection<E> {
+    private static class SynchronizedCollection<E> implements Collection<E>, Serializable {
         
+        private static final long serialVersionUID = 2625364158304884729L;
+
         private final Object lock;
         
         private final Collection<E> delegate;
@@ -357,6 +362,8 @@ public class TrieUtils {
      */
     private static class SynchronizedSet<E> extends SynchronizedCollection<E> 
             implements Set<E> {
+        
+        private static final long serialVersionUID = -6998017897934241309L;
 
         public SynchronizedSet(Object lock, Collection<E> deleate) {
             super(lock, deleate);
@@ -366,8 +373,10 @@ public class TrieUtils {
     /**
      * A synchronized {@link SortedMap}
      */
-    private static class SynchronizedSortedMap<K, V> implements SortedMap<K, V> {
+    private static class SynchronizedSortedMap<K, V> implements SortedMap<K, V>, Serializable {
         
+        private static final long serialVersionUID = 3654589935305688739L;
+
         private final Object lock;
         
         private final SortedMap<K, V> delegate;
