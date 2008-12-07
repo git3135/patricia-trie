@@ -934,7 +934,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
      * 
      * @see KeyAnalyzer#bitsPerElement()
      */
-    final int bitsPerElement() {
+    private final int bitsPerElement() {
         return keyAnalyzer.bitsPerElement();
     }
     
