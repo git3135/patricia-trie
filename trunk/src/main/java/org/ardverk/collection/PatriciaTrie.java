@@ -16,13 +16,10 @@
 
 package org.ardverk.collection;
 
-import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -72,32 +69,40 @@ import java.util.SortedMap;
  * @author Sam Berlin
  */
 public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
-    
-    private static final long serialVersionUID = 6473154301823684262L;
 
     /**
-     * Each of these fields are initialized to contain an instance of the
-     * appropriate view the first time this view is requested.  The views are
-     * stateless, so there's no reason to create more than one of each.
+     * 
      */
-    private transient volatile Set<K>               keySet = null;
-    private transient volatile Collection<V>        values = null;
-    private transient volatile Set<Map.Entry<K,V>>  entrySet = null;
-    
-    
-    /** 
-     * {@inheritDoc}
-     */
+    private static final long serialVersionUID = 4446367780901817838L;
+
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
+    }
+
+    public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer,
+            Map<? extends K, ? extends V> m) {
+        super(keyAnalyzer, m);
     }
     
     /**
      * {@inheritDoc}
      */
-    public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer, 
-            Map<? extends K, ? extends V> m) {
-        super(keyAnalyzer, m);
+    @Override
+    public K firstKey() {
+        return firstEntry().getKey();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public K lastKey() {
+        TrieEntry<K, V> entry = lastEntry();
+        if (entry != null) {
+            return entry.getKey();
+        } else {
+            return null;
+        }
     }
     
     /**
@@ -117,57 +122,6 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         
         return new PrefixRangeMap(key, offsetInBits, lengthInBits);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<Map.Entry<K,V>> entrySet() {
-        if (entrySet == null) {
-            entrySet = new EntrySet();
-        }
-        return entrySet;
-    }
-    
-    /**
-     * Returns a set view of the keys contained in this map.  The set is
-     * backed by the map, so changes to the map are reflected in the set, and
-     * vice-versa.  The set supports element removal, which removes the
-     * corresponding mapping from this map, via the <tt>Iterator.remove</tt>,
-     * <tt>Set.remove</tt>, <tt>removeAll</tt>, <tt>retainAll</tt>, and
-     * <tt>clear</tt> operations.  It does not support the <tt>add</tt> or
-     * <tt>addAll</tt> operations.
-     *
-     * @return a set view of the keys contained in this map.
-     */
-    @Override
-    public Set<K> keySet() {
-        if (keySet == null) {
-            keySet = new KeySet();
-        }
-        return keySet;
-    }
-    
-    /**
-     * Returns a collection view of the values contained in this map. The
-     * collection is backed by the map, so changes to the map are reflected in
-     * the collection, and vice-versa. The collection supports element
-     * removal, which removes the corresponding mapping from this map, via the
-     * <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
-     * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt> operations.
-     * It does not support the <tt>add</tt> or <tt>addAll</tt> operations.
-     *
-     * @return a collection view of the values contained in this map.
-     */
-    @Override
-    public Collection<V> values() {
-        if (values == null) {
-            values = new Values();
-        }
-        return values;
-    }
-    
-    
     
     /**
      * {@inheritDoc}
@@ -194,270 +148,373 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     } 
     
     /**
-     * This is a entry set view of the {@link Trie} as returned 
-     * by {@link Map#entrySet()}
+     * Returns an entry strictly higher than the given key,
+     * or null if no such entry exists.
      */
-    private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
+    TrieEntry<K,V> higherEntry(K key) {
+        // TODO: Cleanup so that we don't actually have to add/remove from the
+        //       tree.  (We do it here because there are other well-defined 
+        //       functions to perform the search.)
+        int lengthInBits = lengthInBits(key);
         
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Iterator<Map.Entry<K,V>> iterator() {
-            return new EntryIterator();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean contains(Object o) {
-            if (!(o instanceof Map.Entry)) {
-                return false;
-            }
-            
-            TrieEntry<K,V> candidate = getEntry(((Map.Entry<?, ?>)o).getKey());
-            return candidate != null && candidate.equals(o);
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean remove(Object o) {
-            int size = size();
-            PatriciaTrie.this.remove(o);
-            return size != size();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int size() {
-            return PatriciaTrie.this.size();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void clear() {
-            PatriciaTrie.this.clear();
-        }
-        
-        /**
-         * An {@link Iterator} that returns {@link Entry} Objects
-         */
-        private class EntryIterator extends TrieIterator<Map.Entry<K,V>> {
-            @Override
-            public Map.Entry<K,V> next() {
-                return nextEntry();
-            }
-        }
-    }
-    
-    /**
-     * This is a key set view of the {@link Trie} as returned 
-     * by {@link Map#keySet()}
-     */
-    private class KeySet extends AbstractSet<K> {
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Iterator<K> iterator() {
-            return new KeyIterator();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int size() {
-            return PatriciaTrie.this.size();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean contains(Object o) {
-            return containsKey(o);
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean remove(Object o) {
-            int size = size();
-            PatriciaTrie.this.remove(o);
-            return size != size();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void clear() {
-            PatriciaTrie.this.clear();
-        }
-        
-        /**
-         * An {@link Iterator} that returns Key Objects
-         */
-        private class KeyIterator extends TrieIterator<K> {
-            @Override
-            public K next() {
-                return nextEntry().getKey();
-            }
-        }
-    }
-    
-    /**
-     * This is a value view of the {@link Trie} as returned 
-     * by {@link Map#values()}
-     */
-    private class Values extends AbstractCollection<V> {
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Iterator<V> iterator() {
-            return new ValueIterator();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int size() {
-            return PatriciaTrie.this.size();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean contains(Object o) {
-            return containsValue(o);
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void clear() {
-            PatriciaTrie.this.clear();
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean remove(Object o) {
-            for (Iterator<V> it = iterator(); it.hasNext(); ) {
-                V value = it.next();
-                if (TrieUtils.compare(value, o)) {
-                    it.remove();
-                    return true;
+        if (lengthInBits == 0) {
+            if (!root.isEmpty()) {
+                // If data in root, and more after -- return it.
+                if (size() > 1) {
+                    return nextEntry(root);
+                } else { // If no more after, no higher entry.
+                    return null;
                 }
+            } else {
+                // Root is empty & we want something after empty, return first.
+                return firstEntry();
             }
-            return false;
         }
         
-        /**
-         * An {@link Iterator} that returns Value Objects
-         */
-        private class ValueIterator extends TrieIterator<V> {
-            @Override
-            public V next() {
-                return nextEntry().getValue();
+        TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
+        if (key.equals(found.key)) {
+            return nextEntry(found);
+        }
+        
+        int bitIndex = bitIndex(key, found.key);
+        if (isValidBitIndex(bitIndex)) {
+            TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
+            addEntry(added, lengthInBits);
+            incrementSize(); // must increment because remove will decrement
+            TrieEntry<K, V> ceil = nextEntry(added);
+            removeEntry(added);
+            modCount -= 2; // we didn't really modify it.
+            return ceil;
+        } else if (isNullBitKey(bitIndex)) {
+            if (!root.isEmpty()) {
+                return firstEntry();
+            } else if (size() > 1) {
+                return nextEntry(firstEntry());
+            } else {
+                return null;
+            }
+        } else if (isEqualBitKey(bitIndex)) {
+            return nextEntry(found);
+        }
+
+        // we should have exited above.
+        throw new IllegalStateException("invalid lookup: " + key);
+    }
+    
+    /**
+     * Returns a key-value mapping associated with the least key greater
+     * than or equal to the given key, or null if there is no such key.
+     */
+    TrieEntry<K,V> ceilingEntry(K key) {
+        // Basically:
+        // Follow the steps of adding an entry, but instead...
+        //
+        // - If we ever encounter a situation where we found an equal
+        //   key, we return it immediately.
+        //
+        // - If we hit an empty root, return the first iterable item.
+        //
+        // - If we have to add a new item, we temporarily add it,
+        //   find the successor to it, then remove the added item.
+        //
+        // These steps ensure that the returned value is either the
+        // entry for the key itself, or the first entry directly after
+        // the key.
+        
+        // TODO: Cleanup so that we don't actually have to add/remove from the
+        //       tree.  (We do it here because there are other well-defined 
+        //       functions to perform the search.)
+        int lengthInBits = lengthInBits(key);
+        
+        if (lengthInBits == 0) {
+            if (!root.isEmpty()) {
+                return root;
+            } else {
+                return firstEntry();
+            }
+        }
+        
+        TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
+        if (key.equals(found.key)) {
+            return found;
+        }
+        
+        int bitIndex = bitIndex(key, found.key);
+        if (isValidBitIndex(bitIndex)) {
+            TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
+            addEntry(added, lengthInBits);
+            incrementSize(); // must increment because remove will decrement
+            TrieEntry<K, V> ceil = nextEntry(added);
+            removeEntry(added);
+            modCount -= 2; // we didn't really modify it.
+            return ceil;
+        } else if (isNullBitKey(bitIndex)) {
+            if (!root.isEmpty()) {
+                return root;
+            } else {
+                return firstEntry();
+            }
+        } else if (isEqualBitKey(bitIndex)) {
+            return found;
+        }
+
+        // we should have exited above.
+        throw new IllegalStateException("invalid lookup: " + key);
+    }
+    
+    /**
+     * Returns a key-value mapping associated with the greatest key
+     * strictly less than the given key, or null if there is no such key.
+     */
+    TrieEntry<K,V> lowerEntry(K key) {
+        // Basically:
+        // Follow the steps of adding an entry, but instead...
+        //
+        // - If we ever encounter a situation where we found an equal
+        //   key, we return it's previousEntry immediately.
+        //
+        // - If we hit root (empty or not), return null.
+        //
+        // - If we have to add a new item, we temporarily add it,
+        //   find the previousEntry to it, then remove the added item.
+        //
+        // These steps ensure that the returned value is always just before
+        // the key or null (if there was nothing before it).
+        
+        // TODO: Cleanup so that we don't actually have to add/remove from the
+        //       tree.  (We do it here because there are other well-defined 
+        //       functions to perform the search.)
+        int lengthInBits = lengthInBits(key);
+        
+        if (lengthInBits == 0) {
+            return null; // there can never be anything before root.
+        }
+        
+        TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
+        if (key.equals(found.key)) {
+            return previousEntry(found);
+        }
+        
+        int bitIndex = bitIndex(key, found.key);
+        if (isValidBitIndex(bitIndex)) {
+            TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
+            addEntry(added, lengthInBits);
+            incrementSize(); // must increment because remove will decrement
+            TrieEntry<K, V> prior = previousEntry(added);
+            removeEntry(added);
+            modCount -= 2; // we didn't really modify it.
+            return prior;
+        } else if (isNullBitKey(bitIndex)) {
+            return null;
+        } else if (isEqualBitKey(bitIndex)) {
+            return previousEntry(found);
+        }
+
+        // we should have exited above.
+        throw new IllegalStateException("invalid lookup: " + key);
+    }
+    
+    /**
+     * Returns a key-value mapping associated with the greatest key
+     * less than or equal to the given key, or null if there is no such key.
+     */
+    TrieEntry<K,V> floorEntry(K key) {        
+        // TODO: Cleanup so that we don't actually have to add/remove from the
+        //       tree.  (We do it here because there are other well-defined 
+        //       functions to perform the search.)
+        int lengthInBits = lengthInBits(key);
+        
+        if (lengthInBits == 0) {
+            if (!root.isEmpty()) {
+                return root;
+            } else {
+                return null;
+            }
+        }
+        
+        TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
+        if (key.equals(found.key)) {
+            return found;
+        }
+        
+        int bitIndex = bitIndex(key, found.key);
+        if (isValidBitIndex(bitIndex)) {
+            TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
+            addEntry(added, lengthInBits);
+            incrementSize(); // must increment because remove will decrement
+            TrieEntry<K, V> floor = previousEntry(added);
+            removeEntry(added);
+            modCount -= 2; // we didn't really modify it.
+            return floor;
+        } else if (isNullBitKey(bitIndex)) {
+            if (!root.isEmpty()) {
+                return root;
+            } else {
+                return null;
+            }
+        } else if (isEqualBitKey(bitIndex)) {
+            return found;
+        }
+
+        // we should have exited above.
+        throw new IllegalStateException("invalid lookup: " + key);
+    }
+    
+    /**
+     * Finds the subtree that contains the prefix.
+     * 
+     * This is very similar to getR but with the difference that
+     * we stop the lookup if h.bitIndex > lengthInBits.
+     */
+    TrieEntry<K, V> subtree(K prefix, int offsetInBits, int lengthInBits) {
+        TrieEntry<K, V> current = root.left;
+        TrieEntry<K, V> path = root;
+        while(true) {
+            if (current.bitIndex <= path.bitIndex 
+                    || lengthInBits < current.bitIndex) {
+                break;
+            }
+            
+            path = current;
+            if (!isBitSet(prefix, offsetInBits + current.bitIndex, 
+                    offsetInBits + lengthInBits)) {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+        }        
+
+        // Make sure the entry is valid for a subtree.
+        TrieEntry<K, V> entry = current.isEmpty() ? path : current;
+        
+        // If entry is root, it can't be empty.
+        if (entry.isEmpty()) {
+            return null;
+        }
+        
+        int offsetLength = offsetInBits + lengthInBits;
+        
+        // if root && length of root is less than length of lookup,
+        // there's nothing.
+        // (this prevents returning the whole subtree if root has an empty
+        //  string and we want to lookup things with "\0")
+        if (entry == root && lengthInBits(entry.getKey()) < offsetLength) {
+            return null;
+        }
+        
+        // Found key's length-th bit differs from our key
+        // which means it cannot be the prefix...
+        if (isBitSet(prefix, offsetLength, offsetLength) 
+                != isBitSet(entry.key, lengthInBits, lengthInBits(entry.key))) {
+            return null;
+        }
+        
+        // ... or there are less than 'length' equal bits
+        int bitIndex = keyAnalyzer.bitIndex(prefix, offsetInBits, 
+                lengthInBits, entry.key, 0, lengthInBits(entry.getKey()));
+        
+        if (bitIndex >= 0 && bitIndex < lengthInBits) {
+            return null;
+        }
+        
+        return entry;
+    }
+    
+    /**
+     * Returns the last entry the Trie is storing.
+     * <p>
+     * This is implemented by going always to the right until
+     * we encounter a valid uplink. That uplink is the last key.
+     */
+    TrieEntry<K, V> lastEntry() {
+        return followRight(root.left);
+    }
+    
+    /** Traverses down the right path until it finds an uplink. */
+    TrieEntry<K, V> followRight(TrieEntry<K, V> node) {
+        // if Trie is empty, no last entry.
+        if (node.right == null) {
+            return null;
+        }
+        
+        // Go as far right as possible, until we encounter an uplink.
+        while (node.right.bitIndex > node.bitIndex) {
+            node = node.right;
+        }
+        
+        return node.right;
+    }
+    
+    /**
+     * Returns the node lexicographically before the given node (or null if none).
+     * 
+     * This follows four simple branches:
+     *  - If the uplink that returned us was a right uplink:
+     *      - If predecessor's left is a valid uplink from predecessor, return it.
+     *      - Else, follow the right path from the predecessor's left.
+     *  - If the uplink that returned us was a left uplink:
+     *      - Loop back through parents until we encounter a node where 
+     *        node != node.parent.left.
+     *          - If node.parent.left is uplink from node.parent:
+     *              - If node.parent.left is not root, return it.
+     *              - If it is root & root isEmpty, return null.
+     *              - If it is root & root !isEmpty, return root.
+     *          - If node.parent.left is not uplink from node.parent:
+     *              - Follow right path for first right child from node.parent.left   
+     * 
+     * @param start
+     */
+    TrieEntry<K, V> previousEntry(TrieEntry<K, V> start) {
+        if (start.predecessor == null) {
+            throw new IllegalArgumentException("must have come from somewhere!");
+        }
+        
+        if (start.predecessor.right == start) {
+            if (isValidUplink(start.predecessor.left, start.predecessor)) {
+                return start.predecessor.left;
+            } else {
+                return followRight(start.predecessor.left);
+            }
+        } else {
+            TrieEntry<K, V> node = start.predecessor;
+            while (node.parent != null && node == node.parent.left) {
+                node = node.parent;
+            }
+            
+            if (node.parent == null) { // can be null if we're looking up root.
+                return null;
+            }
+            
+            if (isValidUplink(node.parent.left, node.parent)) {
+                if (node.parent.left == root) {
+                    if (root.isEmpty()) {
+                        return null;
+                    } else {
+                        return root;
+                    }
+                    
+                } else {
+                    return node.parent.left;
+                }
+            } else {
+                return followRight(node.parent.left);
             }
         }
     }
     
-    /** 
-     * An iterator for the entries. 
+    /**
+     * Returns the entry lexicographically after the given entry.
+     * If the given entry is null, returns the first node.
+     * 
+     * This will traverse only within the subtree.  If the given node
+     * is not within the subtree, this will have undefined results.
      */
-    private abstract class TrieIterator<E> implements Iterator<E> {
-        
-        /**
-         * For fast-fail
-         */
-        protected int expectedModCount = PatriciaTrie.this.modCount;
-        
-        protected TrieEntry<K, V> next; // the next node to return
-        protected TrieEntry<K, V> current; // the current entry we're on
-        
-        /**
-         * Starts iteration from the root
-         */
-        protected TrieIterator() {
-            next = PatriciaTrie.this.nextEntry(null);
-        }
-        
-        /**
-         * Starts iteration at the given entry
-         */
-        protected TrieIterator(TrieEntry<K, V> firstEntry) {
-            next = firstEntry;
-        }
-        
-        /**
-         * Returns the next {@link TrieEntry}
-         */
-        protected TrieEntry<K,V> nextEntry() { 
-            if (expectedModCount != PatriciaTrie.this.modCount) {
-                throw new ConcurrentModificationException();
-            }
-            
-            TrieEntry<K,V> e = next;
-            if (e == null) {
-                throw new NoSuchElementException();
-            }
-            
-            next = findNext(e);
-            current = e;
-            return e;
-        }
-        
-        /**
-         * @see PatriciaTrie#nextEntry(TrieEntry)
-         */
-        protected TrieEntry<K, V> findNext(TrieEntry<K, V> prior) {
-            return PatriciaTrie.this.nextEntry(prior);
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean hasNext() {
-            return next != null;
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void remove() {
-            if (current == null) {
-                throw new IllegalStateException();
-            }
-            
-            if (expectedModCount != PatriciaTrie.this.modCount) {
-                throw new ConcurrentModificationException();
-            }
-            
-            TrieEntry<K, V> node = current;
-            current = null;
-            PatriciaTrie.this.removeEntry(node);
-            
-            expectedModCount = PatriciaTrie.this.modCount;
+    TrieEntry<K, V> nextEntryInSubtree(TrieEntry<K, V> node, 
+            TrieEntry<K, V> parentOfSubtree) {
+        if (node == null) {
+            return firstEntry();
+        } else {
+            return nextEntryImpl(node.predecessor, node, parentOfSubtree);
         }
     }
     

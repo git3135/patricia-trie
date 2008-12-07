@@ -28,57 +28,6 @@ import java.util.SortedMap;
  */
 public interface Trie<K, V> extends SortedMap<K, V> {
     
-    /**
-     * Returns a view of this Trie of all elements that are
-     * prefixed by the given key.
-     * <p>
-     * In a fixed-keysize Trie, this is essentially a 'get' operation.
-     * <p>
-     * For example, if the Trie contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'Lime' would return 'Lime', 'LimeRadio', and 'LimeWire'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key);
-    
-    /**
-     * Returns a view of this Trie of all elements that are
-     * prefixed by the length of the key.
-     * <p>
-     * Fixed-keysize Tries will not support this operation
-     * (because all keys will be the same length).
-     * <p>
-     * For example, if the Trie contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'LimePlastics' with a length of 4 would
-     * return 'Lime', 'LimeRadio', and 'LimeWire'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key, int length);
-    
-    /**
-     * Returns a view of this Trie of all elements that are prefixed
-     * by the key, starting at the given offset and for the given length.
-     * <p>
-     * Fixed-keysize Tries will not support this operation
-     * (because all keys are the same length).
-     * <p>
-     * For example, if the Trie contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'The Lime Plastics' with an offset of 4 and a 
-     * length of 4 would return 'Lime', 'LimeRadio', and 'LimeWire'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key, int offset, int length);
-    
-    /**
-     * Returns a view of this Trie of all elements that are prefixed
-     * by the number of bits in the given Key.
-     * <p>
-     * Fixed-keysize Tries can support this operation as a way to do
-     * lookups of partial keys.  That is, if the Trie is storing IP
-     * addresses, you can lookup all addresses that begin with
-     * '192.168' by providing the key '192.168.X.X' and a length of 16
-     * would return all addresses that begin with '192.168'.
-     */
-    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
     
     /**
      * Returns the value for the entry whose key is closest in a bitwise
@@ -158,5 +107,57 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      *         till the end.
      */
     public Map.Entry<K,V> traverse(Cursor<? super K, ? super V> cursor);
+    
+    /**
+     * Returns a view of this Trie of all elements that are
+     * prefixed by the given key.
+     * <p>
+     * In a fixed-keysize Trie, this is essentially a 'get' operation.
+     * <p>
+     * For example, if the Trie contains 'Lime', 'LimeWire', 
+     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
+     * a lookup of 'Lime' would return 'Lime', 'LimeRadio', and 'LimeWire'.
+     */
+    public SortedMap<K, V> getPrefixedBy(K key);
+    
+    /**
+     * Returns a view of this Trie of all elements that are
+     * prefixed by the length of the key.
+     * <p>
+     * Fixed-keysize Tries will not support this operation
+     * (because all keys will be the same length).
+     * <p>
+     * For example, if the Trie contains 'Lime', 'LimeWire', 
+     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
+     * a lookup of 'LimePlastics' with a length of 4 would
+     * return 'Lime', 'LimeRadio', and 'LimeWire'.
+     */
+    public SortedMap<K, V> getPrefixedBy(K key, int length);
+    
+    /**
+     * Returns a view of this Trie of all elements that are prefixed
+     * by the key, starting at the given offset and for the given length.
+     * <p>
+     * Fixed-keysize Tries will not support this operation
+     * (because all keys are the same length).
+     * <p>
+     * For example, if the Trie contains 'Lime', 'LimeWire', 
+     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
+     * a lookup of 'The Lime Plastics' with an offset of 4 and a 
+     * length of 4 would return 'Lime', 'LimeRadio', and 'LimeWire'.
+     */
+    public SortedMap<K, V> getPrefixedBy(K key, int offset, int length);
+    
+    /**
+     * Returns a view of this Trie of all elements that are prefixed
+     * by the number of bits in the given Key.
+     * <p>
+     * Fixed-keysize Tries can support this operation as a way to do
+     * lookups of partial keys.  That is, if the Trie is storing IP
+     * addresses, you can lookup all addresses that begin with
+     * '192.168' by providing the key '192.168.X.X' and a length of 16
+     * would return all addresses that begin with '192.168'.
+     */
+    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
 }
 
