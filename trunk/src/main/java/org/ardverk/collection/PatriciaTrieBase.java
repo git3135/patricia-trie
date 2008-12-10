@@ -942,6 +942,10 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
      * @see KeyAnalyzer#lengthInBits(Object)
      */
     final int lengthInBits(K key) {
+        if (key == null) {
+            return 0;
+        }
+        
         return keyAnalyzer.lengthInBits(key);
     }
     

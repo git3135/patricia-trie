@@ -17,6 +17,7 @@
 package org.ardverk.collection;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * A {@link Cursor} can be used to traverse a {@link Trie}, visit each node 
@@ -59,13 +60,14 @@ public interface Cursor<K, V> {
     }
     
     /**
-     * Notification that the Trie is currently looking at the given entry.
-     * Return <code>EXIT</code> to finish the Trie operation, 
-     * <code>CONTINUE</code> to look at the next entry, <code>REMOVE</code>
-     * to remove the entry and continue iterating, or
-     * <code>REMOVE_AND_EXIT</code> to remove the entry and stop iterating. 
-     * Not all operations support <code>REMOVE</code>.
+     * Called for each {@link Entry} in the {@link Trie}. Return 
+     * {@link Decision#EXIT} to finish the {@link Trie} operation,
+     * {@link Decision#CONTINUE} to go to the next {@link Entry},
+     * {@link Decision#REMOVE} to remove the {@link Entry} and
+     * continue iterating or {@link Decision#REMOVE_AND_EXIT} to
+     * remove the {@link Entry} and stop iterating.
      * 
+     * Note: Not all operations support {@link Decision#REMOVE}.
      */
     public Decision select(Map.Entry<? extends K, ? extends V> entry);
 }

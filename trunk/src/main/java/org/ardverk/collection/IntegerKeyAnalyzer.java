@@ -76,14 +76,10 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
                     + ", otherOffset=" + otherOffset);
         }
         
-        if (lengthInBits != LENGTH || otherLengthInBits != LENGTH) {
-            throw new IllegalArgumentException("lengthInBits=" + lengthInBits 
-                    + ", otherLengthInBits=" + otherLengthInBits);
-        }
+        int length = Math.min(lengthInBits, otherLengthInBits);
         
         boolean allNull = true;
-        
-        for (int i = 0; i < LENGTH; i++) {
+        for (int i = 0; i < length; i++) {
             int mask = mask(i);
             
             int a = key & mask;
