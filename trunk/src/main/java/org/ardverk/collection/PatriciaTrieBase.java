@@ -175,7 +175,8 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
      */
     @Override
     public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-        return getPrefixedByBits(key, offset * bitsPerElement(), length * bitsPerElement());
+        int bitsPerElement = bitsPerElement();
+        return getPrefixedByBits(key, offset*bitsPerElement, length*bitsPerElement);
     }
 
     /**
@@ -186,6 +187,25 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
         return getPrefixedByBits(key, 0, lengthInBits);
     }
     
+    /**
+     * Returns a view of this map, with entries containing only those that
+     * are prefixed by a value whose bits matches the bits between 'offset'
+     * and 'length' in the given key.
+     * 
+     * The view that this returns is optimized to have a very efficient
+     * Iterator.  The firstKey, lastKey & size methods must iterate
+     * over all possible values in order to determine the results.  This
+     * information is cached until the Patricia tree changes.  All other
+     * methods (except Iterator) must compare the given key to the prefix
+     * to ensure that it is within the range of the view.  The Iterator's
+     * remove method must also relocate the subtree that contains the
+     * prefixes if the entry holding the subtree is removed or changes.
+     * Changing the subtree takes O(K) time.
+     * 
+     * @param key
+     * @param offset
+     * @param length
+     */
     abstract SortedMap<K, V> getPrefixedByBits(K key, 
             int offsetInBits, int lengthInBits);
     
@@ -922,10 +942,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
      * @see KeyAnalyzer#lengthInBits(Object)
      */
     final int lengthInBits(K key) {
-        if (key == null) {
-            return 0;
-        }
-        
         return keyAnalyzer.lengthInBits(key);
     }
     
