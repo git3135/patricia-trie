@@ -56,7 +56,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
                     + ", otherOffset=" + otherOffset);
         }
         
-        int length = Math.min(lengthInBits, otherLengthInBits);
+        int length = Math.max(lengthInBits, otherLengthInBits);
         
         boolean allNull = true;
         for (int i = 0; i < length; i++) {
