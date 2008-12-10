@@ -57,44 +57,47 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(String key, int offset, int lengthInBits,
-            String other, int otherOffset, int otherLengthInBits) {
+    public int bitIndex(String key, int offsetInBits, int lengthInBits,
+            String other, int otherOffsetInBits, int otherLengthInBits) {
         boolean allNull = true;
         
-        if (offset % 16 != 0 || otherOffset % 16 != 0 
-                || lengthInBits % 16 != 0 || otherLengthInBits % 16 != 0) {
+        if (offsetInBits % LENGTH != 0 || otherOffsetInBits % LENGTH != 0 
+                || lengthInBits % LENGTH != 0 || otherLengthInBits % LENGTH != 0) {
             throw new IllegalArgumentException("offsets & lengths must be at character boundaries");
         }
         
-        int off1 = offset / 16;
-        int off2 = otherOffset / 16;
-        int len1 = lengthInBits / 16 + off1;
-        int len2 = otherLengthInBits / 16 + off2;
-        int length = Math.max(len1, len2);
+        
+        int beginIndex1 = offsetInBits / LENGTH;
+        int beginIndex2 = otherOffsetInBits / LENGTH;
+        
+        int endIndex1 = beginIndex1 + lengthInBits / LENGTH;
+        int endIndex2 = beginIndex2 + otherLengthInBits / LENGTH;
+        
+        int length = Math.max(endIndex1, endIndex2);
         
         // Look at each character, and if they're different
         // then figure out which bit makes the difference
         // and return it.
         char k = 0, f = 0;
         for(int i = 0; i < length; i++) {
-            int kOff = i + off1;
-            int fOff = i + off2;
+            int index1 = i + beginIndex1;
+            int index2 = i + beginIndex2;
             
-            if (kOff >= len1) {
+            if (index1 >= endIndex1) {
                 k = 0;
             } else {
-                k = key.charAt(kOff);
+                k = key.charAt(index1);
             }
             
-            if (other == null || fOff >= len2) {
+            if (other == null || index2 >= endIndex2) {
                 f = 0;
             } else {
-                f = other.charAt(fOff);
+                f = other.charAt(index2);
             }
             
             if (k != f) {
                int x = k ^ f;
-               return i * 16 + (Integer.numberOfLeadingZeros(x) - 16);
+               return i * LENGTH + (Integer.numberOfLeadingZeros(x) - LENGTH);
             }
             
             if (k != 0) {
@@ -146,11 +149,11 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
     @Override
     public boolean isPrefix(String prefix, int offset, 
             int lengthInBits, String key) {
-        if (offset % 16 != 0 || lengthInBits % 16 != 0) {
+        if (offset % LENGTH != 0 || lengthInBits % LENGTH != 0) {
             throw new IllegalArgumentException("Cannot determine prefix outside of character boundaries");
         }
     
-        String s1 = prefix.substring(offset / 16, lengthInBits / 16);
+        String s1 = prefix.substring(offset / LENGTH, lengthInBits / LENGTH);
         return key.startsWith(s1);
     }
 }

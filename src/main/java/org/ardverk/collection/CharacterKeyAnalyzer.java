@@ -44,16 +44,16 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     }
 
     @Override
-    public int bitIndex(Character key, int offset, int lengthInBits, 
-            Character other, int otherOffset, int otherLengthInBits) {
+    public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
+            Character other, int otherOffsetInBits, int otherLengthInBits) {
         
         if (other == null) {
             other = Character.MIN_VALUE;
         }
         
-        if (offset != 0 || otherOffset != 0) {
-            throw new IllegalArgumentException("offset=" + offset 
-                    + ", otherOffset=" + otherOffset);
+        if (offsetInBits != 0 || otherOffsetInBits != 0) {
+            throw new IllegalArgumentException("offset=" + offsetInBits 
+                    + ", otherOffset=" + otherOffsetInBits);
         }
         
         int length = Math.max(lengthInBits, otherLengthInBits);
