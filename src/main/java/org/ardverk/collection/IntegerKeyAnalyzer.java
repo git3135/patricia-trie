@@ -19,14 +19,23 @@ package org.ardverk.collection;
 /**
  * A {@link KeyAnalyzer} for {@link Integer}s
  */
-public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
+public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     
     private static final long serialVersionUID = 4928508653722068982L;
     
     public static final IntegerKeyAnalyzer INSTANCE = new IntegerKeyAnalyzer();
     
-    private static final int[] BITS = createIntBitMask(32);
-
+    public static final int LENGTH = 32;
+    
+    private static final int MSB = 0x80000000;
+    
+    /**
+     * 
+     */
+    private static int mask(int bit) {
+        return MSB >>> bit;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -40,7 +49,7 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      */
     @Override
     public int lengthInBits(Integer key) {
-        return 32;
+        return LENGTH;
     }
 
     /**
@@ -48,28 +57,37 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      */
     @Override
     public boolean isBitSet(Integer key, int bitIndex, int lengthInBits) {
-        return (key & BITS[bitIndex]) != 0;
+        return (key & mask(bitIndex)) != 0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(Integer key,   int keyOff, int lengthInBits,
-                        Integer found, int foundOff, int foundKeyLength) {
-        if (found == null)
-            found = 0;
+    public int bitIndex(Integer key, int offset, int lengthInBits, 
+            Integer other, int otherOffset, int otherLengthInBits) {
         
-        if(keyOff != 0 || foundOff != 0)
-            throw new IllegalArgumentException("offsets must be 0 for fixed-size keys");
-
+        if (other == null) {
+            other = 0;
+        }
+        
+        if (offset != 0 || otherOffset != 0) {
+            throw new IllegalArgumentException("offset=" + offset 
+                    + ", otherOffset=" + otherOffset);
+        }
+        
+        if (lengthInBits != LENGTH || otherLengthInBits != LENGTH) {
+            throw new IllegalArgumentException("lengthInBits=" + lengthInBits 
+                    + ", otherLengthInBits=" + otherLengthInBits);
+        }
+        
         boolean allNull = true;
         
-        int length = Math.max(lengthInBits, foundKeyLength);
-        
-        for (int i = 0; i < length; i++) {
-            int a = key & BITS[i];
-            int b = found & BITS[i];
+        for (int i = 0; i < LENGTH; i++) {
+            int mask = mask(i);
+            
+            int a = key & mask;
+            int b = other & mask;
 
             if (allNull && a != 0) {
                 allNull = false;
@@ -107,13 +125,15 @@ public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Integer prefix, int offset, int lengthInBits, Integer key) {
+    public boolean isPrefix(Integer prefix, int offset, 
+            int lengthInBits, Integer key) {
+        
         int addr1 = prefix;
         int addr2 = key;
         addr1 = addr1 << offset;
         
         int mask = 0;
-        for(int i = 0; i < lengthInBits; i++) {
+        for (int i = 0; i < lengthInBits; i++) {
             mask |= (0x1 << i);
         }
         

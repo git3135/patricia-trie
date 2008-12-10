@@ -20,13 +20,22 @@ package org.ardverk.collection;
 /**
  * An {@link KeyAnalyzer} for {@link String}s
  */
-public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
+public class StringKeyAnalyzer implements KeyAnalyzer<String> {
     
     private static final long serialVersionUID = -7032449491269434877L;
     
     public static final StringKeyAnalyzer INSTANCE = new StringKeyAnalyzer();
     
-    private static final int[] BITS = createIntBitMask(16);
+    public static final int LENGTH = 16;
+    
+    private static final int MSB = 0x8000;
+    
+    /**
+     * 
+     */
+    private static int mask(int bit) {
+        return MSB >>> bit;
+    }
     
     /**
      * {@inheritDoc}
@@ -41,26 +50,26 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      */
     @Override
     public int lengthInBits(String key) {
-        return (key != null ? key.length() * 16 : 0);
+        return (key != null ? key.length() * LENGTH : 0);
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(String key, int keyOff, int lengthInBits,
-            String found, int foundOff, int foundKeyLength) {
+    public int bitIndex(String key, int offset, int lengthInBits,
+            String other, int otherOffset, int otherLengthInBits) {
         boolean allNull = true;
         
-        if (keyOff % 16 != 0 || foundOff % 16 != 0 
-                || lengthInBits % 16 != 0 || foundKeyLength % 16 != 0) {
+        if (offset % 16 != 0 || otherOffset % 16 != 0 
+                || lengthInBits % 16 != 0 || otherLengthInBits % 16 != 0) {
             throw new IllegalArgumentException("offsets & lengths must be at character boundaries");
         }
         
-        int off1 = keyOff / 16;
-        int off2 = foundOff / 16;
+        int off1 = offset / 16;
+        int off2 = otherOffset / 16;
         int len1 = lengthInBits / 16 + off1;
-        int len2 = foundKeyLength / 16 + off2;
+        int len2 = otherLengthInBits / 16 + off2;
         int length = Math.max(len1, len2);
         
         // Look at each character, and if they're different
@@ -77,10 +86,10 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
                 k = key.charAt(kOff);
             }
             
-            if (found == null || fOff >= len2) {
+            if (other == null || fOff >= len2) {
                 f = 0;
             } else {
-                f = found.charAt(fOff);
+                f = other.charAt(fOff);
             }
             
             if (k != f) {
@@ -109,9 +118,10 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
             return false;
         }
         
-        int index = bitIndex / BITS.length;
-        int bit = bitIndex - index * BITS.length;
-        return (key.charAt(index) & BITS[bit]) != 0;
+        int index = (int)(bitIndex / LENGTH);
+        int bit = (int)(bitIndex % LENGTH);
+        
+        return (key.charAt(index) & mask(bit)) != 0;
     }
 
     /**
@@ -127,7 +137,7 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
      */
     @Override
     public int bitsPerElement() {
-        return 16;
+        return LENGTH;
     }
 
     /**
@@ -140,8 +150,7 @@ public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
             throw new IllegalArgumentException("Cannot determine prefix outside of character boundaries");
         }
     
-        String s1 = prefix.subSequence(offset / 16, lengthInBits / 16).toString();
-        String s2 = key.toString();
-        return s2.startsWith(s1);
+        String s1 = prefix.substring(offset / 16, lengthInBits / 16);
+        return key.startsWith(s1);
     }
 }
