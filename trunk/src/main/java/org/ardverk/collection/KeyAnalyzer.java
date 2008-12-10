@@ -60,8 +60,8 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * for 'keyLength' bits, and compares to the found key
      * starting at 'foundStart' and going for 'foundLength' bits.
      */
-    public int bitIndex(K key, int offset, int lengthInBits, 
-            K other, int otherOffset, int otherLengthInBits);
+    public int bitIndex(K key, int offsetInBits, int lengthInBits, 
+            K other, int otherOffsetInBits, int otherLengthInBits);
     
     /**
      * Returns the number of bits per element in the key.

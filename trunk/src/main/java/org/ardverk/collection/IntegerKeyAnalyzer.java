@@ -64,16 +64,16 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(Integer key, int offset, int lengthInBits, 
-            Integer other, int otherOffset, int otherLengthInBits) {
+    public int bitIndex(Integer key, int offsetInBits, int lengthInBits, 
+            Integer other, int otherOffsetInBits, int otherLengthInBits) {
         
         if (other == null) {
             other = 0;
         }
         
-        if (offset != 0 || otherOffset != 0) {
-            throw new IllegalArgumentException("offset=" + offset 
-                    + ", otherOffset=" + otherOffset);
+        if (offsetInBits != 0 || otherOffsetInBits != 0) {
+            throw new IllegalArgumentException("offset=" + offsetInBits 
+                    + ", otherOffset=" + otherOffsetInBits);
         }
         
         int length = Math.max(lengthInBits, otherLengthInBits);
