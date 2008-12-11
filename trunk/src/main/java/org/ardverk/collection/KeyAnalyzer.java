@@ -74,9 +74,4 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * is a prefix of the given key.
      */
     public boolean isPrefix(K prefix, int offset, int lengthInBits, K key);
-    
-    /**
-     * Returns the type of the Key
-     */
-    public Class<K> getKeyClass();
 }

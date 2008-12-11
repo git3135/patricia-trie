@@ -25,23 +25,18 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     
     public static final IntegerKeyAnalyzer INSTANCE = new IntegerKeyAnalyzer();
     
+    /**
+     * The length of an {@link Integer} in bits
+     */
     public static final int LENGTH = 32;
     
     private static final int MSB = 0x80000000;
     
     /**
-     * 
+     * Returns a bit mask where the given bit is set
      */
     private static int mask(int bit) {
         return MSB >>> bit;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Class<Integer> getKeyClass() {
-        return Integer.class;
     }
 
     /**
@@ -124,18 +119,14 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     public boolean isPrefix(Integer prefix, int offset, 
             int lengthInBits, Integer key) {
         
-        int addr1 = prefix;
+        int addr1 = (prefix << offset);
         int addr2 = key;
-        addr1 = addr1 << offset;
         
         int mask = 0;
         for (int i = 0; i < lengthInBits; i++) {
             mask |= (0x1 << i);
         }
         
-        addr1 &= mask;
-        addr2 &= mask;
-        
-        return addr1 == addr2;
+        return (addr1 & mask) == (addr2 & mask);
     }
 }

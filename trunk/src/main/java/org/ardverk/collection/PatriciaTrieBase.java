@@ -40,7 +40,9 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     
     private static final long serialVersionUID = 5155253417231339498L;
 
-    /** The root element of the Trie. */
+    /**
+     * The root node of the {@link Trie}. 
+     */
     final TrieEntry<K, V> root = new TrieEntry<K, V>(null, null, -1);
     
     /**
@@ -52,12 +54,22 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     private transient volatile Collection<V>        values = null;
     private transient volatile Set<Map.Entry<K,V>>  entrySet = null;
     
-    /** The current size (total number of elements) of the Trie. */
+    /**
+     * The current size of the {@link Trie}
+     */
     private int size = 0;
     
-    /** The number of times this has been modified (to fail-fast the iterators). */
+    /**
+     * The number of times this {@link Trie} has been modified.
+     * It's used to detect concurrent modifications and fail-fast
+     * the {@link Iterator}s.
+     */
     transient int modCount = 0;
     
+    /**
+     * The {@link KeyAnalyzer} that's being used to build the 
+     * PATRICIA {@link Trie}
+     */
     protected final KeyAnalyzer<? super K> keyAnalyzer;
     
     /** 
@@ -95,6 +107,14 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
         return keyAnalyzer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Comparator<? super K> comparator() {
+        return keyAnalyzer;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -144,14 +164,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
      */
     private void incrementModCount() {
         modCount++;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Comparator<? super K> comparator() {
-        return keyAnalyzer;
     }
     
     /**
@@ -528,15 +540,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns a set view of the keys contained in this map.  The set is
-     * backed by the map, so changes to the map are reflected in the set, and
-     * vice-versa.  The set supports element removal, which removes the
-     * corresponding mapping from this map, via the <tt>Iterator.remove</tt>,
-     * <tt>Set.remove</tt>, <tt>removeAll</tt>, <tt>retainAll</tt>, and
-     * <tt>clear</tt> operations.  It does not support the <tt>add</tt> or
-     * <tt>addAll</tt> operations.
-     *
-     * @return a set view of the keys contained in this map.
+     * {@inheritDoc}
      */
     @Override
     public Set<K> keySet() {
@@ -547,15 +551,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns a collection view of the values contained in this map. The
-     * collection is backed by the map, so changes to the map are reflected in
-     * the collection, and vice-versa. The collection supports element
-     * removal, which removes the corresponding mapping from this map, via the
-     * <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
-     * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt> operations.
-     * It does not support the <tt>add</tt> or <tt>addAll</tt> operations.
-     *
-     * @return a collection view of the values contained in this map.
+     * {@inheritDoc}
      */
     @Override
     public Collection<V> values() {
@@ -568,7 +564,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     /**
      * {@inheritDoc}
      * 
-     * @throws ClassCastException
+     * @throws ClassCastException if provided key is of an incompatible type 
      */
     @Override
     public V remove(Object k) {
@@ -598,8 +594,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
             }
         }
     }
-    
-    
     
     /**
      * Returns the nearest entry for a given key.  This is useful
@@ -772,8 +766,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
         }
     }
     
-    
-    
     /**
      * Scans for the next node, starting at the specified point, and using 'previous'
      * as a hint that the last node we returned was 'previous' (so we know not to return
@@ -911,7 +903,9 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
         return followLeft(root);
     }
     
-    /** Goes left through the tree until it finds a valid node. */
+    /** 
+     * Goes left through the tree until it finds a valid node. 
+     */
     TrieEntry<K, V> followLeft(TrieEntry<K, V> node) {
         while(true) {
             TrieEntry<K, V> child = node.left;
@@ -929,7 +923,8 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     }
 
     /**
-     * A utility method to cast keys
+     * A utility method to cast keys. It actually doesn't
+     * cast anything. It's just fooling the compiler!
      */
     @SuppressWarnings("unchecked")
     final K castKey(Object key) {
