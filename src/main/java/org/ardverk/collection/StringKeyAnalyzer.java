@@ -16,7 +16,6 @@
 
 package org.ardverk.collection;
 
-
 /**
  * An {@link KeyAnalyzer} for {@link String}s
  */
@@ -26,25 +25,20 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
     
     public static final StringKeyAnalyzer INSTANCE = new StringKeyAnalyzer();
     
+    /**
+     * The number of bits per {@link Character}
+     */
     public static final int LENGTH = 16;
     
     private static final int MSB = 0x8000;
     
     /**
-     * 
+     * Returns a bit mask where the given bit is set
      */
     private static int mask(int bit) {
         return MSB >>> bit;
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Class<String> getKeyClass() {
-        return String.class;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -63,7 +57,8 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
         
         if (offsetInBits % LENGTH != 0 || otherOffsetInBits % LENGTH != 0 
                 || lengthInBits % LENGTH != 0 || otherLengthInBits % LENGTH != 0) {
-            throw new IllegalArgumentException("offsets & lengths must be at character boundaries");
+            throw new IllegalArgumentException(
+                    "The offsets and lengths must be at Character boundaries");
         }
         
         
@@ -80,8 +75,8 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
         // and return it.
         char k = 0, f = 0;
         for(int i = 0; i < length; i++) {
-            int index1 = i + beginIndex1;
-            int index2 = i + beginIndex2;
+            int index1 = beginIndex1 + i;
+            int index2 = beginIndex2 + i;
             
             if (index1 >= endIndex1) {
                 k = 0;
@@ -150,7 +145,8 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
     public boolean isPrefix(String prefix, int offset, 
             int lengthInBits, String key) {
         if (offset % LENGTH != 0 || lengthInBits % LENGTH != 0) {
-            throw new IllegalArgumentException("Cannot determine prefix outside of character boundaries");
+            throw new IllegalArgumentException(
+                    "Cannot determine prefix outside of Character boundaries");
         }
     
         String s1 = prefix.substring(offset / LENGTH, lengthInBits / LENGTH);

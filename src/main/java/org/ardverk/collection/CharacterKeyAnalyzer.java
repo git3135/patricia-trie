@@ -25,10 +25,16 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     
     public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
     
+    /**
+     * The length of a {@link Character} in bits
+     */
     public static final int LENGTH = 16;
     
     private static final int MSB = 0x8000;
     
+    /**
+     * Returns a bit mask where the given bit is set
+     */
     private static int mask(int bit) {
         return MSB >>> bit;
     }
@@ -93,23 +99,14 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     
     @Override
     public boolean isPrefix(Character prefix, int offset, int length, Character key) {
-        int addr1 = prefix;
+        int addr1 = (prefix << offset);
         int addr2 = key;
-        addr1 = addr1 << offset;
         
         int mask = 0;
         for(int i = 0; i < length; i++) {
             mask |= (0x1 << i);
         }
         
-        addr1 &= mask;
-        addr2 &= mask;
-        
-        return addr1 == addr2;
-    }
-
-    @Override
-    public Class<Character> getKeyClass() {
-        return Character.class;
+        return (addr1 & mask) == (addr2 & mask);
     }
 }
