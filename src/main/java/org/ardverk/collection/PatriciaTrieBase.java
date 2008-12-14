@@ -290,44 +290,44 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
     /**
      * Adds the given {@link TrieEntry} to the {@link Trie}
      */
-    TrieEntry<K, V> addEntry(TrieEntry<K, V> toAdd, int lengthInBits) {
+    TrieEntry<K, V> addEntry(TrieEntry<K, V> entry, int lengthInBits) {
         TrieEntry<K, V> current = root.left;
         TrieEntry<K, V> path = root;
         while(true) {
-            if (current.bitIndex >= toAdd.bitIndex 
+            if (current.bitIndex >= entry.bitIndex 
                     || current.bitIndex <= path.bitIndex) {
-                toAdd.predecessor = toAdd;
+                entry.predecessor = entry;
                 
-                if (!isBitSet(toAdd.key, toAdd.bitIndex, lengthInBits)) {
-                    toAdd.left = toAdd;
-                    toAdd.right = current;
+                if (!isBitSet(entry.key, entry.bitIndex, lengthInBits)) {
+                    entry.left = entry;
+                    entry.right = current;
                 } else {
-                    toAdd.left = current;
-                    toAdd.right = toAdd;
+                    entry.left = current;
+                    entry.right = entry;
                 }
                
-                toAdd.parent = path;
-                if (current.bitIndex >= toAdd.bitIndex) {
-                    current.parent = toAdd;
+                entry.parent = path;
+                if (current.bitIndex >= entry.bitIndex) {
+                    current.parent = entry;
                 }
                 
                 // if we inserted an uplink, set the predecessor on it
                 if (current.bitIndex <= path.bitIndex) {
-                    current.predecessor = toAdd;
+                    current.predecessor = entry;
                 }
          
-                if (path == root || !isBitSet(toAdd.key, path.bitIndex, lengthInBits)) {
-                    path.left = toAdd;
+                if (path == root || !isBitSet(entry.key, path.bitIndex, lengthInBits)) {
+                    path.left = entry;
                 } else {
-                    path.right = toAdd;
+                    path.right = entry;
                 }
                 
-                return toAdd;
+                return entry;
             }
                 
             path = current;
             
-            if (!isBitSet(toAdd.key, current.bitIndex, lengthInBits)) {
+            if (!isBitSet(entry.key, current.bitIndex, lengthInBits)) {
                 current = current.left;
             } else {
                 current = current.right;
