@@ -23,6 +23,9 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
     
     private static final long serialVersionUID = -7032449491269434877L;
     
+    /**
+     * A singleton instance of {@link StringKeyAnalyzer}
+     */
     public static final StringKeyAnalyzer INSTANCE = new StringKeyAnalyzer();
     
     /**
@@ -30,6 +33,9 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
      */
     public static final int LENGTH = 16;
     
+    /**
+     * A bit mask where the first bit is 1 and the others are zero
+     */
     private static final int MSB = 0x8000;
     
     /**
@@ -100,10 +106,12 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
             }
         }
         
+        // All bits are 0
         if (allNull) {
             return KeyAnalyzer.NULL_BIT_KEY;
         }
         
+        // Both keys are equal
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
     

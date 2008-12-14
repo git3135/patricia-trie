@@ -23,6 +23,9 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     
     private static final long serialVersionUID = 4928508653722068982L;
     
+    /**
+     * A singleton instance of {@link IntegerKeyAnalyzer}
+     */
     public static final IntegerKeyAnalyzer INSTANCE = new IntegerKeyAnalyzer();
     
     /**
@@ -30,6 +33,9 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
      */
     public static final int LENGTH = 32;
     
+    /**
+     * A bit mask where the first bit is 1 and the others are zero
+     */
     private static final int MSB = 0x80000000;
     
     /**

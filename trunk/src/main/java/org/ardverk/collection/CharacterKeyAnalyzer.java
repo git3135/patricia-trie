@@ -23,6 +23,9 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     
     private static final long serialVersionUID = 3928565962744720753L;
     
+    /**
+     * A singleton instance of the {@link CharacterKeyAnalyzer}.
+     */
     public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
     
     /**
@@ -30,6 +33,9 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      */
     public static final int LENGTH = 16;
     
+    /**
+     * A bit mask where the first bit is 1 and the others are zero
+     */
     private static final int MSB = 0x8000;
     
     /**
@@ -39,16 +45,25 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
         return MSB >>> bit;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int lengthInBits(Character key) {
         return LENGTH;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isBitSet(Character key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
             Character other, int otherOffsetInBits, int otherLengthInBits) {
@@ -80,23 +95,34 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
             }
         }
 
+        // All bits are 0
         if (allNull) {
             return KeyAnalyzer.NULL_BIT_KEY;
         }
 
+        // Both keys are equal
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int compare(Character o1, Character o2) {
         return o1.compareTo(o2);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int bitsPerElement() {
         return 1;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isPrefix(Character prefix, int offset, int length, Character key) {
         int addr1 = (prefix << offset);
