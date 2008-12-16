@@ -19,8 +19,6 @@ package org.ardverk.collection;
 import java.util.Map;
 import java.util.SortedMap;
 
-import javax.rmi.CORBA.Tie;
-
 import org.ardverk.collection.Cursor.Decision;
 
 /**
@@ -134,11 +132,12 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * Returns a view of this {@link Trie} of all elements that are prefixed 
      * by the given key.
      * 
-     * <p>In a fixed-keysize {@link Trie}, this is essentially a 'get' operation.
+     * <p>In a {@link Trie} with fixed size keys, this is essentially a 
+     * {@link #get(Object)} operation.
      * 
-     * <p>For example, if the {@link Trie} contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'Lime' would return 'Lime', 'LimeRadio', and 'LimeWire'.
+     * <p>For example, if the {@link Trie} contains 'Anna', 'Anael', 
+     * 'Analu', 'Andreas', 'Andrea', 'Andres', and 'Anatole', then
+     * a lookup of 'And' would return 'Andreas', 'Andrea', and 'Andres'.
      */
     public SortedMap<K, V> getPrefixedBy(K key);
     
@@ -146,13 +145,12 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * Returns a view of this {@link Trie} of all elements that are prefixed 
      * by the length of the key.
      * 
-     * <p>Fixed-keysize {@link Trie}s will not support this operation (because 
-     * all keys will be the same length).
+     * <p>{@link Trie}s with fixed size keys will not support this operation 
+     * (because all keys are the same length).
      * 
-     * <p>For example, if the {@link Trie} contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'LimePlastics' with a length of 4 would
-     * return 'Lime', 'LimeRadio', and 'LimeWire'.
+     * <p>For example, if the {@link Trie} contains 'Anna', 'Anael', 'Analu', 
+     * 'Andreas', 'Andrea', 'Andres', and 'Anatole', then a lookup for 'Andrey' 
+     * and a length of 4 would return 'Andreas', 'Andrea', and 'Andres'.
      */
     public SortedMap<K, V> getPrefixedBy(K key, int length);
     
@@ -160,13 +158,13 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * Returns a view of this {@link Trie} of all elements that are prefixed
      * by the key, starting at the given offset and for the given length.
      * 
-     * <p>Fixed-keysize {@link Trie}s will not support this operation (because all 
-     * keys are the same length).
+     * <p>{@link Trie}s with fixed size keys will not support this operation 
+     * (because all keys are the same length).
      * 
-     * <p>For example, if the {@link Trie} contains 'Lime', 'LimeWire', 
-     * 'LimeRadio', 'Lax', 'Later', 'Lake', and 'Lovely', then
-     * a lookup of 'The Lime Plastics' with an offset of 4 and a 
-     * length of 4 would return 'Lime', 'LimeRadio', and 'LimeWire'.
+     * <p>For example, if the {@link Trie} contains 'Anna', 'Anael', 'Analu', 
+     * 'Andreas', 'Andrea', 'Andres', and 'Anatole', then a lookup for 
+     * 'Hello Andrey Smith', an offset of 6 and a length of 4 would return 
+     * 'Andreas', 'Andrea', and 'Andres'.
      */
     public SortedMap<K, V> getPrefixedBy(K key, int offset, int length);
     
@@ -174,11 +172,10 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * Returns a view of this {@link Trie} of all elements that are prefixed
      * by the number of bits in the given Key.
      * 
-     * <p>Fixed-keysize {@link Tie}s can support this operation as a way to do
-     * lookups of partial keys.  That is, if the {@link Trie} is storing IP
-     * addresses, you can lookup all addresses that begin with
-     * '192.168' by providing the key '192.168.X.X' and a length of 16
-     * would return all addresses that begin with '192.168'.
+     * <p>In {@link Trie}s with fixed size keys like IP addresses this method
+     * can be used to lookup partial keys. That is you can lookup all addresses
+     * that begin with '192.168' by providing the key '192.168.X.X' and a 
+     * length of 16.
      */
     public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
 }
