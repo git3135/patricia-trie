@@ -942,7 +942,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
             }
 
             TrieEntry<K, V> node = getEntry(key);
-            return node != null && TrieUtils.compare(
+            return node != null && Tries.compare(
                     node.getValue(), entry.getValue());
         }
 
@@ -963,7 +963,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
             }
 
             TrieEntry<K, V> node = getEntry(key);
-            if (node != null && TrieUtils.compare(
+            if (node != null && Tries.compare(
                     node.getValue(), entry.getValue())) {
                 removeEntry(node);
                 return true;
@@ -994,7 +994,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
              */
             @Override
             public boolean hasNext() {
-                return next != null && !TrieUtils.compare(next.key, excludedKey);
+                return next != null && !Tries.compare(next.key, excludedKey);
             }
 
             /**
@@ -1002,7 +1002,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
              */
             @Override
             public Map.Entry<K,V> next() {
-                if (next == null || TrieUtils.compare(next.key, excludedKey)) {
+                if (next == null || Tries.compare(next.key, excludedKey)) {
                     throw new NoSuchElementException();
                 }
                 
@@ -1012,7 +1012,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     }   
    
     /** 
-     * A submap used for prefix views over the Trie. 
+     * A submap used for prefix views over the {@link Trie}. 
      */
     private class PrefixRangeMap extends RangeMap {
         
