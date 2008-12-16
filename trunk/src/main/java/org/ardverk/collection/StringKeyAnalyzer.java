@@ -160,18 +160,4 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
         String s1 = prefix.substring(offset / LENGTH, lengthInBits / LENGTH);
         return key.startsWith(s1);
     }
-    
-    public static void main(String[] args) {
-        Trie<String, String> trie = new PatriciaTrie<String, String>(StringKeyAnalyzer.INSTANCE);
-        
-        trie.put("Anna", "Anna");
-        trie.put("Anael", "Anael");
-        trie.put("Analu", "Analu");
-        trie.put("Andreas", "Andreas");
-        trie.put("Andrea", "Andrea");
-        trie.put("Andres", "Andres");
-        trie.put("Anatole", "Anatole");
-        
-        System.out.println(trie.getPrefixedBy("Andrey", 4));
-    }
 }
