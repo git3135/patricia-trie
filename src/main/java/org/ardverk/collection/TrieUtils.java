@@ -114,7 +114,15 @@ public class TrieUtils {
         }
 
         @Override
-        public synchronized Entry<K, V> select(K key, Cursor<? super K, ? super V> cursor) {
+        public synchronized SortedMap<K, V> getPrefixedByBits(K key, 
+                int offsetInBits, int lengthInBits) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+        }
+
+        @Override
+        public synchronized Entry<K, V> select(K key, 
+                Cursor<? super K, ? super V> cursor) {
             return delegate.select(key, cursor);
         }
 
@@ -612,6 +620,13 @@ public class TrieUtils {
         public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
             return Collections.unmodifiableSortedMap(
                     delegate.getPrefixedByBits(key, lengthInBits));
+        }
+        
+        @Override
+        public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits,
+                int lengthInBits) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
         }
 
         @Override

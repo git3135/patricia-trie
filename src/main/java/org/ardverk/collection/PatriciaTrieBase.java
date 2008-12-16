@@ -193,33 +193,25 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-        return getPrefixedByBits(key, 0, lengthInBits);
-    }
-    
-    /**
+     * 
      * Returns a view of this map, with entries containing only those that
      * are prefixed by a value whose bits matches the bits between 'offset'
      * and 'length' in the given key.
      * 
      * The view that this returns is optimized to have a very efficient
-     * Iterator.  The firstKey, lastKey & size methods must iterate
-     * over all possible values in order to determine the results.  This
-     * information is cached until the Patricia tree changes.  All other
-     * methods (except Iterator) must compare the given key to the prefix
-     * to ensure that it is within the range of the view.  The Iterator's
-     * remove method must also relocate the subtree that contains the
-     * prefixes if the entry holding the subtree is removed or changes.
-     * Changing the subtree takes O(K) time.
-     * 
-     * @param key
-     * @param offset
-     * @param length
+     * Iterator.  The {@link SortedMap#firstEntry()}, {@link SortedMap#lastKey()} &amp; 
+     * {@link Map#size()} methods must iterate over all possible values in 
+     * order to determine the results. This information is cached until the 
+     * PATRICIA {@link Trie} changes. All other methods (except Iterator) must 
+     * compare the given key to the prefix to ensure that it is within the 
+     * range of the view.  The Iterator's remove method must also relocate 
+     * the subtree that contains the prefixes if the entry holding the subtree 
+     * is removed or changes. Changing the subtree takes O(K) time.
      */
-    abstract SortedMap<K, V> getPrefixedByBits(K key, 
-            int offsetInBits, int lengthInBits);
+    @Override
+    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
+        return getPrefixedByBits(key, 0, lengthInBits);
+    }
     
     /**
      * Adds a new <key, value> pair to the Trie and if a pair already
