@@ -97,17 +97,20 @@ public class TrieUtils {
 
         @Override
         public synchronized SortedMap<K, V> getPrefixedBy(K key, int length) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedBy(key, length));
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedBy(key, length));
         }
 
         @Override
         public synchronized SortedMap<K, V> getPrefixedBy(K key) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedBy(key));
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedBy(key));
         }
 
         @Override
         public synchronized SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedByBits(key, lengthInBits));
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedByBits(key, lengthInBits));
         }
 
         @Override
@@ -167,17 +170,20 @@ public class TrieUtils {
 
         @Override
         public synchronized SortedMap<K, V> subMap(K fromKey, K toKey) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.subMap(fromKey, toKey));
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.subMap(fromKey, toKey));
         }
 
         @Override
         public synchronized SortedMap<K, V> tailMap(K fromKey) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.tailMap(fromKey));
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.tailMap(fromKey));
         }
 
         @Override
         public synchronized Collection<V> values() {
-            return new SynchronizedCollection<V>(this, delegate.values());
+            return new SynchronizedCollection<V>(this, 
+                    delegate.values());
         }
 
         @Override
@@ -425,7 +431,8 @@ public class TrieUtils {
         @Override
         public Set<Entry<K, V>> entrySet() {
             synchronized (lock) {
-                return new SynchronizedSet<Entry<K,V>>(lock, delegate.entrySet());
+                return new SynchronizedSet<Entry<K,V>>(lock, 
+                        delegate.entrySet());
             }
         }
 
@@ -439,7 +446,8 @@ public class TrieUtils {
         @Override
         public SortedMap<K, V> headMap(K toKey) {
             synchronized (lock) {
-                return new SynchronizedSortedMap<K, V>(lock, delegate.headMap(toKey));
+                return new SynchronizedSortedMap<K, V>(lock, 
+                        delegate.headMap(toKey));
             }
         }
 
@@ -460,14 +468,16 @@ public class TrieUtils {
         @Override
         public SortedMap<K, V> subMap(K fromKey, K toKey) {
             synchronized (lock) {
-                return new SynchronizedSortedMap<K, V>(lock, delegate.subMap(fromKey, toKey));
+                return new SynchronizedSortedMap<K, V>(lock, 
+                        delegate.subMap(fromKey, toKey));
             }
         }
 
         @Override
         public SortedMap<K, V> tailMap(K fromKey) {
             synchronized (lock) {
-                return new SynchronizedSortedMap<K, V>(lock, delegate.tailMap(fromKey));
+                return new SynchronizedSortedMap<K, V>(lock, 
+                        delegate.tailMap(fromKey));
             }
         }
 
