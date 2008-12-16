@@ -49,7 +49,7 @@
 		<copy file="LICENSE-2.0.txt" todir="${dist}"/>
 		<copy file="${patricia-trie-jar}" todir="${dist}"/>
 		
-		<property name="javadoc.dir" location="/Users/roger/Desktop/docs/api"/>
+		<property name="javadoc.dir" location="/Users/roger/Desktop/java/docs/api"/>
 		
 		<javadoc
 			sourcepath="${src}"
