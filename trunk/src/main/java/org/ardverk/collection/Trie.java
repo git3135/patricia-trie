@@ -178,5 +178,12 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * length of 16.
      */
     public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
+    
+    /**
+     * Returns a view of this {@link Trie} of all elements that are prefixed
+     * by the number of bits in the given Key.
+     */
+    public SortedMap<K, V> getPrefixedByBits(K key, 
+            int offsetInBits, int lengthInBits);
 }
 

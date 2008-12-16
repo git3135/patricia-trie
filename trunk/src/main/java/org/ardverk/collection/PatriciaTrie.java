@@ -108,7 +108,8 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     /**
      * {@inheritDoc}
      */
-    SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits, int lengthInBits) {
+    @Override
+    public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits, int lengthInBits) {
         
         int offsetLength = offsetInBits + lengthInBits;
         if (offsetLength > lengthInBits(key)) {
