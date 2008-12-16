@@ -28,9 +28,9 @@ import java.util.SortedMap;
 /**
  * A collection of {@link Trie} utilities
  */
-public class TrieUtils {
+public class Tries {
 
-    private TrieUtils() {}
+    private Tries() {}
     
     /**
      * Returns true if both values are either null or equal

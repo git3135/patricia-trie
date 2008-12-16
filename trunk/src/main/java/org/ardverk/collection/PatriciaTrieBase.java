@@ -1058,11 +1058,11 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
         }
         
         public boolean compareKey(K other) {
-            return TrieUtils.compare(key, other);
+            return Tries.compare(key, other);
         }
         
         public boolean compareValue(V other) {
-            return TrieUtils.compare(value, other);
+            return Tries.compare(value, other);
         }
         
         public K setKey(K key) {
@@ -1432,7 +1432,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractMap<K, V>
         public boolean remove(Object o) {
             for (Iterator<V> it = iterator(); it.hasNext(); ) {
                 V value = it.next();
-                if (TrieUtils.compare(value, o)) {
+                if (Tries.compare(value, o)) {
                     it.remove();
                     return true;
                 }
