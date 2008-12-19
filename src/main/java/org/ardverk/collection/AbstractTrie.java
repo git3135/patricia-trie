@@ -38,8 +38,7 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     protected final KeyAnalyzer<? super K> keyAnalyzer;
     
     /** 
-     * Constructs a new {@link PatriciaTrieBase} using the 
-     * given {@link KeyAnalyzer} 
+     * Constructs a new {@link Trie} using the given {@link KeyAnalyzer} 
      */
     public AbstractTrie(KeyAnalyzer<? super K> keyAnalyzer) {
         if (keyAnalyzer == null) {

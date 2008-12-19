@@ -62,15 +62,14 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     transient int modCount = 0;
     
     /** 
-     * Constructs a new {@link PatriciaTrieBase} using the 
-     * given {@link KeyAnalyzer} 
+     * {@inheritDoc}
      */
     public PatriciaTrieBase(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
     }
     
     /**
-     * Constructs a new {@link PatriciaTrieBase} using the 
+     * Constructs a new {@link Trie} using the 
      * given {@link KeyAnalyzer} and initializes the {@link Trie}
      * with the values from the provided {@link Map}.
      */

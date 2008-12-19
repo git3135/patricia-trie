@@ -69,16 +69,19 @@ import java.util.SortedMap;
  * @author Sam Berlin
  */
 public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
-
-    /**
-     * 
-     */
+    
     private static final long serialVersionUID = 4446367780901817838L;
 
+    /**
+     * {@inheritDoc}
+     */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer) {
         super(keyAnalyzer);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PatriciaTrie(KeyAnalyzer<? super K> keyAnalyzer,
             Map<? extends K, ? extends V> m) {
         super(keyAnalyzer, m);
@@ -393,19 +396,19 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
             return null;
         }
         
-        int offsetLength = offsetInBits + lengthInBits;
+        int endIndexInBits = offsetInBits + lengthInBits;
         
         // if root && length of root is less than length of lookup,
         // there's nothing.
         // (this prevents returning the whole subtree if root has an empty
         //  string and we want to lookup things with "\0")
-        if (entry == root && lengthInBits(entry.getKey()) < offsetLength) {
+        if (entry == root && lengthInBits(entry.getKey()) < endIndexInBits) {
             return null;
         }
         
         // Found key's length-th bit differs from our key
         // which means it cannot be the prefix...
-        if (isBitSet(prefix, offsetLength, offsetLength) 
+        if (isBitSet(prefix, endIndexInBits, endIndexInBits) 
                 != isBitSet(entry.key, lengthInBits, lengthInBits(entry.key))) {
             return null;
         }
@@ -422,16 +425,18 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     }
     
     /**
-     * Returns the last entry the Trie is storing.
-     * <p>
-     * This is implemented by going always to the right until
+     * Returns the last entry the {@link Trie} is storing.
+     * 
+     * <p>This is implemented by going always to the right until
      * we encounter a valid uplink. That uplink is the last key.
      */
     TrieEntry<K, V> lastEntry() {
         return followRight(root.left);
     }
     
-    /** Traverses down the right path until it finds an uplink. */
+    /**
+     * Traverses down the right path until it finds an uplink.
+     */
     TrieEntry<K, V> followRight(TrieEntry<K, V> node) {
         // if Trie is empty, no last entry.
         if (node.right == null) {
@@ -520,24 +525,40 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     }
     
     /**
-     *
+     * A range view of the {@link Trie}
      */
     private abstract class RangeMap extends AbstractMap<K, V> 
             implements SortedMap<K, V> {
 
+        /**
+         * The {@link #entrySet()} view
+         */
         private transient Set<Map.Entry<K, V>> entrySet;
 
         /**
-        * 
-        */
+         * Creates and returns an {@link #entrySet()} 
+         * view of the {@link RangeMap}
+         */
         protected abstract Set<Map.Entry<K, V>> createEntrySet();
 
+        /**
+         * Returns the FROM Key
+         */
         protected abstract K getFromKey();
         
+        /**
+         * Whether or not the {@link #getFromKey()} is in the range
+         */
         protected abstract boolean isFromInclusive();
         
+        /**
+         * Returns the TO Key
+         */
         protected abstract K getToKey();
         
+        /**
+         * Whether or not the {@link #getToKey()} is in the range
+         */
         protected abstract boolean isToInclusive();
         
         /**
@@ -545,7 +566,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
          */
         @Override
         public Comparator<? super K> comparator() {
-            return keyAnalyzer;
+            return PatriciaTrie.this.comparator();
         }
 
         /**
@@ -590,7 +611,8 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         @Override
         public V put(K key, V value) {
             if (!inRange(key)) {
-                throw new IllegalArgumentException("key out of range");
+                throw new IllegalArgumentException(
+                        "Key is out of range: " + key);
             }
 
             return PatriciaTrie.this.put(key, value);
@@ -613,15 +635,17 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         @Override
         public SortedMap<K, V> subMap(K fromKey, K toKey) {
             if (!inRange2(fromKey)) {
-                throw new IllegalArgumentException("fromKey out of range");
+                throw new IllegalArgumentException(
+                        "FromKey is out of range: " + fromKey);
             }
 
             if (!inRange2(toKey)) {
-                throw new IllegalArgumentException("toKey out of range");
+                throw new IllegalArgumentException(
+                        "ToKey is out of range: " + toKey);
             }
 
-            return createRangeMap(fromKey, isFromInclusive(), toKey,
-                    isToInclusive());
+            return createRangeMap(fromKey, isFromInclusive(), 
+                    toKey, isToInclusive());
         }
 
         /**
@@ -630,11 +654,12 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         @Override
         public SortedMap<K, V> headMap(K toKey) {
             if (!inRange2(toKey)) {
-                throw new IllegalArgumentException("toKey out of range");
+                throw new IllegalArgumentException(
+                        "ToKey is out of range: " + toKey);
             }
 
-            return createRangeMap(getFromKey(), isFromInclusive(), toKey,
-                    isToInclusive());
+            return createRangeMap(getFromKey(), isFromInclusive(), 
+                    toKey, isToInclusive());
         }
 
         /**
@@ -643,15 +668,17 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         @Override
         public SortedMap<K, V> tailMap(K fromKey) {
             if (!inRange2(fromKey)) {
-                throw new IllegalArgumentException("fromKey out of range");
+                throw new IllegalArgumentException(
+                        "FromKey is out of range: " + fromKey);
             }
 
-            return createRangeMap(fromKey, isFromInclusive(), getToKey(),
-                    isToInclusive());
+            return createRangeMap(fromKey, isFromInclusive(), 
+                    getToKey(), isToInclusive());
         }
 
         /**
-         * 
+         * Returns true if the provided key is greater than TO and
+         * less than FROM
          */
         protected boolean inRange(K key) {
 
@@ -675,7 +702,8 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
 
         /**
-         * 
+         * Returns true if the provided key is in the FROM range 
+         * of the {@link RangeMap}
          */
         protected boolean inFromRange(K key, boolean forceInclusive) {
 
@@ -691,7 +719,8 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
 
         /**
-         * 
+         * Returns true if the provided key is in the TO range 
+         * of the {@link RangeMap}
          */
         protected boolean inToRange(K key, boolean forceInclusive) {
 
@@ -707,27 +736,35 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
 
         /**
-         * 
+         * Creates and returns a sub-range view of the current {@link RangeMap}
          */
         protected abstract SortedMap<K, V> createRangeMap(K fromKey,
                 boolean fromInclusive, K toKey, boolean toInclusive);
     }
    
    /**
-    * 
+    * A {@link RangeMap} that deals with {@link Entry}s
     */
    private class RangeEntryMap extends RangeMap {
        
-       /** The key to start from, null if the beginning. */
+       /** 
+        * The key to start from, null if the beginning. 
+        */
        protected final K fromKey;
        
-       /** The key to end at, null if till the end. */
+       /** 
+        * The key to end at, null if till the end. 
+        */
        protected final K toKey;
        
-       /** Whether or not the 'from' is inclusive. */
+       /** 
+        * Whether or not the 'from' is inclusive. 
+        */
        protected final boolean fromInclusive;
        
-       /** Whether or not the 'to' is inclusive. */
+       /** 
+        * Whether or not the 'to' is inclusive. 
+        */
        protected final boolean toInclusive;
        
        /**
@@ -739,7 +776,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
        }
        
        /**
-        * 
+        * Creates a {@link RangeEntryMap}
         */
        protected RangeEntryMap(K fromKey, boolean fromInclusive, 
                K toKey, boolean toInclusive) {
@@ -855,26 +892,26 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
        }
    }
    
-   /**
-    * 
-    */
+    /**
+     * A {@link Set} view of a {@link RangeMap}
+     */
     private class RangeEntrySet extends AbstractSet<Map.Entry<K, V>> {
 
-        private final RangeMap rangeMap;
+        private final RangeMap delegate;
 
         private transient int size = -1;
 
         private transient int expectedModCount;
 
         /**
-         * 
+         * Creates a {@link RangeEntrySet}
          */
-        public RangeEntrySet(RangeMap rangeMap) {
-            if (rangeMap == null) {
-                throw new NullPointerException("rangeMap");
+        public RangeEntrySet(RangeMap delegate) {
+            if (delegate == null) {
+                throw new NullPointerException("delegate");
             }
 
-            this.rangeMap = rangeMap;
+            this.delegate = delegate;
         }
 
         /**
@@ -882,8 +919,8 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
          */
         @Override
         public Iterator<Map.Entry<K, V>> iterator() {
-            K fromKey = rangeMap.getFromKey();
-            K toKey = rangeMap.getToKey();
+            K fromKey = delegate.getFromKey();
+            K toKey = delegate.getToKey();
 
             TrieEntry<K, V> first = null;
             if (fromKey == null) {
@@ -897,7 +934,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
                 last = ceilingEntry(toKey);
             }
 
-            return new RangeEntrySetIterator(first, last);
+            return new EntryIterator(first, last);
         }
 
         /**
@@ -937,7 +974,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
 
             Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
             K key = entry.getKey();
-            if (!rangeMap.inRange(key)) {
+            if (!delegate.inRange(key)) {
                 return false;
             }
 
@@ -958,7 +995,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
 
             Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
             K key = entry.getKey();
-            if (!rangeMap.inRange(key)) {
+            if (!delegate.inRange(key)) {
                 return false;
             }
 
@@ -972,16 +1009,16 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         /** 
-         * An iterator for submaps. 
+         * An {@link Iterator} for {@link RangeEntrySet}s. 
          */
-        private class RangeEntrySetIterator extends TrieIterator<Map.Entry<K,V>> {
+        private final class EntryIterator extends TrieIterator<Map.Entry<K,V>> {
             
             private final K excludedKey;
 
             /**
-             * 
+             * Creates a {@link EntryIterator}
              */
-            private RangeEntrySetIterator(
+            private EntryIterator(
                     TrieEntry<K,V> first, 
                     TrieEntry<K,V> last) {
                 super(first);
@@ -1031,7 +1068,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         private int size = -1;
         
         /**
-         * 
+         * Creates a {@link PrefixRangeMap}
          */
         private PrefixRangeMap(K prefix, int offsetInBits, int lengthInBits) {
             this.prefix = prefix;
@@ -1040,7 +1077,10 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         /**
-         * 
+         * This method does two things. It determinates the FROM
+         * and TO range of the {@link PrefixRangeMap} and the number
+         * of elements in the range. This method must be called every 
+         * time the {@link Trie} has changed.
          */
         private int fixup() {
             // The trie has changed since we last
@@ -1128,30 +1168,37 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         /**
-         * 
+         * Returns true if this {@link PrefixRangeMap}'s key is a prefix
+         * of the provided key.
          */
+        @Override
         protected boolean inRange(K key) {
             return keyAnalyzer.isPrefix(prefix, offsetInBits, lengthInBits, key);
         }
 
         /**
-         * 
+         * Same as {@link #inRange(Object)}
          */
+        @Override
         protected boolean inRange2(K key) {
-            return keyAnalyzer.isPrefix(prefix, offsetInBits, lengthInBits, key);
+            return inRange(key);
         }
         
         /**
-         * 
+         * Returns true if the provided Key is in the FROM range
+         * of the {@link PrefixRangeMap}
          */
-        protected boolean inToRange(K key, boolean forceInclusive) {
-            return keyAnalyzer.isPrefix(prefix, offsetInBits, lengthInBits, key);
-        }
-        
-        /**
-         * 
-         */
+        @Override
         protected boolean inFromRange(K key, boolean forceInclusive) {
+            return keyAnalyzer.isPrefix(prefix, offsetInBits, lengthInBits, key);
+        }
+        
+        /**
+         * Returns true if the provided Key is in the TO range
+         * of the {@link PrefixRangeMap}
+         */
+        @Override
+        protected boolean inToRange(K key, boolean forceInclusive) {
             return keyAnalyzer.isPrefix(prefix, offsetInBits, lengthInBits, key);
         }
         
@@ -1207,19 +1254,22 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     }
     
     /**
-     * 
+     * A prefix {@link RangeEntrySet} view of the {@link Trie}
      */
-    private class PrefixRangeEntrySet extends RangeEntrySet {
+    private final class PrefixRangeEntrySet extends RangeEntrySet {
         
-        private final PrefixRangeMap prefixRangeMap;
+        private final PrefixRangeMap delegate;
         
         private TrieEntry<K, V> prefixStart;
         
         private int expectedModCount = 0;
         
-        public PrefixRangeEntrySet(PrefixRangeMap prefixRangeMap) {
-            super(prefixRangeMap);
-            this.prefixRangeMap = prefixRangeMap;
+        /**
+         * Creates a {@link PrefixRangeEntrySet}
+         */
+        public PrefixRangeEntrySet(PrefixRangeMap delegate) {
+            super(delegate);
+            this.delegate = delegate;
         }
         
         /**
@@ -1227,7 +1277,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
          */
         @Override
         public int size() {
-            return prefixRangeMap.fixup();
+            return delegate.fixup();
         }
 
         /**
@@ -1236,24 +1286,24 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         @Override
         public Iterator<Map.Entry<K,V>> iterator() {
             if (PatriciaTrie.this.modCount != expectedModCount) {
-                prefixStart = subtree(prefixRangeMap.prefix, prefixRangeMap.offsetInBits, prefixRangeMap.lengthInBits);
+                prefixStart = subtree(delegate.prefix, delegate.offsetInBits, delegate.lengthInBits);
                 expectedModCount = PatriciaTrie.this.modCount;
             }
             
             if (prefixStart == null) {
                 Set<Map.Entry<K,V>> empty = Collections.emptySet();
                 return empty.iterator();
-            } else if (prefixRangeMap.lengthInBits >= prefixStart.bitIndex) {
+            } else if (delegate.lengthInBits >= prefixStart.bitIndex) {
                 return new SingletonIterator(prefixStart);
             } else {
-                return new PrefixEntryIterator(prefixStart, prefixRangeMap.prefix, prefixRangeMap.offsetInBits, prefixRangeMap.lengthInBits);
+                return new EntryIterator(prefixStart, delegate.prefix, delegate.offsetInBits, delegate.lengthInBits);
             }
         }
         
         /** 
-         * An iterator that stores a single TrieEntry. 
+         * An {@link Iterator} that holds a single {@link TrieEntry}. 
          */
-        private class SingletonIterator implements Iterator<Map.Entry<K, V>> {
+        private final class SingletonIterator implements Iterator<Map.Entry<K, V>> {
             
             private final TrieEntry<K, V> entry;
             
@@ -1280,7 +1330,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
                     throw new NoSuchElementException();
                 }
                 
-                hit++;
+                ++hit;
                 return entry;
             }
 
@@ -1293,15 +1343,16 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
                     throw new IllegalStateException();
                 }
                 
-                hit++;
+                ++hit;
                 PatriciaTrie.this.removeEntry(entry);
             }
         }
         
         /** 
-         * An iterator for iterating over a prefix search. 
+         * An {@link Iterator} for iterating over a prefix search. 
          */
-        private class PrefixEntryIterator extends TrieIterator<Map.Entry<K, V>> {
+        private final class EntryIterator extends TrieIterator<Map.Entry<K, V>> {
+            
             // values to reset the subtree if we remove it.
             protected final K prefix; 
             protected final int offset;
@@ -1314,7 +1365,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
              * Starts iteration at the given entry & search only 
              * within the given subtree.
              */
-            PrefixEntryIterator(TrieEntry<K, V> startScan, K prefix, 
+            EntryIterator(TrieEntry<K, V> startScan, K prefix, 
                     int offset, int lengthInBits) {
                 subtree = startScan;
                 next = PatriciaTrie.this.followLeft(startScan);
