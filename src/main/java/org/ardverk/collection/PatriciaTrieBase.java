@@ -293,28 +293,6 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     /**
      * {@inheritDoc}
      */
-    public K selectKey(K key) {
-        Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getKey();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public V selectValue(K key) {
-        Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getValue();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
     public Map.Entry<K,V> select(K key, Cursor<? super K, ? super V> cursor) {
         int lengthInBits = lengthInBits(key);
         Reference<Map.Entry<K, V>> reference 

@@ -67,6 +67,28 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     /**
      * {@inheritDoc}
      */
+    public K selectKey(K key) {
+        Map.Entry<K, V> entry = select(key);
+        if (entry == null) {
+            return null;
+        }
+        return entry.getKey();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public V selectValue(K key) {
+        Map.Entry<K, V> entry = select(key);
+        if (entry == null) {
+            return null;
+        }
+        return entry.getValue();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SortedMap<K, V> getPrefixedBy(K key) {
         return getPrefixedByBits(key, 0, lengthInBits(key));
