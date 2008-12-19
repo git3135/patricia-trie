@@ -73,8 +73,8 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
         }
         
         if (offsetInBits != 0 || otherOffsetInBits != 0) {
-            throw new IllegalArgumentException("offset=" + offsetInBits 
-                    + ", otherOffset=" + otherOffsetInBits);
+            throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
+                    + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
         int length = Math.max(lengthInBits, otherLengthInBits);
@@ -115,7 +115,7 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
      */
     @Override
     public int bitsPerElement() {
-        return 1;
+        return LENGTH;
     }
     
     /**
