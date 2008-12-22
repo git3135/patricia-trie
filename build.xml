@@ -11,7 +11,7 @@
 	<property name="build.resources" location="${build}/resources"/>
 	<property name="build.lib" location="${build}/lib"/>
 	
-	<property name="patricia-trie-jar" location="${build.lib}/Patricia-Trie.jar"/>
+	<property name="patricia-trie-jar" location="${build.lib}/patricia-trie.jar"/>
 		
 	<target name="init">
 		<tstamp/>

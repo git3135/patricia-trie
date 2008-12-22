@@ -103,9 +103,8 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         TrieEntry<K, V> entry = lastEntry();
         if (entry != null) {
             return entry.getKey();
-        } else {
-            return null;
         }
+        return null;
     }
     
     /**
