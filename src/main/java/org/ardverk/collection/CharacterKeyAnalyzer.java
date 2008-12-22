@@ -85,6 +85,9 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
+        // NOTE: We can use XOR and shifting to 
+        // determinate the different bit here!
+        
         boolean allNull = true;
         for (int i = 0; i < LENGTH; i++) {
             
