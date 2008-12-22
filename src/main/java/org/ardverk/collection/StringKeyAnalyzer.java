@@ -31,7 +31,7 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
     /**
      * The number of bits per {@link Character}
      */
-    public static final int LENGTH = 16;
+    public static final int LENGTH = Character.SIZE;
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
