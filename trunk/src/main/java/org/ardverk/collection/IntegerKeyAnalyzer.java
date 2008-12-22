@@ -31,7 +31,7 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     /**
      * The length of an {@link Integer} in bits
      */
-    public static final int LENGTH = 32;
+    public static final int LENGTH = Integer.SIZE;
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
@@ -45,6 +45,14 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
         return MSB >>> bit;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int bitsPerElement() {
+        return LENGTH;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -77,10 +85,8 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
-        int length = Math.max(lengthInBits, otherLengthInBits);
-        
         boolean allNull = true;
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < LENGTH; i++) {
             int mask = mask(i);
             
             int a = key & mask;
@@ -109,23 +115,15 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     public int compare(Integer o1, Integer o2) {
         return o1.compareTo(o2);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int bitsPerElement() {
-        return LENGTH;
-    }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Integer prefix, int offset, 
+    public boolean isPrefix(Integer prefix, int offsetInBits, 
             int lengthInBits, Integer key) {
         
-        int addr1 = (prefix << offset);
+        int addr1 = (prefix << offsetInBits);
         int addr2 = key;
         
         int mask = 0;

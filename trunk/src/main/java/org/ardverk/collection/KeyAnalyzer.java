@@ -27,7 +27,7 @@ import java.util.Comparator;
  * <p>Additionally, a method determines if a key is a prefix of another 
  * key and returns the bit index where one key is different from another 
  * key (if the key and found key are equal than the return value is 
- * {@value #EQUAL_BIT_KEY}).
+ * {@link #EQUAL_BIT_KEY}).
  */
 public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
     
@@ -43,6 +43,12 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      * and shouldn't happen on a regular basis
      */
     public static final int EQUAL_BIT_KEY = -2;
+    
+    /**
+     * Returns the number of bits per element in the key.
+     * This is only useful for variable-length keys, such as Strings.
+     */
+    public int bitsPerElement();
     
     /** 
      * Returns the length of the Key in bits. 
@@ -64,14 +70,8 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
             K other, int otherOffsetInBits, int otherLengthInBits);
     
     /**
-     * Returns the number of bits per element in the key.
-     * This is only useful for variable-length keys, such as Strings.
-     */
-    public int bitsPerElement();
-    
-    /**
      * Determines whether or not the given prefix (from offset to length)
      * is a prefix of the given key.
      */
-    public boolean isPrefix(K prefix, int offset, int lengthInBits, K key);
+    public boolean isPrefix(K prefix, int offsetInBits, int lengthInBits, K key);
 }

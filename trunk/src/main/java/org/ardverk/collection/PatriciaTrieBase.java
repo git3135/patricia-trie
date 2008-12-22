@@ -136,9 +136,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     }
     
     /**
-     * Adds a new <key, value> pair to the Trie and if a pair already
-     * exists it will be replaced. In the latter case it will return
-     * the old value.
+     * {@inheritDoc}
      */
     @Override
     public V put(K key, V value) {
@@ -301,9 +299,10 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     }
 
     /**
-     * This is equivalent to the other selectR() method but without
-     * its overhead because we're selecting only one best matching
-     * Entry from the Trie.
+     * This is equivalent to the other {@link #selectR(TrieEntry, int, 
+     * Object, int, Cursor, Reference)} method but without its overhead 
+     * because we're selecting only one best matching Entry from the 
+     * {@link Trie}.
      */
     private boolean selectR(TrieEntry<K, V> h, int bitIndex, 
             final K key, final int lengthInBits, 
@@ -346,12 +345,14 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
                 Decision decision = cursor.select(h);
                 switch(decision) {
                     case REMOVE:
-                        throw new UnsupportedOperationException("cannot remove during select");
+                        throw new UnsupportedOperationException(
+                                "Cannot remove during select");
                     case EXIT:
                         reference.set(h);
                         return false; // exit
                     case REMOVE_AND_EXIT:
-                        TrieEntry<K, V> entry = new TrieEntry<K, V>(h.getKey(), h.getValue(), -1);
+                        TrieEntry<K, V> entry = new TrieEntry<K, V>(
+                                h.getKey(), h.getValue(), -1);
                         reference.set(entry);
                         removeEntry(h);
                         return false;
@@ -514,7 +515,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     }
     
     /**
-     * Removes a single entry from the Trie.
+     * Removes a single entry from the {@link Trie}.
      * 
      * If we found a Key (Entry h) then figure out if it's
      * an internal (hard to remove) or external Entry (easy 
@@ -534,7 +535,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     }
     
     /**
-     * Removes an external entry from the Trie.
+     * Removes an external entry from the {@link Trie}.
      * 
      * If it's an external Entry then just remove it.
      * This is very easy and straight forward.
@@ -565,7 +566,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     }
     
     /**
-     * Removes an internal entry from the Trie.
+     * Removes an internal entry from the {@link Trie}.
      * 
      * If it's an internal Entry then "good luck" with understanding
      * this code. The Idea is essentially that Entry p takes Entry h's
@@ -781,7 +782,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     }
     
     /**
-     * Returns the first entry the Trie is storing.
+     * Returns the first entry the {@link Trie} is storing.
      * 
      * This is implemented by going always to the left until
      * we encounter a valid uplink. That uplink is the first key.
