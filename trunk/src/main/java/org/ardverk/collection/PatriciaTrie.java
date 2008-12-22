@@ -544,7 +544,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         /**
          * The {@link #entrySet()} view
          */
-        private transient Set<Map.Entry<K, V>> entrySet;
+        private transient volatile Set<Map.Entry<K, V>> entrySet;
 
         /**
          * Creates and returns an {@link #entrySet()} 
