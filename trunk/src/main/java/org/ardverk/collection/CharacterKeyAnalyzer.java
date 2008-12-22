@@ -31,7 +31,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     /**
      * The length of a {@link Character} in bits
      */
-    public static final int LENGTH = 16;
+    public static final int LENGTH = Character.SIZE;
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
