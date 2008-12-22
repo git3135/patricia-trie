@@ -45,9 +45,9 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
      * appropriate view the first time this view is requested.  The views are
      * stateless, so there's no reason to create more than one of each.
      */
-    private transient volatile Set<K>               keySet = null;
-    private transient volatile Collection<V>        values = null;
-    private transient volatile Set<Map.Entry<K,V>>  entrySet = null;
+    private transient volatile Set<K> keySet;
+    private transient volatile Collection<V> values;
+    private transient volatile Set<Map.Entry<K,V>> entrySet;
     
     /**
      * The current size of the {@link Trie}
