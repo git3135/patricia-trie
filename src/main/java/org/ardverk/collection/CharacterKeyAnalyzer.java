@@ -125,12 +125,14 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Character prefix, int offsetInBits, int length, Character key) {
+    public boolean isPrefix(Character prefix, int offsetInBits, 
+            int lengthInBits, Character key) {
+        
         int addr1 = (prefix << offsetInBits);
         int addr2 = key;
         
         int mask = 0;
-        for(int i = 0; i < length; i++) {
+        for(int i = 0; i < lengthInBits; i++) {
             mask |= (0x1 << i);
         }
         
