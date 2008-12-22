@@ -110,6 +110,17 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
     
     /**
      * {@inheritDoc}
+     * 
+     * The view that this returns is optimized to have a very efficient
+     * {@link Iterator}. The {@link SortedMap#firstEntry()}, 
+     * {@link SortedMap#lastKey()} &amp; {@link Map#size()} methods must 
+     * iterate over all possible values in order to determine the results. 
+     * This information is cached until the PATRICIA {@link Trie} changes. 
+     * All other methods (except {@link Iterator}) must compare the given 
+     * key to the prefix to ensure that it is within the range of the view.  
+     * The {@link Iterator}'s remove method must also relocate the subtree 
+     * that contains the prefixes if the entry holding the subtree is 
+     * removed or changes. Changing the subtree takes O(K) time.
      */
     @Override
     public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits, int lengthInBits) {

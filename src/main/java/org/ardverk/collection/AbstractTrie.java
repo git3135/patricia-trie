@@ -112,20 +112,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
 
     /**
      * {@inheritDoc}
-     * 
-     * Returns a view of this map, with entries containing only those that
-     * are prefixed by a value whose bits matches the bits between 'offset'
-     * and 'length' in the given key.
-     * 
-     * The view that this returns is optimized to have a very efficient
-     * Iterator.  The {@link SortedMap#firstEntry()}, {@link SortedMap#lastKey()} &amp; 
-     * {@link Map#size()} methods must iterate over all possible values in 
-     * order to determine the results. This information is cached until the 
-     * PATRICIA {@link Trie} changes. All other methods (except Iterator) must 
-     * compare the given key to the prefix to ensure that it is within the 
-     * range of the view.  The Iterator's remove method must also relocate 
-     * the subtree that contains the prefixes if the entry holding the subtree 
-     * is removed or changes. Changing the subtree takes O(K) time.
      */
     @Override
     public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
@@ -249,33 +235,11 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         }
         
         /**
-         * 
-         */
-        public boolean compareKey(K other) {
-            return Tries.compare(key, other);
-        }
-        
-        /**
-         * 
-         */
-        public boolean compareValue(V other) {
-            return Tries.compare(value, other);
-        }
-        
-        /**
-         * 
-         */
-        public K setKey(K key) {
-            K previous = this.key;
-            this.key = key;
-            return previous;
-        }
-        
-        /**
-         * 
+         * Replaces the current key and value with the provided
+         * key &amp; value
          */
         public V setKeyValue(K key, V value) {
-            setKey(key);
+            this.key = key;
             return setValue(value);
         }
         
@@ -324,16 +288,10 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
                 return false;
             }
             
-            Map.Entry<?, ?> e = (Map.Entry<?, ?>)o;
-            Object k1 = getKey();
-            Object k2 = e.getKey();
-            
-            if (k1 == k2 || (k1 != null && k1.equals(k2))) {
-                Object v1 = getValue();
-                Object v2 = e.getValue();
-                if (v1 == v2 || (v1 != null && v1.equals(v2))) {
-                    return true;
-                }
+            Map.Entry<?, ?> other = (Map.Entry<?, ?>)o;
+            if (Tries.compare(key, other.getKey()) 
+                    && Tries.compare(value, other.getValue())) {
+                return true;
             }
             return false;
         }

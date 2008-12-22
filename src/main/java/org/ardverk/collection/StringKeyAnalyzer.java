@@ -49,6 +49,14 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
+    public int bitsPerElement() {
+        return LENGTH;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int lengthInBits(String key) {
         return (key != null ? key.length() * LENGTH : 0);
     }
@@ -142,22 +150,14 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
      * {@inheritDoc}
      */
     @Override
-    public int bitsPerElement() {
-        return LENGTH;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isPrefix(String prefix, int offset, 
+    public boolean isPrefix(String prefix, int offsetInBits, 
             int lengthInBits, String key) {
-        if (offset % LENGTH != 0 || lengthInBits % LENGTH != 0) {
+        if (offsetInBits % LENGTH != 0 || lengthInBits % LENGTH != 0) {
             throw new IllegalArgumentException(
                     "Cannot determine prefix outside of Character boundaries");
         }
     
-        String s1 = prefix.substring(offset / LENGTH, lengthInBits / LENGTH);
+        String s1 = prefix.substring(offsetInBits / LENGTH, lengthInBits / LENGTH);
         return key.startsWith(s1);
     }
 }

@@ -49,6 +49,14 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
+    public int bitsPerElement() {
+        return LENGTH;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int lengthInBits(Character key) {
         return LENGTH;
     }
@@ -77,10 +85,8 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
-        int length = Math.max(lengthInBits, otherLengthInBits);
-        
         boolean allNull = true;
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < LENGTH; i++) {
             
             int mask = mask(i);
             int a = key & mask;
@@ -111,21 +117,13 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     public int compare(Character o1, Character o2) {
         return o1.compareTo(o2);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int bitsPerElement() {
-        return LENGTH;
-    }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Character prefix, int offset, int length, Character key) {
-        int addr1 = (prefix << offset);
+    public boolean isPrefix(Character prefix, int offsetInBits, int length, Character key) {
+        int addr1 = (prefix << offsetInBits);
         int addr2 = key;
         
         int mask = 0;
