@@ -1,4 +1,4 @@
-#summary A very simple example of the PATRICIA Trie
+#summary Some very simple examples how to use the PATRICIA Trie
 
 = Simple Example =
 
@@ -16,3 +16,16 @@ trie.put("William", person5);
 // Returns Alex
 Map.Entry<String, Person> entry = trie.select("Al");
 }}}
+
+An interesting property of Tries is that they will always return something if they're not empty. An empty Trie is the only case where the select operation will return null! It's however important to understand that this Trie does not check if one key is a prefix on an another. Here is a little example that demonstrates the behavior.
+
+{{{
+// Trie of First Name -> Person
+Trie<String, Person> trie = new PatriciaTrie<String, Person>(StringKeyAnalyzer.INSTANCE);
+trie.put("Xavier", person1);
+
+// Returns Xavier
+Map.Entry<String, Person> entry = trie.select("Al");
+}}}
+
+Depending on what you are looking for you may have to do some post processing with the returned values.
