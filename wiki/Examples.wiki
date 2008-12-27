@@ -1,0 +1,18 @@
+#summary A very simple example of the PATRICIA Trie
+
+= Simple Example =
+
+This is a simple example how to use the PATRICIA Trie. The basic concept is very similar to a [http://java.sun.com/javase/6/docs/api/java/util/SortedMap.html SortedMap] which uses a [http://java.sun.com/javase/6/docs/api/java/util/Comparator.html Comparator] to compare keys. The PATRICIA Trie is a bit trickier though. It needs bitwise access to the keys. That means one must think in terms of bits and not bytes, characters or an object being greater than an another. The PATRICIA Trie's version of a Comparator is called a KeyAnalyzer and it comes with a few implementations like the StringKeyAnalyzer.
+
+{{{
+// Trie of First Name -> Person
+Trie<String, Person> trie = new PatriciaTrie<String, Person>(StringKeyAnalyzer.INSTANCE);
+trie.put("Anna", person1);
+trie.put("Alex", person2);
+trie.put("Emma", person3);
+trie.put("Patrick", person4);
+trie.put("William", person5);
+
+// Returns Alex
+Person person = trie.select("Al");
+}}}
