@@ -14,5 +14,5 @@ trie.put("Patrick", person4);
 trie.put("William", person5);
 
 // Returns Alex
-Person person = trie.select("Al");
+Map.Entry<String, Person> entry = trie.select("Al");
 }}}
