@@ -17,7 +17,7 @@ trie.put("William", person5);
 Map.Entry<String, Person> entry = trie.select("Al");
 }}}
 
-An interesting property of Tries is that they will always return something if they're not empty. An empty Trie is the only case where the select operation will return null! It's however important to understand that this Trie does not check if one key is a prefix on an another. Here is a little example that demonstrates the behavior.
+An interesting property of Tries is that they will always return something if they're not empty. An empty Trie is the only case where the select operation will return null! It's however important to understand that this Trie does not check if one key is a prefix on an another. Technically speaking it's a proximity operator (bitwise XOR distance) and it will return whatever is closest to a provided key. Here is a little example that demonstrates the behavior.
 
 {{{
 // Trie of First Name -> Person
