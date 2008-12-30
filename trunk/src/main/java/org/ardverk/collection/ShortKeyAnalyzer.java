@@ -16,22 +16,23 @@
 
 package org.ardverk.collection;
 
+
 /**
- * A {@link KeyAnalyzer} for {@link Character}s
+ * A {@link KeyAnalyzer} for {@link Short}s
  */
-public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
+public class ShortKeyAnalyzer implements KeyAnalyzer<Short> {
     
-    private static final long serialVersionUID = 3928565962744720753L;
+    private static final long serialVersionUID = -8631376733513512017L;
+
+    /**
+     * A singleton instance of {@link ShortKeyAnalyzer}
+     */
+    public static final ShortKeyAnalyzer INSTANCE = new ShortKeyAnalyzer();
     
     /**
-     * A singleton instance of the {@link CharacterKeyAnalyzer}.
+     * The length of an {@link Short} in bits
      */
-    public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
-    
-    /**
-     * The length of a {@link Character} in bits
-     */
-    public static final int LENGTH = Character.SIZE;
+    public static final int LENGTH = Short.SIZE;
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
@@ -44,7 +45,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -57,7 +58,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public int lengthInBits(Character key) {
+    public int lengthInBits(Short key) {
         return LENGTH;
     }
 
@@ -65,7 +66,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(Character key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Short key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
 
@@ -73,24 +74,20 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
-            Character other, int otherOffsetInBits, int otherLengthInBits) {
+    public int bitIndex(Short key, int offsetInBits, int lengthInBits, 
+            Short other, int otherOffsetInBits, int otherLengthInBits) {
         
         if (offsetInBits != 0 || otherOffsetInBits != 0) {
             throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
-        char keyValue = key.charValue();
-        if (keyValue == Character.MIN_VALUE) {
+        int keyValue = key.shortValue();
+        if (keyValue == 0) {
             return NULL_BIT_KEY;
         }
-        
-        if (other == null) {
-            other = Character.MIN_VALUE;
-        }
-        
-        char otherValue = (other != null ? other.charValue() : Character.MIN_VALUE);
+
+        int otherValue = (other != null ? other.shortValue() : 0);
         
         if (keyValue != otherValue) {
             int xorValue = keyValue ^ otherValue;
@@ -108,7 +105,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Character o1, Character o2) {
+    public int compare(Short o1, Short o2) {
         return o1.compareTo(o2);
     }
     
@@ -116,14 +113,14 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Character prefix, int offsetInBits, 
-            int lengthInBits, Character key) {
+    public boolean isPrefix(Short prefix, int offsetInBits, 
+            int lengthInBits, Short key) {
         
-        int value1 = (prefix.charValue() << offsetInBits);
-        int value2 = key.charValue();
+        int value1 = (prefix.shortValue() << offsetInBits);
+        int value2 = key.shortValue();
         
         int mask = 0;
-        for(int i = 0; i < lengthInBits; i++) {
+        for (int i = 0; i < lengthInBits; i++) {
             mask |= (0x1 << i);
         }
         

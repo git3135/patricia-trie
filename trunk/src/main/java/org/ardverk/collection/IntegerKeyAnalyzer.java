@@ -116,14 +116,14 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     public boolean isPrefix(Integer prefix, int offsetInBits, 
             int lengthInBits, Integer key) {
         
-        int addr1 = (prefix << offsetInBits);
-        int addr2 = key;
+        int value1 = (prefix.intValue() << offsetInBits);
+        int value2 = key.intValue();
         
         int mask = 0;
         for (int i = 0; i < lengthInBits; i++) {
             mask |= (0x1 << i);
         }
         
-        return (addr1 & mask) == (addr2 & mask);
+        return (value1 & mask) == (value2 & mask);
     }
 }
