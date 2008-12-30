@@ -16,6 +16,7 @@
 
 package org.ardverk.collection;
 
+
 /**
  * A {@link KeyAnalyzer} for {@link Integer}s
  */
@@ -76,38 +77,27 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
     public int bitIndex(Integer key, int offsetInBits, int lengthInBits, 
             Integer other, int otherOffsetInBits, int otherLengthInBits) {
         
-        if (other == null) {
-            other = 0;
-        }
-        
         if (offsetInBits != 0 || otherOffsetInBits != 0) {
             throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
-        // NOTE: We can use XOR and shifting to 
-        // determinate the different bit here!
+        int keyValue = key.intValue();
+        if (keyValue == 0) {
+            return NULL_BIT_KEY;
+        }
+
+        int otherValue = (other != null ? other.intValue() : 0);
         
-        boolean allNull = true;
-        for (int i = 0; i < LENGTH; i++) {
-            int mask = mask(i);
-            
-            int a = key & mask;
-            int b = other & mask;
-
-            if (allNull && a != 0) {
-                allNull = false;
-            }
-
-            if (a != b) {
-                return i;
+        if (keyValue != otherValue) {
+            int xorValue = keyValue ^ otherValue;
+            for (int i = 0; i < LENGTH; i++) {
+                if ((xorValue & mask(i)) != 0) {
+                    return i;
+                }
             }
         }
-
-        if (allNull) {
-            return KeyAnalyzer.NULL_BIT_KEY;
-        }
-
+        
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 

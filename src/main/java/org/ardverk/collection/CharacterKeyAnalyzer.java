@@ -76,40 +76,31 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
     public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
             Character other, int otherOffsetInBits, int otherLengthInBits) {
         
-        if (other == null) {
-            other = Character.MIN_VALUE;
-        }
-        
         if (offsetInBits != 0 || otherOffsetInBits != 0) {
             throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
-        // NOTE: We can use XOR and shifting to 
-        // determinate the different bit here!
+        int keyValue = key.charValue();
+        if (keyValue == 0) {
+            return NULL_BIT_KEY;
+        }
         
-        boolean allNull = true;
-        for (int i = 0; i < LENGTH; i++) {
-            
-            int mask = mask(i);
-            int a = key & mask;
-            int b = other & mask;
-
-            if (allNull && a != 0) {
-                allNull = false;
-            }
-
-            if (a != b) {
-                return i;
+        if (other == null) {
+            other = Character.MIN_VALUE;
+        }
+        
+        int otherValue = (other != null ? other.charValue() : Character.MIN_VALUE);
+        
+        if (keyValue != otherValue) {
+            int xorValue = keyValue ^ otherValue;
+            for (int i = 0; i < LENGTH; i++) {
+                if ((xorValue & mask(i)) != 0) {
+                    return i;
+                }
             }
         }
-
-        // All bits are 0
-        if (allNull) {
-            return KeyAnalyzer.NULL_BIT_KEY;
-        }
-
-        // Both keys are equal
+        
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 
