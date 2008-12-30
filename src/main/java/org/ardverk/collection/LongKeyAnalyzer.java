@@ -16,35 +16,36 @@
 
 package org.ardverk.collection;
 
+
 /**
- * A {@link KeyAnalyzer} for {@link Character}s
+ * A {@link KeyAnalyzer} for {@link Long}s
  */
-public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
+public class LongKeyAnalyzer implements KeyAnalyzer<Long> {
     
-    private static final long serialVersionUID = 3928565962744720753L;
+    private static final long serialVersionUID = -4119639247588227409L;
+
+    /**
+     * A singleton instance of {@link LongKeyAnalyzer}
+     */
+    public static final LongKeyAnalyzer INSTANCE = new LongKeyAnalyzer();
     
     /**
-     * A singleton instance of the {@link CharacterKeyAnalyzer}.
+     * The length of an {@link Long} in bits
      */
-    public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
-    
-    /**
-     * The length of a {@link Character} in bits
-     */
-    public static final int LENGTH = Character.SIZE;
+    public static final int LENGTH = Long.SIZE;
     
     /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final int MSB = 0x8000;
+    private static final long MSB = 0x8000000000000000L;
     
     /**
      * Returns a bit mask where the given bit is set
      */
-    private static int mask(int bit) {
+    private static long mask(int bit) {
         return MSB >>> bit;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -57,7 +58,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public int lengthInBits(Character key) {
+    public int lengthInBits(Long key) {
         return LENGTH;
     }
 
@@ -65,7 +66,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBitSet(Character key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Long key, int bitIndex, int lengthInBits) {
         return (key & mask(bitIndex)) != 0;
     }
 
@@ -73,29 +74,25 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public int bitIndex(Character key, int offsetInBits, int lengthInBits, 
-            Character other, int otherOffsetInBits, int otherLengthInBits) {
+    public int bitIndex(Long key, int offsetInBits, int lengthInBits, 
+            Long other, int otherOffsetInBits, int otherLengthInBits) {
         
         if (offsetInBits != 0 || otherOffsetInBits != 0) {
             throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
                     + ", otherOffsetInBits=" + otherOffsetInBits);
         }
         
-        char keyValue = key.charValue();
-        if (keyValue == Character.MIN_VALUE) {
+        long keyValue = key.longValue();
+        if (keyValue == 0L) {
             return NULL_BIT_KEY;
         }
-        
-        if (other == null) {
-            other = Character.MIN_VALUE;
-        }
-        
-        char otherValue = (other != null ? other.charValue() : Character.MIN_VALUE);
+
+        long otherValue = (other != null ? other.longValue() : 0L);
         
         if (keyValue != otherValue) {
-            int xorValue = keyValue ^ otherValue;
+            long xorValue = keyValue ^ otherValue;
             for (int i = 0; i < LENGTH; i++) {
-                if ((xorValue & mask(i)) != 0) {
+                if ((xorValue & mask(i)) != 0L) {
                     return i;
                 }
             }
@@ -108,7 +105,7 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(Character o1, Character o2) {
+    public int compare(Long o1, Long o2) {
         return o1.compareTo(o2);
     }
     
@@ -116,15 +113,15 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPrefix(Character prefix, int offsetInBits, 
-            int lengthInBits, Character key) {
+    public boolean isPrefix(Long prefix, int offsetInBits, 
+            int lengthInBits, Long key) {
         
-        int value1 = (prefix.charValue() << offsetInBits);
-        int value2 = key.charValue();
+        long value1 = (prefix.longValue() << offsetInBits);
+        long value2 = key.longValue();
         
-        int mask = 0;
-        for(int i = 0; i < lengthInBits; i++) {
-            mask |= (0x1 << i);
+        long mask = 0L;
+        for (int i = 0; i < lengthInBits; i++) {
+            mask |= (0x1L << i);
         }
         
         return (value1 & mask) == (value2 & mask);
