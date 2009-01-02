@@ -18,7 +18,7 @@ package org.ardverk.collection;
 
 
 /**
- * A {@link KeyAnalyzer} for {@link byte[]}s
+ * A {@link KeyAnalyzer} for byte[]s
  */
 class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     
@@ -38,6 +38,8 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
      * A bit mask where the first bit is 1 and the others are zero
      */
     private static final int MSB = 0x80;
+    
+    private static final byte[] NULL = new byte[0];
     
     /**
      * Returns a bit mask where the given bit is set
@@ -84,7 +86,46 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     public int bitIndex(byte[] key, int offsetInBits, int lengthInBits, 
             byte[] other, int otherOffsetInBits, int otherLengthInBits) {
         
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (other == null) {
+            other = NULL;
+        }
+        
+        int beginIndex1 = (int)(offsetInBits / LENGTH);
+        int beginIndex2 = (int)(otherOffsetInBits / LENGTH);
+        
+        int endIndex1 = beginIndex1 + lengthInBits / LENGTH;
+        int endIndex2 = beginIndex2 + lengthInBits / LENGTH;
+        
+        if (beginIndex1 < 0 || endIndex1 >= key.length 
+                || endIndex1 < beginIndex1 || beginIndex2 < 0 
+                || endIndex2 >= other.length || endIndex2 < beginIndex2) {
+            throw new IndexOutOfBoundsException("key.length=" + key.length 
+                    + ", offsetInBits=" + offsetInBits 
+                    + ", lengthInBits=" + lengthInBits
+                    + ", other.length=" + other.length
+                    + ", otherOffsetInBits=" + otherOffsetInBits
+                    + ", otherLengthInBits=" + otherLengthInBits);
+        }
+        
+        boolean allNull = true;
+        while (offsetInBits < lengthInBits) {
+            if (isBitSet(key, offsetInBits, lengthInBits)) {
+                allNull = false;
+                
+                if (!isBitSet(other, otherOffsetInBits, otherLengthInBits)) {
+                    return offsetInBits;
+                }
+            }
+            
+            ++offsetInBits;
+            ++otherOffsetInBits;
+        }
+        
+        if (allNull) {
+            return KeyAnalyzer.NULL_BIT_KEY;
+        }
+        
+        return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 
     /**
@@ -113,6 +154,19 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     public boolean isPrefix(byte[] prefix, int offsetInBits, 
             int lengthInBits, byte[] key) {
         
-        throw new UnsupportedOperationException("Not implemented yet");
+        int bitIndex = 0;
+        int keyLength = lengthInBits(key);
+        
+        while (offsetInBits < lengthInBits) {
+            if (isBitSet(prefix, offsetInBits, lengthInBits) 
+                    != isBitSet(key, bitIndex, keyLength)) {
+                return false;
+            }
+            
+            ++bitIndex;
+            ++offsetInBits;
+        }
+        
+        return true;
     }
 }

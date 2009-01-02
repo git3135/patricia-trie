@@ -21,7 +21,7 @@ import java.math.BigInteger;
 /**
  * A {@link KeyAnalyzer} for {@link BigInteger}s
  */
-public class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
+class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
     
     private static final long serialVersionUID = 7123669849156062477L;
     
@@ -43,7 +43,7 @@ public class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
      */
     @Override
     public int lengthInBits(BigInteger key) {
-        return (key != null ? key.bitCount() : 0);
+        return key.bitCount();
     }
 
     /**
