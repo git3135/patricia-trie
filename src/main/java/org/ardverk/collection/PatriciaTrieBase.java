@@ -196,7 +196,8 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
             }
         }
         
-        throw new IndexOutOfBoundsException("Failed to put: " + key + " -> " + value + ", " + bitIndex);
+        throw new IndexOutOfBoundsException("Failed to put: " 
+                + key + " -> " + value + ", " + bitIndex);
     }
     
     /**

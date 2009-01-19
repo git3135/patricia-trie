@@ -17,9 +17,12 @@
 package org.ardverk.collection;
 
 import java.math.BigInteger;
+import java.util.Map.Entry;
 
 /**
  * A {@link KeyAnalyzer} for {@link BigInteger}s
+ * 
+ * NOTE: THIS DOES NOT WORK YET!
  */
 class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
     
@@ -43,7 +46,7 @@ class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
      */
     @Override
     public int lengthInBits(BigInteger key) {
-        return key.bitCount();
+        return key.bitLength();
     }
 
     /**
@@ -51,9 +54,11 @@ class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
      */
     @Override
     public boolean isBitSet(BigInteger key, int bitIndex, int lengthInBits) {
-        return key.testBit(bitIndex);
+        return key.testBit(bitIndex + 1);
     }
 
+    private static final ByteArrayKeyAnalyzer FOO = ByteArrayKeyAnalyzer.INSTANCE;
+    
     /**
      * {@inheritDoc}
      */
@@ -74,17 +79,39 @@ class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
             other = BigInteger.ZERO;
         }
         
+        if (true) {
+            byte[] a = key.toByteArray();
+            byte[] b = other.toByteArray();
+            
+            return FOO.bitIndex(a, 0, a.length*8, b, 0, b.length*8);
+        }
+        
         if (!key.equals(other)) {
             BigInteger xorValue = key.xor(other);
-            int bitCount = xorValue.bitCount();
+            int bitLength = Math.max(key.bitLength(), other.bitLength());
             
-            for (int i = 0; i < bitCount; i++) {
-                if (xorValue.testBit(i)) {
-                    return i;
+            System.out.println("bitLength=" + bitLength);
+            
+            int bitIndex = 0;
+            
+            /*for (int i = 0; i < bitLength; i++) {
+                bitIndex = i;//offsetInBits + (bitLength - i - 1);
+                if (xorValue.testBit(bitIndex)) {
+                    //System.out.println(bitIndex);
+                    return bitIndex;
+                }
+            }*/
+            
+            for (int i = 0; i < bitLength; i++) {
+                bitIndex = i;//offsetInBits + (bitLength - i - 1);
+                if (key.testBit(i) != other.testBit(i)) {
+                    //System.out.println(bitIndex);
+                    return bitIndex;
                 }
             }
         }
         
+        System.out.println(key + ", " + other);
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 
@@ -112,5 +139,40 @@ class BigIntegerKeyAnalyzer implements KeyAnalyzer<BigInteger> {
         }
         
         return (value1.and(mask)).equals((value2.and(mask)));
+    }
+    
+    public static void main(String[] args) {
+        Trie<BigInteger, BigInteger> trie = new PatriciaTrie<BigInteger, BigInteger>(BigIntegerKeyAnalyzer.INSTANCE);
+        
+        for (int i = 0; i < 20; i++) {
+            trie.put(BigInteger.valueOf(i), 
+                    BigInteger.valueOf(i));
+        }
+        
+        System.out.println(trie.size());
+        System.out.println(trie);
+        
+        trie.traverse(new Cursor<BigInteger, BigInteger>() {
+            @Override
+            public Decision select(
+                    Entry<? extends BigInteger, ? extends BigInteger> entry) {
+                System.out.println(entry.getKey());
+                return Decision.CONTINUE;
+            }
+        });
+        
+        /*BigInteger value = BigInteger.valueOf(0x91);
+        System.out.println(Long.toBinaryString(value.longValue()));
+        
+        int bitLength = value.bitLength();
+        for (int i = 0; i < bitLength; i++) {
+            int bitIndex = bitLength - i - 1;
+            boolean foo = value.testBit(bitIndex);
+            System.out.println(i + ") " + foo);
+        }*/
+        
+        for (BigInteger key : trie.keySet()) {
+            System.out.println("+ " + key);
+        }
     }
 }
