@@ -16,6 +16,8 @@
 
 package org.ardverk.collection;
 
+import java.math.BigInteger;
+
 
 /**
  * A {@link KeyAnalyzer} for byte[]s
@@ -90,35 +92,23 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
             other = NULL;
         }
         
-        int beginIndex1 = (int)(offsetInBits / LENGTH);
-        int beginIndex2 = (int)(otherOffsetInBits / LENGTH);
-        
-        int endIndex1 = beginIndex1 + lengthInBits / LENGTH;
-        int endIndex2 = beginIndex2 + lengthInBits / LENGTH;
-        
-        if (beginIndex1 < 0 || endIndex1 >= key.length 
-                || endIndex1 < beginIndex1 || beginIndex2 < 0 
-                || endIndex2 >= other.length || endIndex2 < beginIndex2) {
-            throw new IndexOutOfBoundsException("key.length=" + key.length 
-                    + ", offsetInBits=" + offsetInBits 
-                    + ", lengthInBits=" + lengthInBits
-                    + ", other.length=" + other.length
-                    + ", otherOffsetInBits=" + otherOffsetInBits
-                    + ", otherLengthInBits=" + otherLengthInBits);
-        }
-        
         boolean allNull = true;
-        while (offsetInBits < lengthInBits) {
-            if (isBitSet(key, offsetInBits, lengthInBits)) {
+        int length = Math.max(key.length, other.length);
+        
+        for (int i = 0; i < length; i++) {
+            byte keyValue = (i < key.length ? key[key.length - i - 1] : 0);
+            byte otherValue = (i < other.length ? other[other.length - i - 1] : 0);
+            
+            if (keyValue != otherValue) {
+                int xor = keyValue ^ otherValue;
                 allNull = false;
                 
-                if (!isBitSet(other, otherOffsetInBits, otherLengthInBits)) {
-                    return offsetInBits;
+                for (int j = 0; j < Byte.SIZE; j++) {
+                    if ((xor & mask(j)) != 0) {
+                        return (i * Byte.SIZE) + j;
+                    }
                 }
             }
-            
-            ++offsetInBits;
-            ++otherOffsetInBits;
         }
         
         if (allNull) {
@@ -128,6 +118,10 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
 
+    private static void println(String message, byte[] value) {
+        System.out.println(message + new BigInteger(1, value).toString());
+    }
+    
     /**
      * {@inheritDoc}
      */
