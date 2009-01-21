@@ -184,6 +184,20 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
                 foundKey, 0, lengthInBits(foundKey));
     }
     
+    /**
+     * An utility method for calling {@link KeyAnalyzer#compare(Object, Object)}
+     */
+    final boolean compareKeys(K key, K other) {
+        return keyAnalyzer.compare(key, other) == 0;
+    }
+    
+    /**
+     * 
+     */
+    /*protected boolean compareValues(V value, V other) {
+        return Tries.compare(value, other);
+    }*/
+    
     /** 
      * Returns true if the given bitIndex is valid. Indices 
      * are considered valid if they're between 0 and 
