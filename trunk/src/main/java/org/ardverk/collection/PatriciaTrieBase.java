@@ -158,7 +158,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
-        if (key.equals(found.key)) {
+        if (compareKeys(key, found.key)) {
             if (found.isEmpty()) { // <- must be the root
                 incrementSize();
             } else {
@@ -272,7 +272,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         
         int lengthInBits = lengthInBits(key);
         TrieEntry<K,V> entry = getNearestEntryForKey(key, lengthInBits);
-        return !entry.isEmpty() && key.equals(entry.key) ? entry : null;
+        return !entry.isEmpty() && compareKeys(key, entry.key) ? entry : null;
     }
     
     /**
@@ -418,8 +418,8 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         
         K key = castKey(k);
         int lengthInBits = lengthInBits(key);
-        TrieEntry<?, ?> entry = getNearestEntryForKey(key, lengthInBits);
-        return !entry.isEmpty() && key.equals(entry.key);
+        TrieEntry<K, V> entry = getNearestEntryForKey(key, lengthInBits);
+        return !entry.isEmpty() && compareKeys(key, entry.key);
     }
     
     /**
@@ -472,7 +472,7 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         TrieEntry<K, V> path = root;
         while (true) {
             if (current.bitIndex <= path.bitIndex) {
-                if (!current.isEmpty() && key.equals(current.key)) {
+                if (!current.isEmpty() && compareKeys(key, current.key)) {
                     return removeEntry(current);
                 } else {
                     return null;

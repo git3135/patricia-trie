@@ -186,7 +186,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
-        if (key.equals(found.key)) {
+        if (compareKeys(key, found.key)) {
             return nextEntry(found);
         }
         
@@ -249,7 +249,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
-        if (key.equals(found.key)) {
+        if (compareKeys(key, found.key)) {
             return found;
         }
         
@@ -305,7 +305,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
-        if (key.equals(found.key)) {
+        if (compareKeys(key, found.key)) {
             return previousEntry(found);
         }
         
@@ -347,7 +347,7 @@ public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
-        if (key.equals(found.key)) {
+        if (compareKeys(key, found.key)) {
             return found;
         }
         

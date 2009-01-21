@@ -16,13 +16,11 @@
 
 package org.ardverk.collection;
 
-import java.math.BigInteger;
-
 
 /**
  * A {@link KeyAnalyzer} for byte[]s
  */
-class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
+public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     
     private static final long serialVersionUID = 7382825097492285877L;
 
@@ -75,7 +73,7 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
             return false;
         }
         
-        int index = (int)(bitIndex / LENGTH);
+        int index = key.length - (int)(bitIndex / LENGTH) - 1;
         int bit = (int)(bitIndex % LENGTH);
         
         return (key[index] & mask(bit)) != 0;
@@ -100,11 +98,11 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
             byte otherValue = (i < other.length ? other[other.length - i - 1] : 0);
             
             if (keyValue != otherValue) {
-                int xor = keyValue ^ otherValue;
+                int xorValue = keyValue ^ otherValue;
                 allNull = false;
                 
                 for (int j = 0; j < Byte.SIZE; j++) {
-                    if ((xor & mask(j)) != 0) {
+                    if ((xorValue & mask(j)) != 0) {
                         return (i * Byte.SIZE) + j;
                     }
                 }
@@ -117,16 +115,18 @@ class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-
-    private static void println(String message, byte[] value) {
-        System.out.println(message + new BigInteger(1, value).toString());
-    }
     
     /**
      * {@inheritDoc}
      */
     @Override
     public int compare(byte[] o1, byte[] o2) {
+        if (o1 == null) {
+            return (o2 == null) ? 0 : -1;
+        } else if (o2 == null) {
+            return (o1 == null) ? 0 : 1;
+        }
+        
         if (o1.length != o2.length) {
             return o1.length - o2.length;
         }
