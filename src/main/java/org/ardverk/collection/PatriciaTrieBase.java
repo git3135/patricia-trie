@@ -16,6 +16,7 @@
 
 package org.ardverk.collection;
 
+import java.math.BigInteger;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -31,7 +32,7 @@ import org.ardverk.collection.Cursor.Decision;
  * This class implements the base PATRICIA algorithm and everything that
  * is related to the {@link Map} interface.
  */
-abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
+public class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
     
     private static final long serialVersionUID = 5155253417231339498L;
 
@@ -158,6 +159,12 @@ abstract class PatriciaTrieBase<K, V> extends AbstractTrie<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
+        
+        if (key != null && found.getKey() != null) {
+            System.out.println(new BigInteger(1, (byte[])key) 
+                + " -> " + new BigInteger(1, (byte[])found.getKey()));
+        }
+        
         if (compareKeys(key, found.key)) {
             if (found.isEmpty()) { // <- must be the root
                 incrementSize();

@@ -68,7 +68,7 @@ import java.util.SortedMap;
  * @author Roger Kapsi
  * @author Sam Berlin
  */
-public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> {
+public class PatriciaTrie<K, V> extends PatriciaTrieBase<K, V> implements Trie<K, V> {
     
     private static final long serialVersionUID = 4446367780901817838L;
 

@@ -18,16 +18,14 @@ package org.ardverk.collection;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
-import java.util.Comparator;
 import java.util.Map;
-import java.util.SortedMap;
 
 /**
  * This class provides some basic {@link Trie} functionality and 
  * utility methods for actual {@link Trie} implementations.
  */
 abstract class AbstractTrie<K, V> extends AbstractMap<K, V> 
-        implements Trie<K, V>, Serializable {
+        implements Trie2<K, V>, Serializable {
     
     private static final long serialVersionUID = 5826987063535505652L;
     
@@ -54,14 +52,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     public KeyAnalyzer<? super K> getKeyAnalyzer() {
         return keyAnalyzer;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Comparator<? super K> comparator() {
-        return keyAnalyzer;
-    }
     
     /**
      * {@inheritDoc}
@@ -83,39 +73,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             return null;
         }
         return entry.getValue();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SortedMap<K, V> getPrefixedBy(K key) {
-        return getPrefixedByBits(key, 0, lengthInBits(key));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SortedMap<K, V> getPrefixedBy(K key, int length) {
-        return getPrefixedByBits(key, 0, length * bitsPerElement());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-        int bitsPerElement = bitsPerElement();
-        return getPrefixedByBits(key, offset*bitsPerElement, length*bitsPerElement);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-        return getPrefixedByBits(key, 0, lengthInBits);
     }
     
     /**
