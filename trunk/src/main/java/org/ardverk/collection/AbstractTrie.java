@@ -25,7 +25,7 @@ import java.util.Map;
  * utility methods for actual {@link Trie} implementations.
  */
 abstract class AbstractTrie<K, V> extends AbstractMap<K, V> 
-        implements Trie2<K, V>, Serializable {
+        implements Trie<K, V>, Serializable {
     
     private static final long serialVersionUID = 5826987063535505652L;
     
