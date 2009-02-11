@@ -16,6 +16,8 @@
 
 package org.ardverk.collection;
 
+import java.math.BigInteger;
+
 
 /**
  * A {@link KeyAnalyzer} for byte[]s
@@ -46,6 +48,7 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
      */
     private static int mask(int bit) {
         return MSB >>> bit;
+        //return 1 << bit;
     }
 
     /**
@@ -69,12 +72,28 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
      */
     @Override
     public boolean isBitSet(byte[] key, int bitIndex, int lengthInBits) {
-        if (key == null || bitIndex >= lengthInBits) {
+        //if (key == null || bitIndex >= lengthInBits) {
+        if (key == null) {     
+            return false;
+        }
+        
+        if (bitIndex >= lengthInBits) {
+            System.out.println(new BigInteger(1, key).toString(10) + ", bitIndex=" + bitIndex 
+                    + ", lengthInBits=" + lengthInBits);
             return false;
         }
         
         int index = key.length - (int)(bitIndex / LENGTH) - 1;
+        //int index = (int)(bitIndex / LENGTH);
         int bit = (int)(bitIndex % LENGTH);
+        int mask = mask(bit);
+        boolean hi = (key[index] & mask(bit)) != 0;
+        
+        System.out.println(new BigInteger(1, key).toString(10) + ", bitIndex=" + bitIndex 
+                + ", lengthInBits=" + lengthInBits + ", index=" + index 
+                + ", bit=" + bit + ", mask=" + mask + ", hi=" + hi 
+                + ", key.length=" + key.length
+                + ", bla=" + (int)(bitIndex / LENGTH));
         
         return (key[index] & mask(bit)) != 0;
     }
@@ -91,7 +110,7 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
         }
         
         boolean allNull = true;
-        int length = Math.max(key.length, other.length);
+        /*int length = Math.max(key.length, other.length);
         
         for (int i = 0; i < length; i++) {
             byte keyValue = (i < key.length ? key[key.length - i - 1] : 0);
@@ -106,6 +125,21 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
                         return (i * Byte.SIZE) + j;
                     }
                 }
+            }
+        }*/
+        
+        int length = Math.max(lengthInBits, otherLengthInBits);
+        for (int i = 0; i < length; i++) {
+            int index = offsetInBits + i;
+            //int index = i;
+            boolean value = isBitSet(key, index, lengthInBits);
+            
+            if (value) {
+                allNull = false;
+            }
+            
+            if (value != isBitSet(other, otherOffsetInBits+i, otherLengthInBits)) {
+                return index;
             }
         }
         
