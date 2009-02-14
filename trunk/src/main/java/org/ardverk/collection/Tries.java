@@ -42,7 +42,7 @@ public class Tries {
     /**
      * Returns a synchronized instance of a {@link Trie}
      * 
-     * @see Collections#synchronizedSortedMap(SortedMap)
+     * @see Collections#synchronizedMap(Map)
      */
     public static <K, V> Trie<K, V> synchronizedTrie(Trie<K, V> trie) {
         if (trie == null) {
@@ -57,9 +57,26 @@ public class Tries {
     }
     
     /**
+     * Returns a synchronized instance of a {@link SortedTrie}
+     * 
+     * @see Collections#synchronizedSortedMap(SortedMap)
+     */
+    public static <K, V> SortedTrie<K, V> synchronizedSortedTrie(SortedTrie<K, V> trie) {
+        if (trie == null) {
+            throw new NullPointerException("trie");
+        }
+        
+        if (trie instanceof SynchronizedSortedTrie) {
+            return trie;
+        }
+        
+        return new SynchronizedSortedTrie<K, V>(trie);
+    }
+    
+    /**
      * Returns an unmodifiable instance of a {@link Trie}
      * 
-     * @see Collections#unmodifiableSortedMap(SortedMap)
+     * @see Collections#unmodifiableMap(Map)
      */
     public static <K, V> Trie<K, V> unmodifiableTrie(Trie<K, V> trie) {
         if (trie == null) {
@@ -74,6 +91,23 @@ public class Tries {
     }
     
     /**
+     * Returns an unmodifiable instance of a {@link SortedTrie}
+     * 
+     * @see Collections#unmodifiableSortedMap(SortedMap)
+     */
+    public static <K, V> Trie<K, V> unmodifiableSortedTrie(SortedTrie<K, V> trie) {
+        if (trie == null) {
+            throw new NullPointerException("trie");
+        }
+        
+        if (trie instanceof UnmodifiableSortedTrie) {
+            return trie;
+        }
+        
+        return new UnmodifiableSortedTrie<K, V>(trie);
+    }
+    
+    /**
      * A synchronized {@link Trie}
      */
     private static class SynchronizedTrie<K, V> implements Trie<K, V>, Serializable {
@@ -82,42 +116,12 @@ public class Tries {
         
         private final Trie<K, V> delegate;
         
-        private SynchronizedTrie(Trie<K, V> delegate) {
+        public SynchronizedTrie(Trie<K, V> delegate) {
             if (delegate == null) {
                 throw new NullPointerException("delegate");
             }
             
             this.delegate = delegate;
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedBy(key, offset, length));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key, int length) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedBy(key, length));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedBy(key));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedByBits(key, lengthInBits));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedByBits(K key, 
-                int offsetInBits, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
         }
 
         @Override
@@ -145,47 +149,15 @@ public class Tries {
         public synchronized Entry<K, V> traverse(Cursor<? super K, ? super V> cursor) {
             return delegate.traverse(cursor);
         }
-
-        @Override
-        public synchronized Comparator<? super K> comparator() {
-            return delegate.comparator();
-        }
-
+        
         @Override
         public synchronized Set<Entry<K, V>> entrySet() {
             return new SynchronizedSet<Entry<K, V>>(this, delegate.entrySet());
         }
 
         @Override
-        public synchronized K firstKey() {
-            return delegate.firstKey();
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> headMap(K toKey) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.headMap(toKey));
-        }
-
-        @Override
         public synchronized Set<K> keySet() {
             return new SynchronizedSet<K>(this, delegate.keySet());
-        }
-
-        @Override
-        public synchronized K lastKey() {
-            return delegate.lastKey();
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> subMap(K fromKey, K toKey) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.subMap(fromKey, toKey));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> tailMap(K fromKey) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.tailMap(fromKey));
         }
 
         @Override
@@ -252,6 +224,84 @@ public class Tries {
         @Override
         public synchronized String toString() {
             return delegate.toString();
+        }
+    }
+    
+    /**
+     * A synchronized {@link SortedTrie}
+     */
+    private static class SynchronizedSortedTrie<K, V> extends SynchronizedTrie<K, V> 
+                implements SortedTrie<K, V>, Serializable {
+        
+        private static final long serialVersionUID = -2157692899702159431L;
+        
+        private final SortedTrie<K, V> delegate;
+        
+        public SynchronizedSortedTrie(SortedTrie<K, V> delegate) {
+            super(delegate);
+            this.delegate = delegate;
+        }
+        
+        @Override
+        public synchronized K lastKey() {
+            return delegate.lastKey();
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> subMap(K fromKey, K toKey) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.subMap(fromKey, toKey));
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> tailMap(K fromKey) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.tailMap(fromKey));
+        }
+        
+        @Override
+        public synchronized Comparator<? super K> comparator() {
+            return delegate.comparator();
+        }
+
+        @Override
+        public synchronized K firstKey() {
+            return delegate.firstKey();
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> headMap(K toKey) {
+            return new SynchronizedSortedMap<K, V>(this, delegate.headMap(toKey));
+        }
+        
+        @Override
+        public synchronized SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
+            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedBy(key, offset, length));
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> getPrefixedBy(K key, int length) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedBy(key, length));
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> getPrefixedBy(K key) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedBy(key));
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedByBits(key, lengthInBits));
+        }
+
+        @Override
+        public synchronized SortedMap<K, V> getPrefixedByBits(K key, 
+                int offsetInBits, int lengthInBits) {
+            return new SynchronizedSortedMap<K, V>(this, 
+                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
         }
     }
     
@@ -599,37 +649,6 @@ public class Tries {
         }
         
         @Override
-        public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key, offset, length));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedBy(K key, int length) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key, length));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedBy(K key) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedByBits(key, lengthInBits));
-        }
-        
-        @Override
-        public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits,
-                int lengthInBits) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
-        }
-
-        @Override
         public Entry<K, V> select(K key, final Cursor<? super K, ? super V> cursor) {
             Cursor<K, V> c = new Cursor<K, V>() {
                 @Override
@@ -683,44 +702,13 @@ public class Tries {
         }
 
         @Override
-        public Comparator<? super K> comparator() {
-            return delegate.comparator();
-        }
-
-        @Override
         public Set<Entry<K, V>> entrySet() {
             return Collections.unmodifiableSet(delegate.entrySet());
         }
-
-        @Override
-        public K firstKey() {
-            return delegate.firstKey();
-        }
-
-        @Override
-        public SortedMap<K, V> headMap(K toKey) {
-            return Collections.unmodifiableSortedMap(delegate.headMap(toKey));
-        }
-
+        
         @Override
         public Set<K> keySet() {
             return Collections.unmodifiableSet(delegate.keySet());
-        }
-
-        @Override
-        public K lastKey() {
-            return delegate.lastKey();
-        }
-
-        @Override
-        public SortedMap<K, V> subMap(K fromKey, K toKey) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.subMap(fromKey, toKey));
-        }
-
-        @Override
-        public SortedMap<K, V> tailMap(K fromKey) {
-            return Collections.unmodifiableSortedMap(delegate.tailMap(fromKey));
         }
 
         @Override
@@ -786,6 +774,84 @@ public class Tries {
         @Override
         public String toString() {
             return delegate.toString();
+        }
+    }
+    
+    /**
+     * An unmodifiable {@link SortedTrie}
+     */
+    private static class UnmodifiableSortedTrie<K, V> extends UnmodifiableTrie<K, V> 
+            implements SortedTrie<K, V>, Serializable {
+        
+        private static final long serialVersionUID = 842814912848446281L;
+        
+        private final SortedTrie<K, V> delegate;
+        
+        public UnmodifiableSortedTrie(SortedTrie<K, V> delegate) {
+            super(delegate);
+            this.delegate = delegate;
+        }
+        
+        @Override
+        public K firstKey() {
+            return delegate.firstKey();
+        }
+
+        @Override
+        public SortedMap<K, V> headMap(K toKey) {
+            return Collections.unmodifiableSortedMap(delegate.headMap(toKey));
+        }
+
+        @Override
+        public K lastKey() {
+            return delegate.lastKey();
+        }
+
+        @Override
+        public SortedMap<K, V> subMap(K fromKey, K toKey) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.subMap(fromKey, toKey));
+        }
+
+        @Override
+        public SortedMap<K, V> tailMap(K fromKey) {
+            return Collections.unmodifiableSortedMap(delegate.tailMap(fromKey));
+        }
+        
+        @Override
+        public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.getPrefixedBy(key, offset, length));
+        }
+
+        @Override
+        public SortedMap<K, V> getPrefixedBy(K key, int length) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.getPrefixedBy(key, length));
+        }
+
+        @Override
+        public SortedMap<K, V> getPrefixedBy(K key) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.getPrefixedBy(key));
+        }
+
+        @Override
+        public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.getPrefixedByBits(key, lengthInBits));
+        }
+        
+        @Override
+        public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits,
+                int lengthInBits) {
+            return Collections.unmodifiableSortedMap(
+                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+        }
+
+        @Override
+        public Comparator<? super K> comparator() {
+            return delegate.comparator();
         }
     }
 }
