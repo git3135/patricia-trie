@@ -145,6 +145,12 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
      * An utility method for calling {@link KeyAnalyzer#compare(Object, Object)}
      */
     final boolean compareKeys(K key, K other) {
+        if (key == null) {
+            return (other == null);
+        } else if (other == null) {
+            return (key == null);
+        }
+        
         return keyAnalyzer.compare(key, other) == 0;
     }
     

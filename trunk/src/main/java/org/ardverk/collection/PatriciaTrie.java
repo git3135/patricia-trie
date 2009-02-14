@@ -16,7 +16,6 @@
 
 package org.ardverk.collection;
 
-import java.math.BigInteger;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -159,12 +158,6 @@ public class PatriciaTrie<K, V> extends AbstractTrie<K, V> {
         }
         
         TrieEntry<K, V> found = getNearestEntryForKey(key, lengthInBits);
-        
-        if (key != null && found.getKey() != null) {
-            System.out.println(new BigInteger(1, (byte[])key) 
-                + " -> " + new BigInteger(1, (byte[])found.getKey()));
-        }
-        
         if (compareKeys(key, found.key)) {
             if (found.isEmpty()) { // <- must be the root
                 incrementSize();
