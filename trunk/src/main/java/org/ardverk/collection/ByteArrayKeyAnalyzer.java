@@ -29,7 +29,8 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     /**
      * A singleton instance of {@link ByteArrayKeyAnalyzer}
      */
-    public static final ByteArrayKeyAnalyzer INSTANCE = new ByteArrayKeyAnalyzer();
+    public static final ByteArrayKeyAnalyzer INSTANCE 
+        = new ByteArrayKeyAnalyzer(Integer.MAX_VALUE);
     
     /**
      * The length of an {@link Byte} in bits
@@ -43,14 +44,29 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     
     private static final byte[] NULL = new byte[0];
     
+    private final int maxLengthInBits;
+    //private final int maxLengthInBits = Integer.MAX_VALUE;
+    
+    public ByteArrayKeyAnalyzer(int maxLengthInBits) {
+        if (maxLengthInBits < 0) {
+            throw new IllegalArgumentException(
+                    "maxLengthInBits=" + maxLengthInBits);
+        }
+        
+        this.maxLengthInBits = maxLengthInBits;
+    }
+    
     /**
      * Returns a bit mask where the given bit is set
      */
     private static int mask(int bit) {
         return MSB >>> bit;
-        //return 1 << bit;
     }
 
+    public int getMaxLengthInBits() {
+        return maxLengthInBits;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -66,35 +82,25 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
     public int lengthInBits(byte[] key) {
         return key.length * bitsPerElement();
     }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean isBitSet(byte[] key, int bitIndex, int lengthInBits) {
-        //if (key == null || bitIndex >= lengthInBits) {
         if (key == null) {     
             return false;
         }
         
-        if (bitIndex >= lengthInBits) {
-            System.out.println(new BigInteger(1, key).toString(10) + ", bitIndex=" + bitIndex 
-                    + ", lengthInBits=" + lengthInBits);
+        int bla = maxLengthInBits - lengthInBits;
+        int foo = bitIndex - bla;
+        
+        if (foo >= lengthInBits || foo < 0) {
             return false;
         }
         
-        int index = key.length - (int)(bitIndex / LENGTH) - 1;
-        //int index = (int)(bitIndex / LENGTH);
-        int bit = (int)(bitIndex % LENGTH);
-        int mask = mask(bit);
-        boolean hi = (key[index] & mask(bit)) != 0;
-        
-        System.out.println(new BigInteger(1, key).toString(10) + ", bitIndex=" + bitIndex 
-                + ", lengthInBits=" + lengthInBits + ", index=" + index 
-                + ", bit=" + bit + ", mask=" + mask + ", hi=" + hi 
-                + ", key.length=" + key.length
-                + ", bla=" + (int)(bitIndex / LENGTH));
-        
+        int index = (int)(foo / LENGTH);
+        int bit = (int)(foo % LENGTH);
         return (key[index] & mask(bit)) != 0;
     }
 
@@ -110,35 +116,25 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
         }
         
         boolean allNull = true;
-        /*int length = Math.max(key.length, other.length);
-        
-        for (int i = 0; i < length; i++) {
-            byte keyValue = (i < key.length ? key[key.length - i - 1] : 0);
-            byte otherValue = (i < other.length ? other[other.length - i - 1] : 0);
-            
-            if (keyValue != otherValue) {
-                int xorValue = keyValue ^ otherValue;
-                allNull = false;
-                
-                for (int j = 0; j < Byte.SIZE; j++) {
-                    if ((xorValue & mask(j)) != 0) {
-                        return (i * Byte.SIZE) + j;
-                    }
-                }
-            }
-        }*/
-        
         int length = Math.max(lengthInBits, otherLengthInBits);
+        int prefix = maxLengthInBits - length;
+        
+        if (prefix < 0) {
+            return KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+        }
+        
         for (int i = 0; i < length; i++) {
-            int index = offsetInBits + i;
-            //int index = i;
+            int index = prefix + (offsetInBits + i);
             boolean value = isBitSet(key, index, lengthInBits);
-            
+                
             if (value) {
                 allNull = false;
             }
             
-            if (value != isBitSet(other, otherOffsetInBits+i, otherLengthInBits)) {
+            int otherIndex = prefix + (otherOffsetInBits + i);
+            boolean otherValue = isBitSet(other, otherIndex, otherLengthInBits);
+            
+            if (value != otherValue) {
                 return index;
             }
         }
@@ -196,5 +192,18 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
         }
         
         return true;
+    }
+    
+    public static void main(String[] args) {
+        ByteArrayKeyAnalyzer keyAnalyzer = ByteArrayKeyAnalyzer.INSTANCE;
+        
+        byte[] key = BigInteger.valueOf(256).toByteArray();
+        byte[] other = new byte[] { 1 };
+        
+        int bitIndex = keyAnalyzer.bitIndex(
+                key, 0, keyAnalyzer.lengthInBits(key), 
+                other, 0, keyAnalyzer.lengthInBits(other));
+        
+        System.out.println(bitIndex);
     }
 }

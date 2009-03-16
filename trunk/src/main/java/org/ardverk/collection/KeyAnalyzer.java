@@ -44,6 +44,8 @@ public interface KeyAnalyzer<K> extends Comparator<K>, Serializable {
      */
     public static final int EQUAL_BIT_KEY = -2;
     
+    public static final int OUT_OF_BOUNDS_BIT_KEY = -3;
+    
     /**
      * Returns the number of bits per element in the key.
      * This is only useful for variable-length keys, such as Strings.

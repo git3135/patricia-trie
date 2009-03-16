@@ -184,6 +184,13 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         return bitIndex == KeyAnalyzer.EQUAL_BIT_KEY;
     }
     
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#OUT_OF_BOUNDS_BIT_KEY}
+     */
+    static boolean isOutOfBoundsIndex(int bitIndex) {
+        return bitIndex == KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+    }
+    
     /**
      * A basic implementation of {@link Entry}
      */
