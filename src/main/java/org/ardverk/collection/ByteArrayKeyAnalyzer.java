@@ -92,15 +92,15 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
             return false;
         }
         
-        int bla = maxLengthInBits - lengthInBits;
-        int foo = bitIndex - bla;
+        int prefix = maxLengthInBits - lengthInBits;
+        int keyBitIndex = bitIndex - prefix;
         
-        if (foo >= lengthInBits || foo < 0) {
+        if (keyBitIndex >= lengthInBits || keyBitIndex < 0) {
             return false;
         }
         
-        int index = (int)(foo / LENGTH);
-        int bit = (int)(foo % LENGTH);
+        int index = (int)(keyBitIndex / LENGTH);
+        int bit = (int)(keyBitIndex % LENGTH);
         return (key[index] & mask(bit)) != 0;
     }
 
