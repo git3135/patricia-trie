@@ -168,31 +168,33 @@ public class PatriciaTrie<K, V> extends AbstractTrie<K, V> {
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (isValidBitIndex(bitIndex)) { // in 99.999...9% the case
-            /* NEW KEY+VALUE TUPLE */
-            TrieEntry<K, V> t = new TrieEntry<K, V>(key, value, bitIndex);
-            addEntry(t, lengthInBits);
-            incrementSize();
-            return null;
-        } else if (isNullBitKey(bitIndex)) {
-            // A bits of the Key are zero. The only place to
-            // store such a Key is the root Node!
-            
-            /* NULL BIT KEY */
-            if (root.isEmpty()) {
+        if (!isOutOfBoundsIndex(bitIndex)) {
+            if (isValidBitIndex(bitIndex)) { // in 99.999...9% the case
+                /* NEW KEY+VALUE TUPLE */
+                TrieEntry<K, V> t = new TrieEntry<K, V>(key, value, bitIndex);
+                addEntry(t, lengthInBits);
                 incrementSize();
-            } else {
-                incrementModCount();
-            }
-            return root.setKeyValue(key, value);
-            
-        } else if (isEqualBitKey(bitIndex)) {
-            // This is a very special and rare case.
-            
-            /* REPLACE OLD KEY+VALUE */
-            if (found != root) {
-                incrementModCount();
-                return found.setKeyValue(key, value);
+                return null;
+            } else if (isNullBitKey(bitIndex)) {
+                // A bits of the Key are zero. The only place to
+                // store such a Key is the root Node!
+                
+                /* NULL BIT KEY */
+                if (root.isEmpty()) {
+                    incrementSize();
+                } else {
+                    incrementModCount();
+                }
+                return root.setKeyValue(key, value);
+                
+            } else if (isEqualBitKey(bitIndex)) {
+                // This is a very special and rare case.
+                
+                /* REPLACE OLD KEY+VALUE */
+                if (found != root) {
+                    incrementModCount();
+                    return found.setKeyValue(key, value);
+                }
             }
         }
         
