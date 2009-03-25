@@ -28,6 +28,12 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
     private static final long serialVersionUID = 7123669849156062477L;
 
     /**
+     * A singleton instance of {@link ByteArrayKeyAnalyzer}
+     */
+    public static final BigIntegerKeyAnalyzer INSTANCE 
+        = new BigIntegerKeyAnalyzer(Integer.MAX_VALUE);
+    
+    /**
      * The maximum length of a key in bits
      */
     private final int maxLengthInBits;
@@ -61,7 +67,7 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
      */
     @Override
     public int lengthInBits(BigInteger key) {
-        return (key != null ? key.bitCount() : 0);
+        return (key != null ? key.bitLength() : 0);
     }
     
     /**
@@ -80,7 +86,8 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
             return false;
         }
         
-        return key.testBit(keyBitIndex);
+        int idx = lengthInBits - keyBitIndex - 1;
+        return key.testBit(idx);
     }
     
     /**
@@ -146,5 +153,16 @@ class BigIntegerKeyAnalyzer extends AbstractKeyAnalyzer<BigInteger> {
         }
         
         return true;
+    }
+    
+    public static void main(String[] args) {
+        BigInteger value = new BigInteger("101", 2);
+        
+        System.out.println(value.bitCount());
+        System.out.println(value.bitLength());
+        
+        System.out.println(value.testBit(2-0));
+        System.out.println(value.testBit(2-1));
+        System.out.println(value.testBit(2-2));
     }
 }

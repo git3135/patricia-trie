@@ -155,13 +155,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * 
-     */
-    /*protected boolean compareValues(V value, V other) {
-        return Tries.compare(value, other);
-    }*/
-    
-    /**
      * A basic implementation of {@link Entry}
      */
     abstract static class BasicEntry<K, V> implements Map.Entry<K, V>, Serializable {
