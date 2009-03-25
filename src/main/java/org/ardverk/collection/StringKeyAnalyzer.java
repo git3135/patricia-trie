@@ -19,7 +19,7 @@ package org.ardverk.collection;
 /**
  * An {@link KeyAnalyzer} for {@link String}s
  */
-public class StringKeyAnalyzer implements KeyAnalyzer<String> {
+public class StringKeyAnalyzer extends AbstractKeyAnalyzer<String> {
     
     private static final long serialVersionUID = -7032449491269434877L;
     
@@ -137,15 +137,7 @@ public class StringKeyAnalyzer implements KeyAnalyzer<String> {
         
         return (key.charAt(index) & mask(bit)) != 0;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(String o1, String o2) {
-        return o1.compareTo(o2);
-    }
-
+    
     /**
      * {@inheritDoc}
      */

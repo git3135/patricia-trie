@@ -19,14 +19,15 @@ package org.ardverk.collection;
 /**
  * A {@link KeyAnalyzer} for {@link Character}s
  */
-public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
+public class CharacterKeyAnalyzer extends AbstractKeyAnalyzer<Character> {
     
     private static final long serialVersionUID = 3928565962744720753L;
     
     /**
      * A singleton instance of the {@link CharacterKeyAnalyzer}.
      */
-    public static final CharacterKeyAnalyzer INSTANCE = new CharacterKeyAnalyzer();
+    public static final CharacterKeyAnalyzer INSTANCE 
+        = new CharacterKeyAnalyzer();
     
     /**
      * The length of a {@link Character} in bits
@@ -102,14 +103,6 @@ public class CharacterKeyAnalyzer implements KeyAnalyzer<Character> {
         }
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(Character o1, Character o2) {
-        return o1.compareTo(o2);
     }
     
     /**

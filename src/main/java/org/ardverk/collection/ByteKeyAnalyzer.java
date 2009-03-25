@@ -20,7 +20,7 @@ package org.ardverk.collection;
 /**
  * A {@link KeyAnalyzer} for {@link Byte}s
  */
-public class ByteKeyAnalyzer implements KeyAnalyzer<Byte> {
+public class ByteKeyAnalyzer extends AbstractKeyAnalyzer<Byte> {
     
     private static final long serialVersionUID = 3395803342983289829L;
 
@@ -99,14 +99,6 @@ public class ByteKeyAnalyzer implements KeyAnalyzer<Byte> {
         }
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(Byte o1, Byte o2) {
-        return o1.compareTo(o2);
     }
     
     /**

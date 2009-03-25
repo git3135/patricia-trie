@@ -20,7 +20,7 @@ package org.ardverk.collection;
 /**
  * A {@link KeyAnalyzer} for {@link Integer}s
  */
-public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
+public class IntegerKeyAnalyzer extends AbstractKeyAnalyzer<Integer> {
     
     private static final long serialVersionUID = 4928508653722068982L;
     
@@ -99,14 +99,6 @@ public class IntegerKeyAnalyzer implements KeyAnalyzer<Integer> {
         }
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(Integer o1, Integer o2) {
-        return o1.compareTo(o2);
     }
     
     /**
