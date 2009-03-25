@@ -168,14 +168,14 @@ public class PatriciaTrie<K, V> extends AbstractTrie<K, V> {
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (!isOutOfBoundsIndex(bitIndex)) {
-            if (isValidBitIndex(bitIndex)) { // in 99.999...9% the case
+        if (!AbstractKeyAnalyzer.isOutOfBoundsIndex(bitIndex)) {
+            if (AbstractKeyAnalyzer.isValidBitIndex(bitIndex)) { // in 99.999...9% the case
                 /* NEW KEY+VALUE TUPLE */
                 TrieEntry<K, V> t = new TrieEntry<K, V>(key, value, bitIndex);
                 addEntry(t, lengthInBits);
                 incrementSize();
                 return null;
-            } else if (isNullBitKey(bitIndex)) {
+            } else if (AbstractKeyAnalyzer.isNullBitKey(bitIndex)) {
                 // A bits of the Key are zero. The only place to
                 // store such a Key is the root Node!
                 
@@ -187,7 +187,7 @@ public class PatriciaTrie<K, V> extends AbstractTrie<K, V> {
                 }
                 return root.setKeyValue(key, value);
                 
-            } else if (isEqualBitKey(bitIndex)) {
+            } else if (AbstractKeyAnalyzer.isEqualBitKey(bitIndex)) {
                 // This is a very special and rare case.
                 
                 /* REPLACE OLD KEY+VALUE */

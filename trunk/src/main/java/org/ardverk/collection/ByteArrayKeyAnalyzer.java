@@ -19,7 +19,7 @@ package org.ardverk.collection;
 /**
  * A {@link KeyAnalyzer} for byte[]s
  */
-public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
+public class ByteArrayKeyAnalyzer extends AbstractKeyAnalyzer<byte[]> {
     
     private static final long serialVersionUID = 7382825097492285877L;
 
@@ -85,7 +85,7 @@ public class ByteArrayKeyAnalyzer implements KeyAnalyzer<byte[]> {
      */
     @Override
     public int lengthInBits(byte[] key) {
-        return key.length * bitsPerElement();
+        return (key != null ? key.length * bitsPerElement() : 0);
     }
     
     /**

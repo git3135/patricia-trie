@@ -232,7 +232,7 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (isValidBitIndex(bitIndex)) {
+        if (AbstractKeyAnalyzer.isValidBitIndex(bitIndex)) {
             TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
             addEntry(added, lengthInBits);
             incrementSize(); // must increment because remove will decrement
@@ -240,7 +240,7 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
             removeEntry(added);
             modCount -= 2; // we didn't really modify it.
             return ceil;
-        } else if (isNullBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isNullBitKey(bitIndex)) {
             if (!root.isEmpty()) {
                 return firstEntry();
             } else if (size() > 1) {
@@ -248,7 +248,7 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
             } else {
                 return null;
             }
-        } else if (isEqualBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isEqualBitKey(bitIndex)) {
             return nextEntry(found);
         }
 
@@ -295,7 +295,7 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (isValidBitIndex(bitIndex)) {
+        if (AbstractKeyAnalyzer.isValidBitIndex(bitIndex)) {
             TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
             addEntry(added, lengthInBits);
             incrementSize(); // must increment because remove will decrement
@@ -303,13 +303,13 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
             removeEntry(added);
             modCount -= 2; // we didn't really modify it.
             return ceil;
-        } else if (isNullBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isNullBitKey(bitIndex)) {
             if (!root.isEmpty()) {
                 return root;
             } else {
                 return firstEntry();
             }
-        } else if (isEqualBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isEqualBitKey(bitIndex)) {
             return found;
         }
 
@@ -351,7 +351,7 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (isValidBitIndex(bitIndex)) {
+        if (AbstractKeyAnalyzer.isValidBitIndex(bitIndex)) {
             TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
             addEntry(added, lengthInBits);
             incrementSize(); // must increment because remove will decrement
@@ -359,9 +359,9 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
             removeEntry(added);
             modCount -= 2; // we didn't really modify it.
             return prior;
-        } else if (isNullBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isNullBitKey(bitIndex)) {
             return null;
-        } else if (isEqualBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isEqualBitKey(bitIndex)) {
             return previousEntry(found);
         }
 
@@ -393,7 +393,7 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
         }
         
         int bitIndex = bitIndex(key, found.key);
-        if (isValidBitIndex(bitIndex)) {
+        if (AbstractKeyAnalyzer.isValidBitIndex(bitIndex)) {
             TrieEntry<K, V> added = new TrieEntry<K, V>(key, null, bitIndex);
             addEntry(added, lengthInBits);
             incrementSize(); // must increment because remove will decrement
@@ -401,13 +401,13 @@ public class SortedPatriciaTrie<K, V> extends PatriciaTrie<K, V> implements Sort
             removeEntry(added);
             modCount -= 2; // we didn't really modify it.
             return floor;
-        } else if (isNullBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isNullBitKey(bitIndex)) {
             if (!root.isEmpty()) {
                 return root;
             } else {
                 return null;
             }
-        } else if (isEqualBitKey(bitIndex)) {
+        } else if (AbstractKeyAnalyzer.isEqualBitKey(bitIndex)) {
             return found;
         }
 

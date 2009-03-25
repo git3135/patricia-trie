@@ -161,36 +161,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         return Tries.compare(value, other);
     }*/
     
-    /** 
-     * Returns true if the given bitIndex is valid. Indices 
-     * are considered valid if they're between 0 and 
-     * {@link Integer#MAX_VALUE}
-     */
-    static boolean isValidBitIndex(int bitIndex) {
-        return 0 <= bitIndex && bitIndex <= Integer.MAX_VALUE;
-    }
-    
-    /** 
-     * Returns true if bitIndex is a {@link KeyAnalyzer#NULL_BIT_KEY} 
-     */
-    static boolean isNullBitKey(int bitIndex) {
-        return bitIndex == KeyAnalyzer.NULL_BIT_KEY;
-    }
-    
-    /** 
-     * Returns true if bitIndex is a {@link KeyAnalyzer#EQUAL_BIT_KEY}
-     */
-    static boolean isEqualBitKey(int bitIndex) {
-        return bitIndex == KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-    
-    /** 
-     * Returns true if bitIndex is a {@link KeyAnalyzer#OUT_OF_BOUNDS_BIT_KEY}
-     */
-    static boolean isOutOfBoundsIndex(int bitIndex) {
-        return bitIndex == KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
-    }
-    
     /**
      * A basic implementation of {@link Entry}
      */

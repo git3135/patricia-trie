@@ -20,7 +20,7 @@ package org.ardverk.collection;
 /**
  * A {@link KeyAnalyzer} for {@link Long}s
  */
-public class LongKeyAnalyzer implements KeyAnalyzer<Long> {
+public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
     
     private static final long serialVersionUID = -4119639247588227409L;
 
@@ -99,14 +99,6 @@ public class LongKeyAnalyzer implements KeyAnalyzer<Long> {
         }
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(Long o1, Long o2) {
-        return o1.compareTo(o2);
     }
     
     /**
