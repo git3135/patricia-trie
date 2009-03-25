@@ -42,9 +42,13 @@ public class ByteArrayKeyAnalyzerTest {
             BigInteger value = BigInteger.valueOf(i);
             byte[] key = toByteArray(value);
             
-            trie.put(key, value);
+            BigInteger existing = trie.put(key, value);
+            TestCase.assertNull(existing);
+            
             map.put(key, value);
         }
+        
+        TestCase.assertEquals(map.size(), trie.size());
         
         for (byte[] key : map.keySet()) {
             BigInteger expected = new BigInteger(1, key);
