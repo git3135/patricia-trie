@@ -41,7 +41,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testSimple() {
-        SortedPatriciaTrie<Integer, String> intTrie = new SortedPatriciaTrie<Integer, String>(new IntegerKeyAnalyzer());
+        PatriciaTrie<Integer, String> intTrie = new PatriciaTrie<Integer, String>(new IntegerKeyAnalyzer());
         TestCase.assertTrue(intTrie.isEmpty());
         TestCase.assertEquals(0, intTrie.size());
         
@@ -65,8 +65,8 @@ public class PatriciaTrieTest {
     
     @Test
     public void testCeilingEntry() {
-        SortedPatriciaTrie<Character, String> charTrie 
-            = new SortedPatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
+        PatriciaTrie<Character, String> charTrie 
+            = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
         charTrie.put('p', "p");
         charTrie.put('l', "l");
@@ -158,7 +158,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testLowerEntry() {
-        SortedPatriciaTrie<Character, String> charTrie = new SortedPatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
+        PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
         charTrie.put('p', "p");
         charTrie.put('l', "l");
@@ -270,7 +270,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testIteration() {
-        SortedPatriciaTrie<Integer, String> intTrie = new SortedPatriciaTrie<Integer, String>(new IntegerKeyAnalyzer());
+        PatriciaTrie<Integer, String> intTrie = new PatriciaTrie<Integer, String>(new IntegerKeyAnalyzer());
         intTrie.put(1, "One");
         intTrie.put(5, "Five");
         intTrie.put(4, "Four");
@@ -304,7 +304,7 @@ public class PatriciaTrieTest {
             cursor.checkValue(string);
         cursor.finished();
 
-        SortedPatriciaTrie<Character, String> charTrie = new SortedPatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
+        PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
         charTrie.put('p', "p");
         charTrie.put('l', "l");
@@ -360,7 +360,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testSelect() {
-        SortedPatriciaTrie<Character, String> charTrie = new SortedPatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
+        PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
         charTrie.put('p', "p");
         charTrie.put('l', "l");
@@ -405,7 +405,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testTraverseCursorRemove() {
-        SortedPatriciaTrie<Character, String> charTrie = new SortedPatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
+        PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
         charTrie.put('p', "p");
         charTrie.put('l', "l");
@@ -473,7 +473,7 @@ public class PatriciaTrieTest {
     
     @Test
     public void testIteratorRemove() {
-        SortedPatriciaTrie<Character, String> charTrie = new SortedPatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
+        PatriciaTrie<Character, String> charTrie = new PatriciaTrie<Character, String>(new CharacterKeyAnalyzer());
         charTrie.put('c', "c");
         charTrie.put('p', "p");
         charTrie.put('l', "l");
@@ -543,7 +543,7 @@ public class PatriciaTrieTest {
         List<String> original = new ArrayList<String>();
         List<String> control = new ArrayList<String>();
         SortedMap<String, String> sortedControl = new TreeMap<String, String>();
-        SortedPatriciaTrie<String, String> trie = new SortedPatriciaTrie<String, String>(new StringKeyAnalyzer());
+        PatriciaTrie<String, String> trie = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         InputStream in = getClass().getResourceAsStream("hamlet.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -648,8 +648,8 @@ public class PatriciaTrieTest {
     
     @Test
     public void testPrefixedBy() {
-        SortedPatriciaTrie<String, String> trie 
-            = new SortedPatriciaTrie<String, String>(new StringKeyAnalyzer());
+        PatriciaTrie<String, String> trie 
+            = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         final String[] keys = new String[]{
                 "", 
@@ -877,8 +877,8 @@ public class PatriciaTrieTest {
     
     @Test
     public void testPrefixByOffsetAndLength() {
-        SortedPatriciaTrie<String, String> trie 
-            = new SortedPatriciaTrie<String, String>(new StringKeyAnalyzer());
+        PatriciaTrie<String, String> trie 
+            = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         final String[] keys = new String[]{
                 "Albert", "Xavier", "XyZ", "Anna", "Alien", "Alberto",
@@ -937,8 +937,8 @@ public class PatriciaTrieTest {
     
     @Test
     public void testPrefixedByRemoval() {
-        SortedPatriciaTrie<String, String> trie 
-            = new SortedPatriciaTrie<String, String>(new StringKeyAnalyzer());
+        PatriciaTrie<String, String> trie 
+            = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         final String[] keys = new String[]{
                 "Albert", "Xavier", "XyZ", "Anna", "Alien", "Alberto",
@@ -980,8 +980,8 @@ public class PatriciaTrieTest {
 
     @Test
     public void testTraverseWithAllNullBitKey() {
-        SortedPatriciaTrie<String, String> trie 
-            = new SortedPatriciaTrie<String, String>(new StringKeyAnalyzer());
+        PatriciaTrie<String, String> trie 
+            = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         //
         // One entry in the Trie
@@ -1016,8 +1016,8 @@ public class PatriciaTrieTest {
     
     @Test
     public void testSelectWithAllNullBitKey() {
-        SortedPatriciaTrie<String, String> trie 
-            = new SortedPatriciaTrie<String, String>(new StringKeyAnalyzer());
+        PatriciaTrie<String, String> trie 
+            = new PatriciaTrie<String, String>(new StringKeyAnalyzer());
         
         // trie.put("", "All Bits Are Zero");
         trie.put("\0", "All Bits Are Zero");

@@ -57,23 +57,6 @@ public class Tries {
     }
     
     /**
-     * Returns a synchronized instance of a {@link SortedTrie}
-     * 
-     * @see Collections#synchronizedSortedMap(SortedMap)
-     */
-    public static <K, V> SortedTrie<K, V> synchronizedSortedTrie(SortedTrie<K, V> trie) {
-        if (trie == null) {
-            throw new NullPointerException("trie");
-        }
-        
-        if (trie instanceof SynchronizedSortedTrie) {
-            return trie;
-        }
-        
-        return new SynchronizedSortedTrie<K, V>(trie);
-    }
-    
-    /**
      * Returns an unmodifiable instance of a {@link Trie}
      * 
      * @see Collections#unmodifiableMap(Map)
@@ -88,23 +71,6 @@ public class Tries {
         }
         
         return new UnmodifiableTrie<K, V>(trie);
-    }
-    
-    /**
-     * Returns an unmodifiable instance of a {@link SortedTrie}
-     * 
-     * @see Collections#unmodifiableSortedMap(SortedMap)
-     */
-    public static <K, V> Trie<K, V> unmodifiableSortedTrie(SortedTrie<K, V> trie) {
-        if (trie == null) {
-            throw new NullPointerException("trie");
-        }
-        
-        if (trie instanceof UnmodifiableSortedTrie) {
-            return trie;
-        }
-        
-        return new UnmodifiableSortedTrie<K, V>(trie);
     }
     
     /**
@@ -205,42 +171,6 @@ public class Tries {
         public synchronized V remove(Object key) {
             return delegate.remove(key);
         }
-
-        @Override
-        public synchronized int size() {
-            return delegate.size();
-        }
-        
-        @Override
-        public synchronized int hashCode() {
-            return delegate.hashCode();
-        }
-        
-        @Override
-        public synchronized boolean equals(Object obj) {
-            return delegate.equals(obj);
-        }
-        
-        @Override
-        public synchronized String toString() {
-            return delegate.toString();
-        }
-    }
-    
-    /**
-     * A synchronized {@link SortedTrie}
-     */
-    private static class SynchronizedSortedTrie<K, V> extends SynchronizedTrie<K, V> 
-                implements SortedTrie<K, V>, Serializable {
-        
-        private static final long serialVersionUID = -2157692899702159431L;
-        
-        private final SortedTrie<K, V> delegate;
-        
-        public SynchronizedSortedTrie(SortedTrie<K, V> delegate) {
-            super(delegate);
-            this.delegate = delegate;
-        }
         
         @Override
         public synchronized K lastKey() {
@@ -302,6 +232,26 @@ public class Tries {
                 int offsetInBits, int lengthInBits) {
             return new SynchronizedSortedMap<K, V>(this, 
                     delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+        }
+
+        @Override
+        public synchronized int size() {
+            return delegate.size();
+        }
+        
+        @Override
+        public synchronized int hashCode() {
+            return delegate.hashCode();
+        }
+        
+        @Override
+        public synchronized boolean equals(Object obj) {
+            return delegate.equals(obj);
+        }
+        
+        @Override
+        public synchronized String toString() {
+            return delegate.toString();
         }
     }
     
@@ -757,42 +707,6 @@ public class Tries {
         }
 
         @Override
-        public int size() {
-            return delegate.size();
-        }
-        
-        @Override
-        public int hashCode() {
-            return delegate.hashCode();
-        }
-        
-        @Override
-        public boolean equals(Object obj) {
-            return delegate.equals(obj);
-        }
-        
-        @Override
-        public String toString() {
-            return delegate.toString();
-        }
-    }
-    
-    /**
-     * An unmodifiable {@link SortedTrie}
-     */
-    private static class UnmodifiableSortedTrie<K, V> extends UnmodifiableTrie<K, V> 
-            implements SortedTrie<K, V>, Serializable {
-        
-        private static final long serialVersionUID = 842814912848446281L;
-        
-        private final SortedTrie<K, V> delegate;
-        
-        public UnmodifiableSortedTrie(SortedTrie<K, V> delegate) {
-            super(delegate);
-            this.delegate = delegate;
-        }
-        
-        @Override
         public K firstKey() {
             return delegate.firstKey();
         }
@@ -852,6 +766,26 @@ public class Tries {
         @Override
         public Comparator<? super K> comparator() {
             return delegate.comparator();
+        }
+        
+        @Override
+        public int size() {
+            return delegate.size();
+        }
+        
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            return delegate.equals(obj);
+        }
+        
+        @Override
+        public String toString() {
+            return delegate.toString();
         }
     }
 }
