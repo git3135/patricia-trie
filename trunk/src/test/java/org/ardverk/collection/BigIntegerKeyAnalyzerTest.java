@@ -22,6 +22,7 @@ public class BigIntegerKeyAnalyzerTest {
             = new TreeMap<BigInteger, BigInteger>(
                     BigIntegerKeyAnalyzer.INSTANCE);
         
+        // Fill the Trie and the Map
         for (int i = 0; i < SIZE; i++) {
             BigInteger value = BigInteger.valueOf(i);
             
@@ -33,6 +34,8 @@ public class BigIntegerKeyAnalyzerTest {
         
         TestCase.assertEquals(map.size(), trie.size());
         
+        // Check if all values are there *AND* if they are in
+        // the same order!
         for (BigInteger expected : map.keySet()) {
             BigInteger value = trie.get(expected);
             
