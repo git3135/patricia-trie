@@ -2,8 +2,10 @@
 	
 	<property name="version" value="0.2"/>
 	
+	<property name="patricia-trie" value="patricia-trie-${version}"/>
+	
 	<property name="build" location="build"/>
-	<property name="dist" location="dist"/>
+	<property name="dist" location="dist/${patricia-trie}"/>
 	
 	<property name="src" location="src/main/java"/>
 	<property name="rsrc" location="resources/main/java"/>
@@ -13,7 +15,7 @@
 	<property name="build.resources" location="${build}/resources"/>
 	<property name="build.lib" location="${build}/lib"/>
 	
-	<property name="patricia-trie-jar" location="${build.lib}/patricia-trie-${version}.jar"/>
+	<property name="patricia-trie-jar" location="${build.lib}/${patricia-trie}.jar"/>
 		
 	<target name="init">
 		<tstamp/>
