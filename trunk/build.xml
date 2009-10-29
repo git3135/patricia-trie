@@ -61,7 +61,7 @@
 			windowtitle="Patricia Trie">
 			
 			<doctitle><![CDATA[<h1>Patricia Trie</h1>]]></doctitle>
-			<bottom><![CDATA[<i>Copyright &#169; 2005-2008 Roger Kapsi, Sam Berlin. All Rights Reserved.</i>]]></bottom>
+			<bottom><![CDATA[<i>Copyright &#169; 2005-2009 Roger Kapsi, Sam Berlin. All Rights Reserved.</i>]]></bottom>
 			<link offline="true" href="http://java.sun.com/javase/6/docs/api" packagelistLoc="${javadoc.dir}"/>
 		</javadoc>
 	</target>
