@@ -1,5 +1,7 @@
 <project name="Patricia-Trie" default="dist" basedir=".">
 	
+	<property name="version" value="0.2"/>
+	
 	<property name="build" location="build"/>
 	<property name="dist" location="dist"/>
 	
@@ -11,7 +13,7 @@
 	<property name="build.resources" location="${build}/resources"/>
 	<property name="build.lib" location="${build}/lib"/>
 	
-	<property name="patricia-trie-jar" location="${build.lib}/patricia-trie.jar"/>
+	<property name="patricia-trie-jar" location="${build.lib}/patricia-trie-${version}.jar"/>
 		
 	<target name="init">
 		<tstamp/>
@@ -50,7 +52,7 @@
 		<copy file="RELEASE-NOTES.txt" todir="${dist}"/>
 		<copy file="${patricia-trie-jar}" todir="${dist}"/>
 		
-		<property name="javadoc.dir" location="/Users/roger/Desktop/java/docs/api"/>
+		<property name="javadoc.dir" location="/home/roger/Desktop/docs/api"/>
 		
 		<javadoc
 			sourcepath="${src}"
